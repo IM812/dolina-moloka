@@ -1,97 +1,92 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Leaf, Truck, FlaskConical, Award, Clock, Heart } from "lucide-react";
 
 const advantages = [
   {
-    icon: Leaf,
-    title: "100% натуральный состав",
-    description: "Только молоко и живые закваски. Никаких консервантов, стабилизаторов или красителей.",
+    number: "01",
+    title: "Свежие поставки",
+    description: "Продукты доставляются дважды в неделю. Вы всегда получаете максимально свежий товар прямо с производства.",
+    color: "from-blue-50 to-white",
+    accent: "text-blue-400",
   },
   {
-    icon: Award,
+    number: "02",
+    title: "Натуральный состав",
+    description: "Только молоко и живые закваски. Никаких консервантов, стабилизаторов, красителей или ароматизаторов.",
+    color: "from-green-50 to-white",
+    accent: "text-[var(--brand-green)]",
+  },
+  {
+    number: "03",
+    title: "Проверенные производители",
+    description: "Работаем только с фермерами, чью продукцию регулярно проверяем. Все поставщики имеют сертификаты.",
+    color: "from-amber-50 to-white",
+    accent: "text-amber-500",
+  },
+  {
+    number: "04",
+    title: "Удобная доставка",
+    description: "Заказы принимаются до 22:00, сборка и доставка — в течение следующего дня. Всё просто.",
+    color: "from-purple-50 to-white",
+    accent: "text-purple-400",
+  },
+  {
+    number: "05",
     title: "Контроль качества",
-    description: "Каждая партия проходит лабораторный контроль. Сертификаты на все виды продукции.",
-  },
-  {
-    icon: FlaskConical,
-    title: "Живые культуры",
-    description: "Кефир, йогурт и ряженка содержат живые молочнокислые бактерии — полезные для кишечника.",
-  },
-  {
-    icon: Clock,
-    title: "Свежесть гарантирована",
-    description: "Продукты доставляются дважды в неделю. Максимальная свежесть при получении.",
-  },
-  {
-    icon: Truck,
-    title: "Удобный самовывоз",
-    description: "5 точек выдачи в Москве и Подмосковье. Заказ готов к выдаче в удобное время.",
-  },
-  {
-    icon: Heart,
-    title: "Для всей семьи",
-    description: "Продукты подходят детям с 1 года, спортсменам и всем, кто следит за питанием.",
+    description: "Каждая партия проходит лабораторный контроль. Сертификаты качества доступны по запросу.",
+    color: "from-rose-50 to-white",
+    accent: "text-rose-400",
   },
 ];
 
-const container = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
 
 export function AdvantagesSection() {
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <section className="py-24 md:py-32 bg-background">
+      <div className="container mx-auto px-6 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.6 }}
+          className="max-w-xl mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">
-            Почему выбирают нас
+          <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium block mb-4">
+            Наши преимущества
+          </span>
+          <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground leading-tight">
+            Почему нас выбирают снова и снова
           </h2>
-          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Мы не идём на компромисс с качеством
-          </p>
         </motion.div>
 
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {advantages.map((adv) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {advantages.map((adv, i) => (
             <motion.div
-              key={adv.title}
-              variants={item}
-              className="bg-secondary border border-border rounded-2xl p-6 flex flex-col gap-4 hover:border-primary/30 hover:shadow-md transition-all duration-300"
+              key={adv.number}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.08 }}
+              className={`group relative bg-gradient-to-br ${adv.color} border border-border rounded-3xl p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-default overflow-hidden`}
             >
-              <div className="size-12 bg-accent rounded-xl flex items-center justify-center">
-                <adv.icon className="size-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-1.5">{adv.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+              <span className={`font-heading text-7xl font-bold ${adv.accent} opacity-15 absolute -top-3 -right-2 select-none`}>
+                {adv.number}
+              </span>
+              <div className="relative">
+                <span className={`font-mono text-xs font-semibold tracking-widest ${adv.accent} block mb-4`}>
+                  {adv.number}
+                </span>
+                <h3 className="font-heading text-xl font-bold text-foreground mb-3">
+                  {adv.title}
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {adv.description}
                 </p>
               </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -2,46 +2,45 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 export function CtaSection() {
   return (
-    <section className="py-20 bg-primary">
-      <div className="container mx-auto px-4 max-w-4xl text-center">
+    <section className="relative py-32 md:py-44 overflow-hidden bg-foreground">
+      {/* Subtle gradient orbs */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[var(--brand-green)]/10 blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 container mx-auto px-6 max-w-5xl text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col items-center gap-6"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center gap-8"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground text-balance">
-            Попробуйте натуральную молочку
+          <span className="text-white/40 text-xs tracking-[0.25em] uppercase">Начните сегодня</span>
+
+          <h2 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] text-balance">
+            Попробуйте вкус
+            <br />
+            <span className="text-white/60">настоящих</span> молочных продуктов
           </h2>
-          <p className="text-primary-foreground/80 text-lg max-w-xl leading-relaxed">
-            Оформите первый заказ и убедитесь в разнице. Без искусственных
-            добавок, без компромиссов — только вкус настоящих продуктов.
+
+          <p className="text-white/50 text-lg md:text-xl max-w-lg leading-relaxed">
+            Оформите заказ за несколько минут. Доставим свежее прямо к вашей двери.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link href="/catalog">
-              <Button
-                size="lg"
-                className="bg-background text-foreground hover:bg-background/90 gap-2 w-full sm:w-auto"
-              >
-                Смотреть каталог
-                <ArrowRight className="size-4" data-icon="inline-end" />
-              </Button>
-            </Link>
-            <Link href="/contacts">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 w-full sm:w-auto"
-              >
-                Связаться с нами
-              </Button>
-            </Link>
-          </div>
+
+          <Link href="/catalog">
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-3 bg-white text-foreground font-semibold px-10 py-5 rounded-full text-base hover:bg-white/90 transition-colors shadow-2xl"
+            >
+              Перейти в каталог
+              <ArrowRight className="size-5" />
+            </motion.button>
+          </Link>
         </motion.div>
       </div>
     </section>
