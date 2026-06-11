@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ShoppingCart, Menu, X, Milk } from "lucide-react";
+import { ShoppingCart, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/", label: "Главная" },
@@ -44,14 +45,15 @@ export function Header() {
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="size-9 rounded-xl bg-primary flex items-center justify-center shadow-sm group-hover:bg-primary/90 transition-colors">
-              <Milk className="size-5 text-primary-foreground" />
-            </div>
-            <span className="font-semibold text-lg text-foreground leading-tight">
-              Долина<br className="hidden sm:block" />
-              <span className="text-primary"> молока</span>
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/logo.jpg"
+              alt="Долина молока"
+              width={120}
+              height={48}
+              className="h-12 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              priority
+            />
           </Link>
 
           {/* Desktop nav */}

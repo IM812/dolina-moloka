@@ -3,7 +3,7 @@ import { ProductCard } from "@/components/products/product-card";
 import { AdvantagesSection } from "@/components/home/advantages-section";
 import { HowToOrderSection } from "@/components/home/how-to-order-section";
 import { DeliverySection } from "@/components/home/delivery-section";
-import { ReviewsSection } from "@/components/home/reviews-section";
+
 import { FaqSection } from "@/components/home/faq-section";
 import { CtaSection } from "@/components/home/cta-section";
 import { products } from "@/lib/mock-data";
@@ -56,7 +56,6 @@ export default function HomePage() {
       <AdvantagesSection />
       <HowToOrderSection />
       <DeliverySection />
-      <ReviewsSection />
       <FaqSection />
       <CtaSection />
     </>

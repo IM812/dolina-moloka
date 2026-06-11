@@ -1,84 +1,131 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Clock, Calendar } from "lucide-react";
-import { pickupPoints } from "@/lib/mock-data";
+import { Truck, Calendar, Clock, MapPin, ShieldCheck } from "lucide-react";
+
+const deliveryItems = [
+  {
+    icon: Calendar,
+    title: "График доставки",
+    desc: "Четверг и воскресенье, с 10:00 до 19:00. Заказы принимаются заранее.",
+  },
+  {
+    icon: Clock,
+    title: "Дедлайн заказа",
+    desc: "На четверг — до вторника 20:00. На воскресенье — до пятницы 20:00.",
+  },
+  {
+    icon: MapPin,
+    title: "Зона доставки",
+    desc: "Москва и ближайшее Подмосковье в радиусе 30 км от МКАД.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Качество при доставке",
+    desc: "Все продукты перевозятся в холодильных контейнерах. Температурная цепочка не прерывается.",
+  },
+  {
+    icon: Truck,
+    title: "Стоимость доставки",
+    desc: "Доставка от 500 рублей. При заказе от 2 000 рублей — бесплатно.",
+  },
+];
 
 export function DeliverySection() {
   return (
-    <section id="delivery" className="py-20 bg-background">
+    <section id="delivery" className="py-24 bg-secondary">
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          {/* Left: text */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.55 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">
-              Доставка и точки выдачи
+            <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-4">
+              Доставка
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-5 text-balance leading-tight">
+              Свежие продукты — прямо к вашей двери
             </h2>
-            <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-              Мы доставляем продукты дважды в неделю. Заказы принимаются до
-              вторника 20:00 (доставка в четверг) и до пятницы 20:00 (доставка
-              в воскресенье).
+            <p className="text-muted-foreground text-lg leading-relaxed mb-10">
+              Мы доставляем дважды в неделю. Каждый заказ собирается в день
+              доставки — никаких залежавшихся продуктов.
             </p>
 
-            <div className="flex flex-col gap-5">
-              {[
-                {
-                  icon: Calendar,
-                  title: "График доставки",
-                  desc: "Четверг и воскресенье, с 10:00 до 19:00",
-                },
-                {
-                  icon: Clock,
-                  title: "Срок хранения в точке",
-                  desc: "Продукты хранятся в холодильнике до 24 часов",
-                },
-                {
-                  icon: MapPin,
-                  title: "Зона доставки",
-                  desc: "Москва и ближайшее Подмосковье",
-                },
-              ].map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="flex items-start gap-4">
-                  <div className="size-10 bg-accent rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="flex flex-col gap-6">
+              {deliveryItems.map(({ icon: Icon, title, desc }, i) => (
+                <motion.div
+                  key={title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07, duration: 0.4 }}
+                  className="flex items-start gap-4"
+                >
+                  <div className="size-11 bg-background border border-border rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
                     <Icon className="size-5 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-0.5">{title}</h3>
-                    <p className="text-sm text-muted-foreground">{desc}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.div>
 
+          {/* Right: visual delivery card */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.55, delay: 0.1 }}
+            className="relative"
           >
-            <h3 className="font-semibold text-foreground mb-4 text-lg">Точки самовывоза</h3>
-            <div className="flex flex-col gap-3">
-              {pickupPoints.map((point, i) => (
-                <motion.div
-                  key={point}
-                  initial={{ opacity: 0, x: 16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08, duration: 0.4 }}
-                  className="flex items-center gap-3 bg-secondary border border-border rounded-xl p-4 hover:border-primary/30 transition-colors"
-                >
-                  <div className="size-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="size-4 text-primary" />
+            <div className="bg-background rounded-3xl border border-border p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="size-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                  <Truck className="size-6 text-primary" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">Ближайшая доставка</p>
+                  <p className="text-sm text-muted-foreground">Оформите заказ сегодня</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 mb-6">
+                {[
+                  { day: "Четверг", deadline: "Приём до вторника 20:00", active: true },
+                  { day: "Воскресенье", deadline: "Приём до пятницы 20:00", active: false },
+                ].map(({ day, deadline, active }) => (
+                  <div
+                    key={day}
+                    className={`flex items-center justify-between rounded-2xl px-5 py-4 border transition-colors ${
+                      active
+                        ? "bg-primary/5 border-primary/20"
+                        : "bg-secondary border-border"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`size-2.5 rounded-full ${active ? "bg-primary" : "bg-muted-foreground/30"}`} />
+                      <span className="font-semibold text-foreground text-sm">{day}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{deadline}</span>
                   </div>
-                  <span className="text-sm text-foreground">{point}</span>
-                </motion.div>
-              ))}
+                ))}
+              </div>
+
+              <div className="rounded-2xl bg-primary/5 border border-primary/15 px-5 py-4 text-sm text-foreground leading-relaxed">
+                Доставка бесплатно при заказе от{" "}
+                <span className="font-bold text-primary">2 000 ₽</span>
+              </div>
             </div>
+
+            {/* decorative dot */}
+            <div className="absolute -top-4 -right-4 size-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
           </motion.div>
         </div>
       </div>
