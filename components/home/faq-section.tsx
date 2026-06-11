@@ -59,7 +59,7 @@ export function FaqSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Accordion type="single" collapsible className="flex flex-col gap-3">
+          <Accordion className="flex flex-col gap-3">
             {faqs.map((faq, i) => (
               <AccordionItem
                 key={i}

@@ -182,7 +182,7 @@ export default function CheckoutPage() {
               <Field label="Адрес точки самовывоза" name="pickupAddress" error={errors.pickupAddress}>
                 <Select
                   value={form.pickupAddress}
-                  onValueChange={(v) => setForm({ ...form, pickupAddress: v })}
+                  onValueChange={(v) => setForm({ ...form, pickupAddress: v ?? "" })}
                 >
                   <SelectTrigger id="pickupAddress" aria-invalid={!!errors.pickupAddress} className="bg-secondary border-border">
                     <SelectValue placeholder="Выберите адрес" />

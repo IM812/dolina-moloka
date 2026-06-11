@@ -24,12 +24,9 @@ export default function PaymentPage() {
   useEffect(() => {
     if (!orderNumber) { setLoadingOrder(false); return; }
 
-    fetch("/api/orders")
+    fetch(`/api/orders/${encodeURIComponent(orderNumber)}`)
       .then((r) => r.json())
-      .then(({ orders }) => {
-        const found = orders.find((o: Order) => o.orderNumber === orderNumber);
-        setOrder(found ?? null);
-      })
+      .then(({ order }) => setOrder(order ?? null))
       .catch(() => setOrder(null))
       .finally(() => setLoadingOrder(false));
   }, [orderNumber]);

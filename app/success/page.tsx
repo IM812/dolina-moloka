@@ -20,12 +20,9 @@ export default function SuccessPage() {
   useEffect(() => {
     if (!orderNumber) { setLoading(false); return; }
 
-    fetch("/api/orders")
+    fetch(`/api/orders/${encodeURIComponent(orderNumber)}`)
       .then((r) => r.json())
-      .then(({ orders }) => {
-        const found = orders.find((o: Order) => o.orderNumber === orderNumber);
-        setOrder(found ?? null);
-      })
+      .then(({ order }) => setOrder(order ?? null))
       .catch(() => setOrder(null))
       .finally(() => setLoading(false));
   }, [orderNumber]);
