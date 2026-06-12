@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface BrandLogoProps {
@@ -11,11 +10,13 @@ interface BrandLogoProps {
 }
 
 /**
- * Brand logo using the real "Долина молока" image.
- * - header / footer: mix-blend-mode multiply removes the white background
- *   so the logo integrates seamlessly on cream/light surfaces.
- * - hero: shown over a dark photo — invert(1) + brightness to turn it white.
- * Framer Motion adds a subtle scale + lift on hover.
+ * Brand logo — mobile-safe version.
+ *
+ * The JPG has a white background. On desktop we use mix-blend-mode:multiply
+ * so the white dissolves into the cream page. On mobile, Safari's WebKit
+ * breaks blend modes when the parent has backdrop-filter (backdrop-blur),
+ * so we wrap the image in a white rounded box that looks intentional
+ * instead of broken.
  */
 export function BrandLogo({ variant = "header", className }: BrandLogoProps) {
   const isHero = variant === "hero";
@@ -24,51 +25,31 @@ export function BrandLogo({ variant = "header", className }: BrandLogoProps) {
   return (
     <Link
       href="/"
-      className={cn("inline-flex items-center select-none group", className)}
+      className={cn("inline-flex items-center select-none", className)}
       aria-label="Долина молока — на главную"
     >
-      <motion.div
-        whileHover={{ scale: 1.03, y: -1 }}
-        whileTap={{ scale: 0.97 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="relative"
-      >
-        {/* Subtle glow behind the mark — only on light backgrounds */}
-        {!isHero && (
-          <div
-            className={cn(
-              "absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none",
-              isFooter ? "-inset-3" : "-inset-2"
-            )}
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 40%, rgba(111,169,255,0.18) 0%, transparent 70%)",
-            }}
-          />
+      {/* Desktop: multiply blend removes white bg seamlessly.
+          Mobile: white rounded card — looks clean, no glitch. */}
+      <div
+        className={cn(
+          "relative transition-opacity duration-200 active:opacity-70",
+          // Mobile: white pill card so the logo reads cleanly
+          !isHero && "rounded-xl bg-white p-1 md:bg-transparent md:p-0 md:[&>img]:[mix-blend-mode:multiply]"
         )}
-
-        <div
+      >
+        <Image
+          src="/logo.jpg"
+          alt="Долина молока"
+          width={isFooter ? 200 : 150}
+          height={isFooter ? 80 : 60}
+          priority={!isFooter}
           className={cn(
-            "relative",
-            // Transparent wrapper — no background, no border
-            isHero ? "" : ""
+            "block w-auto object-contain border-0",
+            isFooter ? "h-[72px]" : "h-[52px] md:h-[56px]",
+            isHero && "brightness-0 invert opacity-90"
           )}
-        >
-          <Image
-            src="/logo.jpg"
-            alt="Долина молока"
-            width={isFooter ? 220 : 160}
-            height={isFooter ? 88 : 64}
-            priority
-            className={cn(
-              "block w-auto object-contain transition-all duration-300 border-0 outline-none",
-              isFooter ? "h-[88px]" : "h-[64px]",
-              isHero && "brightness-0 invert opacity-95"
-            )}
-            style={!isHero ? { mixBlendMode: "multiply" } : undefined}
-          />
-        </div>
-      </motion.div>
+        />
+      </div>
     </Link>
   );
 }

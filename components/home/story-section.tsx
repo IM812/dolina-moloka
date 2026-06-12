@@ -2,15 +2,18 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 
 export function StorySection() {
+  const isMobile = useIsMobile();
+
   return (
     <section className="bg-secondary overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
         {/* Text */}
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={isMobile ? false : { opacity: 0, x: -30 }}
+          whileInView={isMobile ? undefined : { opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="flex flex-col justify-center px-5 sm:px-8 md:px-16 py-12 sm:py-16 lg:py-28"
@@ -26,8 +29,8 @@ export function StorySection() {
             которые сами ставим на стол своим детям.
           </p>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg">
-            Каждый продукт проходит через наши руки с одним вопросом — 
-            съел бы я это сам? Только натуральное молоко, живые закваски 
+            Каждый продукт проходит через наши руки с одним вопросом —
+            съел бы я это сам? Только натуральное молоко, живые закваски
             и традиционные рецепты. Без компромиссов.
           </p>
 
@@ -44,13 +47,7 @@ export function StorySection() {
         </motion.div>
 
         {/* Image */}
-        <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="relative min-h-[280px] sm:min-h-[380px] lg:min-h-0"
-        >
+        <div className="relative min-h-[280px] sm:min-h-[380px] lg:min-h-0">
           <Image
             src="/story-farm.png"
             alt="Наша ферма"
@@ -59,7 +56,7 @@ export function StorySection() {
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-secondary/20 to-transparent lg:bg-gradient-to-l" />
-        </motion.div>
+        </div>
       </div>
     </section>
   );
