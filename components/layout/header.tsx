@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 const navLinks = [
   { href: "/", label: "Главная" },
@@ -45,16 +45,7 @@ export function Header() {
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
-            <Image
-              src="/logo.jpg"
-              alt="Долина молока"
-              width={180}
-              height={72}
-              className="h-14 w-auto object-contain group-hover:opacity-90 transition-opacity"
-              priority
-            />
-          </Link>
+          <BrandLogo variant="header" />
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">

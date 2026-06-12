@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 export function Footer() {
   return (
@@ -10,15 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="inline-flex mb-4">
-              <Image
-                src="/logo.jpg"
-                alt="Долина молока"
-                width={180}
-                height={72}
-                className="h-16 w-auto object-contain"
-              />
-            </Link>
+            <BrandLogo variant="footer" className="mb-5" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               Натуральная молочная продукция прямо с фермы. Без консервантов,
               без добавок.
