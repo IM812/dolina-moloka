@@ -43,7 +43,7 @@ export function Header() {
       )}
     >
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <BrandLogo variant="header" />
 
