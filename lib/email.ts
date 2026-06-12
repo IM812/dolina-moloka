@@ -3,11 +3,11 @@ import { Order } from "@/types";
 
 function createTransport() {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: process.env.SMTP_HOST ?? "smtp.mail.ru",
     port: Number(process.env.SMTP_PORT ?? 465),
     secure: process.env.SMTP_SECURE !== "false", // true by default (SSL/TLS)
     auth: {
-      user: process.env.SMTP_USER,
+      user: process.env.SMTP_USER ?? "inevolin228@mail.ru",
       pass: process.env.SMTP_PASS,
     },
   });
@@ -68,15 +68,15 @@ function formatOrderEmailHtml(order: Order): string {
 }
 
 export async function sendOrderNotification(order: Order): Promise<void> {
-  const to = process.env.SMTP_TO;
-  if (!to || !process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("[email] SMTP env vars not configured — skipping notification");
+  const to = process.env.SMTP_TO ?? "inevolin228@mail.ru";
+  if (!process.env.SMTP_PASS) {
+    console.warn("[email] SMTP_PASS not configured — skipping notification");
     return;
   }
 
   const transporter = createTransport();
   await transporter.sendMail({
-    from: `"Долина молока" <${process.env.SMTP_USER}>`,
+    from: `"Долина молока" <${process.env.SMTP_USER ?? "inevolin228@mail.ru"}>`,
     to,
     subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
     html: formatOrderEmailHtml(order),
