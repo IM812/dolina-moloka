@@ -28,15 +28,27 @@ export function ProductDetailClient({ product, related }: Props) {
   };
 
   return (
-    <div className="py-5 sm:py-8">
+    <div className="py-6 sm:py-10">
       <div className="container mx-auto px-4 sm:px-5 max-w-7xl">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground mb-5 sm:mb-8 flex-wrap">
-          <Link href="/" className="hover:text-foreground transition-colors whitespace-nowrap">Главная</Link>
-          <span>/</span>
-          <Link href="/catalog" className="hover:text-foreground transition-colors whitespace-nowrap">Каталог</Link>
-          <span>/</span>
-          <span className="text-foreground line-clamp-1">{product.name}</span>
+        {/* Back button + breadcrumb row */}
+        <div className="flex items-center gap-3 sm:gap-5 mb-6 sm:mb-10">
+          <Link href="/catalog">
+            <motion.button
+              whileHover={{ x: -3 }}
+              transition={{ duration: 0.2 }}
+              className="inline-flex items-center gap-2 h-9 sm:h-10 px-3 sm:px-4 rounded-xl bg-secondary border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
+            >
+              <ArrowLeft className="size-4" />
+              <span className="hidden sm:inline">Назад</span>
+            </motion.button>
+          </Link>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
+            <Link href="/" className="hover:text-foreground transition-colors whitespace-nowrap">Главная</Link>
+            <span>/</span>
+            <Link href="/catalog" className="hover:text-foreground transition-colors whitespace-nowrap">Каталог</Link>
+            <span>/</span>
+            <span className="text-foreground line-clamp-1">{product.name}</span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 mb-12 sm:mb-16">

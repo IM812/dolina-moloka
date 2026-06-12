@@ -4,7 +4,6 @@ import { AdvantagesSection } from "@/components/home/advantages-section";
 import { CategoriesSection } from "@/components/home/categories-section";
 import { FeaturedProducts } from "@/components/home/featured-products";
 import { QualityBanner } from "@/components/home/quality-banner";
-import { DeliverySection } from "@/components/home/delivery-section";
 import { FaqSection } from "@/components/home/faq-section";
 import { CtaSection } from "@/components/home/cta-section";
 
@@ -17,7 +16,6 @@ export default function HomePage() {
       <CategoriesSection />
       <FeaturedProducts />
       <QualityBanner />
-      <DeliverySection />
       <FaqSection />
       <CtaSection />
     </>

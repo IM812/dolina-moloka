@@ -35,7 +35,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="inline-flex items-center gap-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/90 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 tracking-wide"
+            className="inline-flex items-center gap-2 border border-white/25 bg-white/15 backdrop-blur-md text-white px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 tracking-wide"
           >
             Натуральная молочная продукция
           </motion.div>
