@@ -25,7 +25,7 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 w-full h-full flex flex-col justify-between container mx-auto px-5 sm:px-6 max-w-7xl pt-12 sm:pt-16 pb-10 sm:pb-14">
-        {/* Top: badge + headline + subtitle */}
+        {/* Top: badge + headline */}
         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 border border-white/30 bg-black/40 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6 tracking-widest uppercase">
@@ -33,17 +33,17 @@ export function HeroSection() {
           </div>
 
           {/* Headline */}
-          <h1 className="font-heading text-[2.5rem] leading-[1.08] sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight text-balance mb-4 sm:mb-6">
+          <h1 className="font-heading text-[2.5rem] leading-[1.08] sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight text-balance">
             Настоящие молочные продукты
             <span className="text-white/75"> для вашей семьи</span>
           </h1>
-
-          {/* Subheadline */}
-          <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl">
-            Свежая продукция от проверенных производителей.
-            Удобный заказ и доставка в вашем городе.
-          </p>
         </div>
+
+        {/* Middle: subtitle */}
+        <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl text-center mx-auto">
+          Свежая продукция от проверенных производителей.
+          Удобный заказ и доставка в вашем городе.
+        </p>
 
         {/* Bottom: CTAs */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-3xl">
