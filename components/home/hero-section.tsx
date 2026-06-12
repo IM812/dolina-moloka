@@ -11,7 +11,7 @@ export function HeroSection() {
     <section className="relative w-full h-screen min-h-[640px] flex items-end overflow-hidden">
       {/* Background image */}
       <Image
-        src="/hero-bg.png"
+        src="/story-bg.png"
         alt="Натуральные молочные продукты"
         fill
         priority

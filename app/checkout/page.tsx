@@ -7,15 +7,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart";
 import { setLastOrderNumber, setCheckoutSession } from "@/lib/cookies";
-import { pickupPoints } from "@/lib/mock-data";
 import { toast } from "sonner";
-import { Loader2, ArrowRight, ShoppingCart } from "lucide-react";
+import { Loader2, ArrowRight, ShoppingCart, MapPin } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+
+// Defined OUTSIDE component to avoid remounting on every render (fixes 1-char bug)
+function FormField({
+  label,
+  name,
+  error,
+  children,
+}: {
+  label: string;
+  name: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={name} className="text-sm font-medium text-foreground">
+        {label}
+      </Label>
+      {children}
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,7 +48,7 @@ export default function CheckoutPage() {
     fullName: "",
     phone: "",
     email: "",
-    pickupAddress: "",
+    address: "",
     comment: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -37,7 +58,7 @@ export default function CheckoutPage() {
     if (!form.fullName.trim()) e.fullName = "Введите фамилию и имя";
     if (!form.phone.trim()) e.phone = "Введите номер телефона";
     if (!form.email.trim() || !form.email.includes("@")) e.email = "Введите корректный email";
-    if (!form.pickupAddress) e.pickupAddress = "Выберите точку выдачи";
+    if (!form.address.trim()) e.address = "Введите адрес доставки";
     return e;
   };
 
@@ -65,7 +86,10 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
     setErrors({});
     setLoading(true);
 
@@ -85,7 +109,7 @@ export default function CheckoutPage() {
             fullName: form.fullName,
             phone: form.phone,
             email: form.email,
-            pickupAddress: form.pickupAddress,
+            pickupAddress: form.address,
             comment: form.comment,
           },
           items: orderItems,
@@ -96,7 +120,6 @@ export default function CheckoutPage() {
       if (!res.ok) throw new Error("Ошибка создания заказа");
       const { order } = await res.json();
 
-      // Save to cookies
       setLastOrderNumber(order.orderNumber);
       setCheckoutSession({ orderNumber: order.orderNumber, email: form.email });
 
@@ -110,24 +133,14 @@ export default function CheckoutPage() {
     }
   };
 
-  const Field = ({
-    label, name, error, children,
-  }: { label: string; name: string; error?: string; children: React.ReactNode }) => (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={name} className="text-sm font-medium text-foreground">{label}</Label>
-      {children}
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
-  );
-
   return (
     <div className="py-10">
       <div className="container mx-auto px-4 max-w-7xl">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-foreground mb-8">Оформление заказа</h1>
+          <h1 className="text-3xl font-heading font-bold text-foreground mb-8">Оформление заказа</h1>
         </motion.div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Form */}
             <motion.div
@@ -138,73 +151,71 @@ export default function CheckoutPage() {
             >
               <h2 className="font-semibold text-foreground text-lg">Контактные данные</h2>
 
-              <Field label="Фамилия и имя" name="fullName" error={errors.fullName}>
+              <FormField label="Фамилия и имя" name="fullName" error={errors.fullName}>
                 <Input
                   id="fullName"
                   placeholder="Иванов Иван"
                   value={form.fullName}
-                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  onChange={(e) => setForm((prev) => ({ ...prev, fullName: e.target.value }))}
                   aria-invalid={!!errors.fullName}
                   className="bg-secondary border-border"
                 />
-              </Field>
+              </FormField>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="Номер телефона" name="phone" error={errors.phone}>
+                <FormField label="Номер телефона" name="phone" error={errors.phone}>
                   <Input
                     id="phone"
                     type="tel"
                     placeholder="+7 (999) 000-00-00"
                     value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
                     aria-invalid={!!errors.phone}
                     className="bg-secondary border-border"
                   />
-                </Field>
+                </FormField>
 
-                <Field label="Электронная почта" name="email" error={errors.email}>
+                <FormField label="Электронная почта" name="email" error={errors.email}>
                   <Input
                     id="email"
                     type="email"
                     placeholder="ivan@mail.ru"
                     value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
                     aria-invalid={!!errors.email}
                     className="bg-secondary border-border"
                   />
-                </Field>
+                </FormField>
               </div>
 
               <Separator className="bg-border" />
 
-              <h2 className="font-semibold text-foreground text-lg">Точка выдачи</h2>
+              <h2 className="font-semibold text-foreground text-lg">Адрес доставки</h2>
 
-              <Field label="Адрес точки самовывоза" name="pickupAddress" error={errors.pickupAddress}>
-                <Select
-                  value={form.pickupAddress}
-                  onValueChange={(v) => setForm({ ...form, pickupAddress: v ?? "" })}
-                >
-                  <SelectTrigger id="pickupAddress" aria-invalid={!!errors.pickupAddress} className="bg-secondary border-border">
-                    <SelectValue placeholder="Выберите адрес" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {pickupPoints.map((point) => (
-                      <SelectItem key={point} value={point}>{point}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
+              <FormField label="Улица, дом, квартира" name="address" error={errors.address}>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    id="address"
+                    placeholder="ул. Ленина, д. 12, кв. 34"
+                    value={form.address}
+                    onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
+                    aria-invalid={!!errors.address}
+                    className="bg-secondary border-border pl-9"
+                  />
+                </div>
+              </FormField>
 
-              <Field label="Комментарий к заказу (необязательно)" name="comment">
+              <FormField label="Комментарий к заказу (необязательно)" name="comment">
                 <Textarea
                   id="comment"
-                  placeholder="Особые пожелания, время получения..."
+                  placeholder="Особые пожелания, код домофона, время доставки..."
                   value={form.comment}
-                  onChange={(e) => setForm({ ...form, comment: e.target.value })}
+                  onChange={(e) => setForm((prev) => ({ ...prev, comment: e.target.value }))}
                   rows={3}
                   className="bg-secondary border-border resize-none"
                 />
-              </Field>
+              </FormField>
             </motion.div>
 
             {/* Order summary */}
@@ -217,7 +228,7 @@ export default function CheckoutPage() {
               <div className="bg-card border border-border rounded-2xl p-6 sticky top-24 flex flex-col gap-4">
                 <h2 className="font-semibold text-foreground text-lg">Ваш заказ</h2>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">
                   {items.map((item) => (
                     <div key={item.product.id} className="flex items-center gap-3">
                       <div className="size-12 bg-secondary rounded-xl overflow-hidden relative flex-shrink-0">
@@ -230,8 +241,8 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{item.product.name}</p>
-                        <p className="text-xs text-muted-foreground">{item.quantity} шт.</p>
+                        <p className="text-sm font-medium text-foreground line-clamp-2 leading-tight">{item.product.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{item.quantity} шт.</p>
                       </div>
                       <span className="text-sm font-semibold text-foreground flex-shrink-0">
                         {(item.product.price * item.quantity).toLocaleString("ru-RU")} ₽
