@@ -9,7 +9,7 @@ import { ArrowRight } from "lucide-react";
 // but we keep them simple and fast.
 export function HeroSection() {
   return (
-    <section className="relative w-full h-[calc(100svh-5rem)] min-h-[580px] flex items-center overflow-hidden will-change-transform">
+    <section className="relative w-full h-[calc(100svh-5rem)] min-h-[580px] flex items-start overflow-hidden will-change-transform">
       {/* Background image */}
       <Image
         src="/story-bg.png"
@@ -24,7 +24,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/40" />
 
       {/* Content */}
-      <div className="relative z-10 w-full container mx-auto px-5 sm:px-6 max-w-7xl py-10 sm:py-16">
+      <div className="relative z-10 w-full container mx-auto px-5 sm:px-6 max-w-7xl pt-14 sm:pt-20 pb-8">
         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 border border-white/30 bg-black/40 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6 tracking-widest uppercase">
