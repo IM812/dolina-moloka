@@ -127,11 +127,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+  img, svg {
+    @apply border-0;
+  }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+  }
+  input, textarea, select {
+    @apply text-foreground;
+    color-scheme: light;
   }
 }
 

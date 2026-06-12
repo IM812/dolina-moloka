@@ -158,7 +158,7 @@ export default function CheckoutPage() {
                   value={form.fullName}
                   onChange={(e) => setForm((prev) => ({ ...prev, fullName: e.target.value }))}
                   aria-invalid={!!errors.fullName}
-                  className="bg-secondary border-border"
+                  className="bg-secondary border-border text-foreground"
                 />
               </FormField>
 
@@ -171,7 +171,7 @@ export default function CheckoutPage() {
                     value={form.phone}
                     onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
                     aria-invalid={!!errors.phone}
-                    className="bg-secondary border-border"
+                    className="bg-secondary border-border text-foreground"
                   />
                 </FormField>
 
@@ -183,7 +183,7 @@ export default function CheckoutPage() {
                     value={form.email}
                     onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
                     aria-invalid={!!errors.email}
-                    className="bg-secondary border-border"
+                    className="bg-secondary border-border text-foreground"
                   />
                 </FormField>
               </div>
@@ -197,11 +197,11 @@ export default function CheckoutPage() {
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="address"
-                    placeholder="ул. Ленина, д. 12, кв. 34"
+                    placeholder="г. Дмитров, ул. Пушкина, д. 12, кв. 34"
                     value={form.address}
                     onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
                     aria-invalid={!!errors.address}
-                    className="bg-secondary border-border pl-9"
+                    className="bg-secondary border-border pl-9 text-foreground"
                   />
                 </div>
               </FormField>
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
                   value={form.comment}
                   onChange={(e) => setForm((prev) => ({ ...prev, comment: e.target.value }))}
                   rows={3}
-                  className="bg-secondary border-border resize-none"
+                  className="bg-secondary border-border resize-none text-foreground"
                 />
               </FormField>
             </motion.div>

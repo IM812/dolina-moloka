@@ -47,22 +47,27 @@ export function BrandLogo({ variant = "header", className }: BrandLogoProps) {
           />
         )}
 
-        <Image
-          src="/logo.jpg"
-          alt="Долина молока"
-          width={isFooter ? 220 : 160}
-          height={isFooter ? 88 : 64}
-          priority
+        <div
           className={cn(
-            "relative w-auto object-contain transition-all duration-300",
-            isFooter ? "h-[88px]" : "h-[64px]",
-            // On light backgrounds: multiply blends white → transparent
-            !isHero && "mix-blend-mode-multiply",
-            // On dark hero photo: invert to white
-            isHero && "brightness-0 invert opacity-95"
+            "relative",
+            // Transparent wrapper — no background, no border
+            isHero ? "" : ""
           )}
-          style={!isHero ? { mixBlendMode: "multiply" } : undefined}
-        />
+        >
+          <Image
+            src="/logo.jpg"
+            alt="Долина молока"
+            width={isFooter ? 220 : 160}
+            height={isFooter ? 88 : 64}
+            priority
+            className={cn(
+              "block w-auto object-contain transition-all duration-300 border-0 outline-none",
+              isFooter ? "h-[88px]" : "h-[64px]",
+              isHero && "brightness-0 invert opacity-95"
+            )}
+            style={!isHero ? { mixBlendMode: "multiply" } : undefined}
+          />
+        </div>
       </motion.div>
     </Link>
   );
