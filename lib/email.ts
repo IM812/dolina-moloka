@@ -80,19 +80,23 @@ export async function sendOrderNotification(order: Order): Promise<void> {
     return;
   }
 
-  console.log(`[email] Sending order #${order.orderNumber} to ${to} via ${process.env.SMTP_HOST ?? "smtp.mail.ru"}`);
+  const host = process.env.SMTP_HOST ?? "smtp.mail.ru";
+  const port = Number(process.env.SMTP_PORT ?? 465);
+  console.log(`[email] Attempting send: order #${order.orderNumber} → ${to} via ${host}:${port}`);
 
   const transporter = createTransport();
 
-  // Verify connection before sending
-  await transporter.verify();
-
-  const info = await transporter.sendMail({
-    from: `"Долина молока" <${user}>`,
-    to,
-    subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
-    html: formatOrderEmailHtml(order),
-  });
-
-  console.log(`[email] Sent: ${info.messageId}`);
+  try {
+    const info = await transporter.sendMail({
+      from: `"Долина молока" <${user}>`,
+      to,
+      subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
+      html: formatOrderEmailHtml(order),
+    });
+    console.log(`[email] OK — messageId: ${info.messageId}`);
+  } catch (err: unknown) {
+    const e = err as { code?: string; message?: string; response?: string };
+    console.error(`[email] FAILED — code: ${e.code}, message: ${e.message}, response: ${e.response}`);
+    throw err;
+  }
 }
