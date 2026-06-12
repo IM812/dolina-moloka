@@ -24,8 +24,9 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/40" />
 
       {/* Content */}
-      <div className="relative z-10 w-full container mx-auto px-5 sm:px-6 max-w-7xl pt-14 sm:pt-20 pb-8">
-        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both">
+      <div className="relative z-10 w-full h-full flex flex-col justify-between container mx-auto px-5 sm:px-6 max-w-7xl pt-12 sm:pt-16 pb-10 sm:pb-14">
+        {/* Top: badge + headline + subtitle */}
+        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 border border-white/30 bg-black/40 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6 tracking-widest uppercase">
             Натуральная молочная продукция
@@ -38,31 +39,31 @@ export function HeroSection() {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl mb-7 sm:mb-10">
+          <p className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl">
             Свежая продукция от проверенных производителей.
             Удобный заказ и доставка в вашем городе.
           </p>
+        </div>
 
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <Link href="/catalog" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                className="w-full bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base rounded-full shadow-lg active:scale-95 transition-transform"
-              >
-                Смотреть продукцию
-                <ArrowRight className="size-4" />
-              </Button>
-            </Link>
-            <Link href="/checkout" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                className="w-full bg-white/15 text-white hover:bg-white/25 border border-white/40 font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base rounded-full active:scale-95 transition-transform"
-              >
-                Оформить заказ
-              </Button>
-            </Link>
-          </div>
+        {/* Bottom: CTAs */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-3xl">
+          <Link href="/catalog" className="w-full sm:w-auto">
+            <Button
+              size="lg"
+              className="w-full bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base rounded-full shadow-lg active:scale-95 transition-transform"
+            >
+              Смотреть продукцию
+              <ArrowRight className="size-4" />
+            </Button>
+          </Link>
+          <Link href="/checkout" className="w-full sm:w-auto">
+            <Button
+              size="lg"
+              className="w-full bg-white/15 text-white hover:bg-white/25 border border-white/40 font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base rounded-full active:scale-95 transition-transform"
+            >
+              Оформить заказ
+            </Button>
+          </Link>
         </div>
       </div>
 
