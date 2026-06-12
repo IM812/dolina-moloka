@@ -1,40 +1,19 @@
-"use client";
-
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 
 export function QualityBanner() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
-
   return (
-    <section ref={ref} className="relative h-[50vh] min-h-[320px] sm:min-h-[420px] overflow-hidden flex items-center justify-center">
-      {/* Image — parallax on desktop only */}
-      {isMobile ? (
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/quality-bg.png"
-            alt="Контроль качества"
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </div>
-      ) : (
-        <motion.div style={{ y }} className="absolute inset-[-12%] z-0">
-          <Image
-            src="/quality-bg.png"
-            alt="Контроль качества"
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </motion.div>
-      )}
+    <section className="relative h-[50vh] min-h-[320px] sm:min-h-[420px] overflow-hidden flex items-center justify-center">
+      {/* Background image — static, no parallax JS */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/quality-bg.png"
+          alt="Контроль качества"
+          fill
+          className="object-cover"
+          sizes="100vw"
+          priority={false}
+        />
+      </div>
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/55 z-10" />

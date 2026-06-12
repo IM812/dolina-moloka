@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 const categories = [
@@ -38,20 +37,14 @@ const categories = [
 
 export function CategoriesSection() {
   return (
-    <section className="py-16 sm:py-24 md:py-32 bg-secondary">
+    <section className="py-14 sm:py-24 md:py-32 bg-secondary">
       <div className="container mx-auto px-5 sm:px-6 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-14"
-        >
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-14">
           <div>
             <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium block mb-4">
               Каталог
             </span>
-            <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground">
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
               Категории продукции
             </h2>
           </div>
@@ -62,33 +55,25 @@ export function CategoriesSection() {
             Весь каталог
             <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Link href={cat.href} className="group block">
-                <div className={`${cat.bg} rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/5] sm:aspect-square relative flex items-end p-3 sm:p-6 hover:shadow-2xl transition-all duration-500`}>
-                  <Image
-                    src={cat.image}
-                    alt={cat.title}
-                    fill
-                    className="object-contain p-8 group-hover:scale-110 transition-transform duration-700"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                  <div className="relative z-10 bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 w-full group-hover:bg-white transition-colors duration-300">
-                    <p className="font-semibold text-foreground text-sm sm:text-base">{cat.title}</p>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 hidden sm:block">{cat.description}</p>
-                  </div>
+          {categories.map((cat) => (
+            <Link key={cat.title} href={cat.href} className="group block">
+              <div className={`${cat.bg} rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/5] sm:aspect-square relative flex items-end p-3 sm:p-6 hover:shadow-xl transition-shadow duration-300`}>
+                <Image
+                  src={cat.image}
+                  alt={cat.title}
+                  fill
+                  className="object-contain p-8 group-hover:scale-110 transition-transform duration-500"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                />
+                <div className="relative z-10 bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 w-full group-hover:bg-white transition-colors duration-300">
+                  <p className="font-semibold text-foreground text-sm sm:text-base">{cat.title}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 hidden sm:block">{cat.description}</p>
                 </div>
-              </Link>
-            </motion.div>
+              </div>
+            </Link>
           ))}
         </div>
       </div>

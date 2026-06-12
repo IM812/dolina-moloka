@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 const advantages = [
   {
     number: "01",
@@ -40,38 +38,26 @@ const advantages = [
   },
 ];
 
-
 export function AdvantagesSection() {
   return (
-    <section className="py-16 sm:py-24 md:py-32 bg-background">
+    <section className="py-14 sm:py-24 md:py-32 bg-background">
       <div className="container mx-auto px-5 sm:px-6 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-xl mb-10 sm:mb-16"
-        >
+        <div className="max-w-xl mb-10 sm:mb-16">
           <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium block mb-4">
             Наши преимущества
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground leading-tight">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
             Почему нас выбирают снова и снова
           </h2>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {advantages.map((adv, i) => (
-            <motion.div
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {advantages.map((adv) => (
+            <div
               key={adv.number}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.55, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.10)" }}
-              className={`group relative bg-gradient-to-br ${adv.color} border border-border rounded-2xl sm:rounded-3xl p-5 sm:p-8 cursor-default overflow-hidden`}
+              className={`group relative bg-gradient-to-br ${adv.color} border border-border rounded-2xl sm:rounded-3xl p-5 sm:p-8 overflow-hidden`}
             >
-              <span className={`font-heading text-7xl font-bold ${adv.accent} opacity-15 absolute -top-3 -right-2 select-none`}>
+              <span className={`font-heading text-7xl font-bold ${adv.accent} opacity-15 absolute -top-3 -right-2 select-none pointer-events-none`}>
                 {adv.number}
               </span>
               <div className="relative">
@@ -85,7 +71,7 @@ export function AdvantagesSection() {
                   {adv.description}
                 </p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

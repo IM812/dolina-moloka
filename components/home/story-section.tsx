@@ -1,23 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 
 export function StorySection() {
-  const isMobile = useIsMobile();
-
   return (
     <section className="bg-secondary overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[600px]">
         {/* Text */}
-        <motion.div
-          initial={isMobile ? false : { opacity: 0, x: -30 }}
-          whileInView={isMobile ? undefined : { opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col justify-center px-5 sm:px-8 md:px-16 py-10 sm:py-14 lg:py-28"
-        >
+        <div className="flex flex-col justify-center px-5 sm:px-8 md:px-16 py-10 sm:py-14 lg:py-28">
           <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium mb-4 sm:mb-6">
             Наша история
           </span>
@@ -35,8 +25,8 @@ export function StorySection() {
           </p>
 
           <div className="flex items-center gap-4 mt-8 sm:mt-10 pt-8 sm:pt-10 border-t border-border">
-            <div className="size-10 sm:size-12 rounded-full bg-[var(--brand-green)]/10 flex items-center justify-center flex-shrink-0">
-              <svg viewBox="0 0 24 24" fill="none" className="size-5 sm:size-6 text-[var(--brand-green)]">
+            <div className="size-10 sm:size-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 24 24" fill="none" className="size-5 sm:size-6 text-primary">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="currentColor"/>
               </svg>
             </div>
@@ -44,7 +34,7 @@ export function StorySection() {
               &ldquo;Качество — это не опция, это единственный вариант.&rdquo;
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Image */}
         <div className="relative h-56 sm:h-80 lg:h-auto">

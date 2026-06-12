@@ -2,19 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ShoppingCart, Plus, Minus } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-is-mobile";
+import { ShoppingCart, Plus, Minus, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { products } from "@/lib/mock-data";
 import { toast } from "sonner";
 import { Product } from "@/types";
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-function ProductCard({ product, index }: { product: Product; index: number }) {
+function ProductCard({ product }: { product: Product }) {
   const { items, addItem, updateQuantity, removeItem } = useCartStore();
-  const isMobile = useIsMobile();
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem?.quantity ?? 0;
 
@@ -24,22 +20,16 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
   };
 
   return (
-    <motion.div
-      initial={isMobile ? false : { opacity: 0, y: 24 }}
-      whileInView={isMobile ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
-      className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 flex flex-col h-full"
-    >
+    <div className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-lg hover:border-primary/20 transition-shadow duration-300 flex flex-col h-full">
       {/* Image */}
       <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
-        <div className="relative bg-secondary h-48 overflow-hidden">
+        <div className="relative bg-secondary h-44 sm:h-48 overflow-hidden">
           <Image
             src={product.image}
             alt={product.name}
             fill
             className="object-contain p-5 group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           />
         </div>
       </Link>
@@ -90,41 +80,34 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 export function FeaturedProducts() {
-  const isMobile = useIsMobile();
   return (
-    <section className="py-14 sm:py-20 md:py-28 bg-background">
+    <section className="py-12 sm:py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
-        <motion.div
-          initial={isMobile ? false : { opacity: 0, y: 20 }}
-          whileInView={isMobile ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex items-end justify-between mb-10 flex-wrap gap-4"
-        >
+        <div className="flex items-end justify-between mb-8 sm:mb-10 flex-wrap gap-4">
           <div>
             <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium block mb-3">
               Ассортимент
             </span>
-            <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground">
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
               Наша продукция
             </h2>
           </div>
           <Link href="/catalog">
             <Button variant="outline" className="gap-2 border-border">
               Весь каталог
-              <ArrowRight className="size-4" data-icon="inline-end" />
+              <ArrowRight className="size-4" />
             </Button>
           </Link>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
-          {products.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>
