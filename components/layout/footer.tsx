@@ -14,9 +14,9 @@ export function Footer() {
               <Image
                 src="/logo.jpg"
                 alt="Долина молока"
-                width={120}
-                height={48}
-                className="h-14 w-auto object-contain"
+                width={180}
+                height={72}
+                className="h-16 w-auto object-contain"
               />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">

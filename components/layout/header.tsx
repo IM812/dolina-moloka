@@ -49,9 +49,9 @@ export function Header() {
             <Image
               src="/logo.jpg"
               alt="Долина молока"
-              width={120}
-              height={48}
-              className="h-12 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              width={180}
+              height={72}
+              className="h-14 w-auto object-contain group-hover:opacity-90 transition-opacity"
               priority
             />
           </Link>
