@@ -43,14 +43,14 @@ const advantages = [
 
 export function AdvantagesSection() {
   return (
-    <section className="py-24 md:py-32 bg-background">
-      <div className="container mx-auto px-6 max-w-7xl">
+    <section className="py-16 sm:py-24 md:py-32 bg-background">
+      <div className="container mx-auto px-5 sm:px-6 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-xl mb-16"
+          className="max-w-xl mb-10 sm:mb-16"
         >
           <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium block mb-4">
             Наши преимущества
@@ -69,7 +69,7 @@ export function AdvantagesSection() {
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.55, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.10)" }}
-              className={`group relative bg-gradient-to-br ${adv.color} border border-border rounded-3xl p-8 cursor-default overflow-hidden`}
+              className={`group relative bg-gradient-to-br ${adv.color} border border-border rounded-2xl sm:rounded-3xl p-5 sm:p-8 cursor-default overflow-hidden`}
             >
               <span className={`font-heading text-7xl font-bold ${adv.accent} opacity-15 absolute -top-3 -right-2 select-none`}>
                 {adv.number}

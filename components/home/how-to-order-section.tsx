@@ -32,14 +32,14 @@ const steps = [
 
 export function HowToOrderSection() {
   return (
-    <section id="how-to-order" className="py-20 bg-secondary">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <section id="how-to-order" className="py-14 sm:py-20 bg-secondary">
+      <div className="container mx-auto px-5 sm:px-4 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">
             Как оформить заказ
@@ -49,7 +49,7 @@ export function HowToOrderSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 relative">
           {/* Connector line (desktop) */}
           <div className="hidden lg:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-border z-0" />
 

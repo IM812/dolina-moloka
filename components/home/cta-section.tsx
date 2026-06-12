@@ -6,12 +6,12 @@ import { ArrowRight } from "lucide-react";
 
 export function CtaSection() {
   return (
-    <section className="relative py-32 md:py-44 overflow-hidden bg-foreground">
+    <section className="relative py-20 sm:py-32 md:py-44 overflow-hidden bg-foreground">
       {/* Subtle gradient orbs */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[var(--brand-green)]/10 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 container mx-auto px-6 max-w-5xl text-center">
+      <div className="relative z-10 container mx-auto px-5 sm:px-6 max-w-5xl text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -21,7 +21,7 @@ export function CtaSection() {
         >
           <span className="text-white/40 text-xs tracking-[0.25em] uppercase">Начните сегодня</span>
 
-          <h2 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] text-balance">
+          <h2 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] text-balance">
             Попробуйте вкус
             <br />
             <span className="text-white/60">настоящих</span> молочных продуктов

@@ -31,10 +31,10 @@ export function QualityBanner() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-20 text-center px-6 max-w-3xl mx-auto"
+        className="relative z-20 text-center px-5 max-w-3xl mx-auto"
       >
-        <p className="text-white/60 text-sm tracking-[0.25em] uppercase mb-5">Наш стандарт</p>
-        <h2 className="font-heading text-3xl md:text-5xl font-bold text-white leading-[1.15] text-balance">
+        <p className="text-white/60 text-xs sm:text-sm tracking-[0.25em] uppercase mb-4 sm:mb-5">Наш стандарт</p>
+        <h2 className="font-heading text-2xl sm:text-3xl md:text-5xl font-bold text-white leading-[1.15] text-balance">
           Каждый продукт проходит контроль качества
           до того, как попадёт к вам на стол.
         </h2>

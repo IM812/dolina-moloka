@@ -41,10 +41,10 @@ export default function CartPage() {
   }
 
   return (
-    <div className="py-10">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Корзина</h1>
+    <div className="py-6 sm:py-10">
+      <div className="container mx-auto px-4 sm:px-5 max-w-7xl">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Корзина</h1>
           <button
             onClick={() => { clearCart(); toast.success("Корзина очищена"); }}
             className="text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1.5"
@@ -54,9 +54,9 @@ export default function CartPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
           {/* Items */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
             <AnimatePresence mode="popLayout">
               {items.map((item) => (
                 <motion.div
@@ -65,11 +65,11 @@ export default function CartPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -20, height: 0, marginBottom: 0 }}
                   transition={{ duration: 0.25 }}
-                  className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4"
+                  className="bg-card border border-border rounded-2xl p-3 sm:p-4 flex items-start sm:items-center gap-3 sm:gap-4"
                 >
                   {/* Image */}
                   <Link href={`/product/${item.product.slug}`} className="flex-shrink-0">
-                    <div className="size-20 bg-secondary rounded-xl overflow-hidden relative">
+                    <div className="size-16 sm:size-20 bg-secondary rounded-xl overflow-hidden relative">
                       <Image
                         src={item.product.image}
                         alt={item.product.name}
@@ -83,18 +83,40 @@ export default function CartPage() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <Link href={`/product/${item.product.slug}`}>
-                      <h3 className="font-semibold text-foreground text-sm leading-snug hover:text-primary transition-colors truncate">
+                      <h3 className="font-semibold text-foreground text-sm leading-snug hover:text-primary transition-colors line-clamp-2">
                         {item.product.name}
                       </h3>
                     </Link>
                     <p className="text-xs text-muted-foreground mt-0.5">{item.product.weight}</p>
-                    <p className="font-bold text-foreground mt-2 text-sm">
+                    <p className="font-bold text-foreground mt-1.5 text-sm">
                       {(item.product.price * item.quantity).toLocaleString("ru-RU")} ₽
                     </p>
+                    {/* Quantity controls — inside info on mobile */}
+                    <div className="flex items-center gap-2 mt-2 sm:hidden">
+                      <button
+                        onClick={() =>
+                          item.quantity === 1
+                            ? handleRemove(item.product.name, item.product.id)
+                            : updateQuantity(item.product.id, item.quantity - 1)
+                        }
+                        className="size-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-accent transition-colors"
+                        aria-label="Уменьшить"
+                      >
+                        <Minus className="size-3" />
+                      </button>
+                      <span className="w-5 text-center font-bold text-sm">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                        className="size-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+                        aria-label="Увеличить"
+                      >
+                        <Plus className="size-3" />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Quantity */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  {/* Quantity — desktop only */}
+                  <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() =>
                         item.quantity === 1
@@ -119,10 +141,10 @@ export default function CartPage() {
                   {/* Delete */}
                   <button
                     onClick={() => handleRemove(item.product.name, item.product.id)}
-                    className="size-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors flex-shrink-0"
+                    className="size-7 sm:size-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors flex-shrink-0 self-start sm:self-auto"
                     aria-label="Удалить"
                   >
-                    <Trash2 className="size-4" />
+                    <Trash2 className="size-3.5 sm:size-4" />
                   </button>
                 </motion.div>
               ))}
@@ -134,7 +156,7 @@ export default function CartPage() {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-card border border-border rounded-2xl p-6 sticky top-24"
+              className="bg-card border border-border rounded-2xl p-4 sm:p-6 sm:sticky sm:top-24"
             >
               <h2 className="font-semibold text-foreground text-lg mb-5">Итого</h2>
 

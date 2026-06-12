@@ -30,11 +30,11 @@ const scheduleRows = [
 
 export function DeliverySection() {
   return (
-    <section id="delivery" className="py-24 overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
+    <section id="delivery" className="py-16 sm:py-24 overflow-hidden">
+      <div className="container mx-auto px-5 sm:px-6 max-w-7xl">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
+        <div           className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 sm:gap-6 mb-10 sm:mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -74,7 +74,7 @@ export function DeliverySection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.55, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-background px-8 py-10 flex flex-col gap-5 group"
+              className="bg-background px-5 py-7 sm:px-8 sm:py-10 flex flex-col gap-4 sm:gap-5 group"
             >
               <span className="font-heading text-5xl font-bold text-primary/20 leading-none select-none group-hover:text-primary/40 transition-colors duration-300">
                 {num}
@@ -98,7 +98,7 @@ export function DeliverySection() {
           {scheduleRows.map(({ day, label, deadline }, i) => (
             <div
               key={day}
-              className="flex items-center justify-between bg-foreground text-background rounded-2xl px-7 py-5"
+              className="flex items-center justify-between bg-foreground text-background rounded-2xl px-4 sm:px-7 py-4 sm:py-5 gap-3"
             >
               <div className="flex items-center gap-4">
                 <div className="size-2.5 rounded-full bg-primary shrink-0" />
@@ -111,7 +111,7 @@ export function DeliverySection() {
             </div>
           ))}
 
-          <div className="sm:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-primary/8 border border-primary/15 rounded-2xl px-7 py-5">
+          <div className="sm:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 bg-primary/8 border border-primary/15 rounded-2xl px-4 sm:px-7 py-4 sm:py-5">
             <p className="text-sm text-foreground leading-relaxed">
               Стоимость доставки — <span className="font-semibold">от 500 ₽</span>
             </p>

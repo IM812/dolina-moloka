@@ -94,8 +94,8 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
 export function FeaturedProducts() {
   return (
-    <section className="py-20 md:py-28 bg-background">
-      <div className="container mx-auto px-6 max-w-7xl">
+    <section className="py-14 sm:py-20 md:py-28 bg-background">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

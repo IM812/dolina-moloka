@@ -23,7 +23,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
 
       {/* Content */}
-      <div className="relative z-10 w-full container mx-auto px-6 max-w-7xl pb-20 md:pb-28">
+      <div className="relative z-10 w-full container mx-auto px-5 sm:px-6 max-w-7xl pb-14 sm:pb-20 md:pb-28">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -35,7 +35,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="inline-flex items-center gap-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/90 px-4 py-1.5 rounded-full text-sm font-medium mb-6 tracking-wide"
+            className="inline-flex items-center gap-2 border border-white/30 bg-white/10 backdrop-blur-sm text-white/90 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 tracking-wide"
           >
             Натуральная молочная продукция
           </motion.div>
@@ -45,10 +45,9 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.25 }}
-            className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.05] tracking-tight text-balance mb-6"
+            className="font-heading text-[2.4rem] leading-[1.08] sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight text-balance mb-4 sm:mb-6"
           >
             Настоящие молочные продукты
-            <br className="hidden md:block" />
             <span className="text-white/80"> для вашей семьи</span>
           </motion.h1>
 
@@ -57,7 +56,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="text-white/70 text-lg md:text-xl leading-relaxed max-w-xl mb-10"
+            className="text-white/70 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl mb-7 sm:mb-10"
           >
             Свежая продукция от проверенных производителей.
             Удобный заказ и доставка в вашем городе.
@@ -70,19 +69,19 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.55 }}
             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
           >
-            <Link href="/catalog">
+            <Link href="/catalog" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-8 h-14 text-base rounded-full transition-all duration-300 hover:scale-105 active:scale-100 shadow-lg"
+                className="w-full bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 active:scale-100 shadow-lg"
               >
                 Смотреть продукцию
                 <ArrowRight className="size-4" data-icon="inline-end" />
               </Button>
             </Link>
-            <Link href="/checkout">
+            <Link href="/checkout" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto bg-white/20 text-white hover:bg-white/30 border border-white/60 font-semibold px-8 h-14 text-base rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-100 shadow-lg"
+                className="w-full bg-white/20 text-white hover:bg-white/30 border border-white/60 font-semibold px-6 sm:px-8 h-12 sm:h-14 text-sm sm:text-base rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-100 shadow-lg"
               >
                 Оформить заказ
               </Button>

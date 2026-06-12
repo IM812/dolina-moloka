@@ -13,27 +13,27 @@ export function StorySection() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col justify-center px-8 md:px-16 py-20 lg:py-28"
+          className="flex flex-col justify-center px-5 sm:px-8 md:px-16 py-12 sm:py-16 lg:py-28"
         >
-          <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium mb-6">
+          <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium mb-4 sm:mb-6">
             Наша история
           </span>
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] mb-8 text-balance">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] mb-5 sm:mb-8 text-balance">
             Мы не продаём молоко.
           </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed mb-6 text-balance">
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground font-light leading-relaxed mb-4 sm:mb-6 text-balance">
             Мы доставляем продукты,
             которые сами ставим на стол своим детям.
           </p>
-          <p className="text-muted-foreground leading-relaxed max-w-lg">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg">
             Каждый продукт проходит через наши руки с одним вопросом — 
             съел бы я это сам? Только натуральное молоко, живые закваски 
             и традиционные рецепты. Без компромиссов.
           </p>
 
-          <div className="flex items-center gap-4 mt-10 pt-10 border-t border-border">
-            <div className="size-12 rounded-full bg-[var(--brand-green)]/10 flex items-center justify-center flex-shrink-0">
-              <svg viewBox="0 0 24 24" fill="none" className="size-6 text-[var(--brand-green)]">
+          <div className="flex items-center gap-4 mt-8 sm:mt-10 pt-8 sm:pt-10 border-t border-border">
+            <div className="size-10 sm:size-12 rounded-full bg-[var(--brand-green)]/10 flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 24 24" fill="none" className="size-5 sm:size-6 text-[var(--brand-green)]">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="currentColor"/>
               </svg>
             </div>
@@ -49,7 +49,7 @@ export function StorySection() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="relative min-h-[400px] lg:min-h-0"
+          className="relative min-h-[280px] sm:min-h-[380px] lg:min-h-0"
         >
           <Image
             src="/story-farm.png"

@@ -5,11 +5,11 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 
 export function Footer() {
   return (
-    <footer className="bg-secondary border-t border-border mt-20">
-      <div className="container mx-auto px-4 max-w-7xl py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+    <footer className="bg-secondary border-t border-border mt-12 sm:mt-20">
+      <div className="container mx-auto px-5 sm:px-4 max-w-7xl py-8 sm:py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-10">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div className="col-span-2 md:col-span-1">
             <BrandLogo variant="footer" className="mb-5" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               Натуральная молочная продукция прямо с фермы. Без консервантов,

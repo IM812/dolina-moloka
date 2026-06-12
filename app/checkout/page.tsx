@@ -134,20 +134,20 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="py-10">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <div className="py-6 sm:py-10">
+      <div className="container mx-auto px-4 sm:px-5 max-w-7xl">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-heading font-bold text-foreground mb-8">Оформление заказа</h1>
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-foreground mb-6 sm:mb-8">Оформление заказа</h1>
         </motion.div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
             {/* Form */}
             <motion.div
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 flex flex-col gap-5"
+              className="lg:col-span-2 bg-card border border-border rounded-2xl p-4 sm:p-6 flex flex-col gap-4 sm:gap-5"
             >
               <h2 className="font-semibold text-foreground text-lg">Контактные данные</h2>
 
@@ -225,7 +225,7 @@ export default function CheckoutPage() {
               transition={{ delay: 0.15 }}
               className="lg:col-span-1"
             >
-              <div className="bg-card border border-border rounded-2xl p-6 sticky top-24 flex flex-col gap-4">
+              <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 sm:sticky sm:top-24 flex flex-col gap-4">
                 <h2 className="font-semibold text-foreground text-lg">Ваш заказ</h2>
 
                 <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">

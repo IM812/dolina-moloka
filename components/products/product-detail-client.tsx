@@ -28,18 +28,18 @@ export function ProductDetailClient({ product, related }: Props) {
   };
 
   return (
-    <div className="py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <div className="py-5 sm:py-8">
+      <div className="container mx-auto px-4 sm:px-5 max-w-7xl">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-          <Link href="/" className="hover:text-foreground transition-colors">Главная</Link>
+        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground mb-5 sm:mb-8 flex-wrap">
+          <Link href="/" className="hover:text-foreground transition-colors whitespace-nowrap">Главная</Link>
           <span>/</span>
-          <Link href="/catalog" className="hover:text-foreground transition-colors">Каталог</Link>
+          <Link href="/catalog" className="hover:text-foreground transition-colors whitespace-nowrap">Каталог</Link>
           <span>/</span>
-          <span className="text-foreground">{product.name}</span>
+          <span className="text-foreground line-clamp-1">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 mb-12 sm:mb-16">
           {/* Image */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
