@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ShoppingCart, Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
@@ -90,41 +89,36 @@ export function Header() {
       </div>
 
       {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            className="md:hidden border-t border-border bg-background"
-          >
-            <nav className="container mx-auto px-4 py-3 flex flex-col gap-1 max-w-7xl">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                    pathname === link.href
-                      ? "text-primary bg-accent"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <Link href="/cart" className="px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-2">
-                <ShoppingCart className="size-4" />
-                Корзина
-                {itemsCount > 0 && (
-                  <Badge className="bg-primary text-primary-foreground border-0 text-xs">{itemsCount}</Badge>
-                )}
-              </Link>
-            </nav>
-          </motion.div>
+      <div
+        className={cn(
+          "md:hidden border-b border-border bg-background overflow-hidden transition-all duration-200",
+          mobileOpen ? "max-h-96 border-t" : "max-h-0 border-t-0"
         )}
-      </AnimatePresence>
+      >
+        <nav className="container mx-auto px-4 py-3 flex flex-col gap-1 max-w-7xl">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                pathname === link.href
+                  ? "text-primary bg-accent"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link href="/cart" className="px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-2">
+            <ShoppingCart className="size-4" />
+            Корзина
+            {itemsCount > 0 && (
+              <Badge className="bg-primary text-primary-foreground border-0 text-xs">{itemsCount}</Badge>
+            )}
+          </Link>
+        </nav>
+      </div>
     </header>
   );
 }

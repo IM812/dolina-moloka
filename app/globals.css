@@ -132,13 +132,29 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent layout shift when scrollbar appears/disappears */
+    scrollbar-gutter: stable;
+    overflow-x: hidden;
   }
   html {
     @apply font-sans;
+    /* Reserve scrollbar gutter at html level too */
+    scrollbar-gutter: stable;
+    overflow-x: hidden;
   }
   input, textarea, select {
     @apply text-foreground;
     color-scheme: light;
+  }
+}
+
+/* Respect reduced-motion preference — kills all CSS transitions and animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

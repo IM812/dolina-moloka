@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
@@ -10,7 +9,7 @@ import { ArrowRight } from "lucide-react";
 // but we keep them simple and fast.
 export function HeroSection() {
   return (
-    <section className="relative w-full h-[100svh] min-h-[600px] flex items-end overflow-hidden">
+    <section className="relative w-full h-[calc(100svh-5rem)] min-h-[580px] flex items-end overflow-hidden will-change-transform">
       {/* Background image */}
       <Image
         src="/story-bg.png"
@@ -26,14 +25,9 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 w-full container mx-auto px-5 sm:px-6 max-w-7xl pb-14 sm:pb-20 md:pb-28">
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-3xl"
-        >
+        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 border border-white/30 bg-black/30 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6 tracking-widest uppercase">
+          <div className="inline-flex items-center gap-2 border border-white/30 bg-black/40 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6 tracking-widest uppercase">
             Натуральная молочная продукция
           </div>
 
@@ -69,17 +63,13 @@ export function HeroSection() {
               </Button>
             </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll indicator — desktop only */}
       <div className="absolute bottom-8 right-8 z-10 hidden md:flex flex-col items-center gap-2">
         <span className="text-white/40 text-xs tracking-widest rotate-90 origin-center">SCROLL</span>
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          className="w-px h-10 bg-white/25 rounded-full"
-        />
+        <div className="w-px h-10 bg-white/25 rounded-full animate-pulse" />
       </div>
     </section>
   );
