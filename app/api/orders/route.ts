@@ -5,6 +5,7 @@ import {
   generateOrderNumber,
 } from "@/lib/mock-data";
 import { Order } from "@/types";
+import { sendOrderNotification } from "@/lib/email";
 
 export async function GET() {
   // TODO: Replace with real DB query: await db.select().from(orders).orderBy(desc(orders.createdAt))
@@ -39,6 +40,11 @@ export async function POST(req: NextRequest) {
 
     // TODO: Replace with real DB insert: await db.insert(orders).values(order)
     addMockOrder(order);
+
+    // Send email notification (non-blocking — don't fail the request if email fails)
+    sendOrderNotification(order).catch((err) =>
+      console.error("[api/orders] email notification failed:", err)
+    );
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
