@@ -52,7 +52,7 @@ export function StorySection() {
           className="relative min-h-[400px] lg:min-h-0"
         >
           <Image
-            src="/story-bg.png"
+            src="/story-farm.png"
             alt="Наша ферма"
             fill
             className="object-cover"

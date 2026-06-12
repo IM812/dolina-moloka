@@ -47,13 +47,9 @@ export function DeliverySection() {
             <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-4">
               Доставка
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-5 text-balance leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-10 text-balance leading-tight">
               Свежие продукты — прямо к вашей двери
             </h2>
-            <p className="text-muted-foreground text-lg leading-relaxed mb-10">
-              Мы доставляем дважды в неделю. Каждый заказ собирается в день
-              доставки — никаких залежавшихся продуктов.
-            </p>
 
             <div className="flex flex-col gap-6">
               {deliveryItems.map(({ icon: Icon, title, desc }, i) => (
@@ -86,45 +82,30 @@ export function DeliverySection() {
             className="relative"
           >
             <div className="bg-background rounded-3xl border border-border p-8 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="size-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-                  <Truck className="size-6 text-primary" />
-                </div>
-                <div>
-                  <p className="font-bold text-foreground">Ближайшая доставка</p>
-                  <p className="text-sm text-muted-foreground">Оформите заказ сегодня</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 mb-6">
+              <div className="flex flex-col gap-4">
                 {[
-                  { day: "Четверг", deadline: "Приём до вторника 20:00", active: true },
-                  { day: "Воскресенье", deadline: "Приём до пятницы 20:00", active: false },
-                ].map(({ day, deadline, active }) => (
+                  { day: "Четверг", deadline: "Приём заказов до вторника 20:00" },
+                  { day: "Воскресенье", deadline: "Приём заказов до пятницы 20:00" },
+                ].map(({ day, deadline }) => (
                   <div
                     key={day}
-                    className={`flex items-center justify-between rounded-2xl px-5 py-4 border transition-colors ${
-                      active
-                        ? "bg-primary/5 border-primary/20"
-                        : "bg-secondary border-border"
-                    }`}
+                    className="flex items-center justify-between rounded-2xl px-5 py-4 bg-secondary border border-border"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`size-2.5 rounded-full ${active ? "bg-primary" : "bg-muted-foreground/30"}`} />
-                      <span className="font-semibold text-foreground text-sm">{day}</span>
+                      <div className="size-2.5 rounded-full bg-primary" />
+                      <span className="font-semibold text-foreground">{day}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{deadline}</span>
+                    <span className="text-sm text-muted-foreground">{deadline}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="rounded-2xl bg-primary/5 border border-primary/15 px-5 py-4 text-sm text-foreground leading-relaxed">
-                Доставка бесплатно при заказе от{" "}
+              <div className="mt-6 rounded-2xl bg-primary/5 border border-primary/15 px-5 py-4 text-sm text-foreground leading-relaxed">
+                Бесплатная доставка при заказе от{" "}
                 <span className="font-bold text-primary">2 000 ₽</span>
               </div>
             </div>
 
-            {/* decorative dot */}
             <div className="absolute -top-4 -right-4 size-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
           </motion.div>
         </div>

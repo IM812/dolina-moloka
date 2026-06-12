@@ -68,12 +68,12 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.55 }}
-            className="flex flex-col sm:flex-row gap-3"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
           >
             <Link href="/catalog">
               <Button
                 size="lg"
-                className="bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-8 h-14 text-base rounded-full transition-all duration-300 hover:scale-105 active:scale-100"
+                className="w-full sm:w-auto bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-8 h-14 text-base rounded-full transition-all duration-300 hover:scale-105 active:scale-100 shadow-lg"
               >
                 Смотреть продукцию
                 <ArrowRight className="size-4" data-icon="inline-end" />
@@ -82,8 +82,7 @@ export function HeroSection() {
             <Link href="/checkout">
               <Button
                 size="lg"
-                variant="outline"
-                className="border-white/40 text-white hover:bg-white/15 hover:border-white/60 font-medium px-8 h-14 text-base rounded-full backdrop-blur-sm transition-all duration-300"
+                className="w-full sm:w-auto bg-white/20 text-white hover:bg-white/30 border border-white/60 font-semibold px-8 h-14 text-base rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-100 shadow-lg"
               >
                 Оформить заказ
               </Button>
