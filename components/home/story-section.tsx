@@ -9,14 +9,14 @@ export function StorySection() {
 
   return (
     <section className="bg-secondary overflow-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[600px]">
         {/* Text */}
         <motion.div
           initial={isMobile ? false : { opacity: 0, x: -30 }}
           whileInView={isMobile ? undefined : { opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col justify-center px-5 sm:px-8 md:px-16 py-12 sm:py-16 lg:py-28"
+          className="flex flex-col justify-center px-5 sm:px-8 md:px-16 py-10 sm:py-14 lg:py-28"
         >
           <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium mb-4 sm:mb-6">
             Наша история
@@ -47,7 +47,7 @@ export function StorySection() {
         </motion.div>
 
         {/* Image */}
-        <div className="relative min-h-[280px] sm:min-h-[380px] lg:min-h-0">
+        <div className="relative h-56 sm:h-80 lg:h-auto">
           <Image
             src="/story-farm.png"
             alt="Наша ферма"

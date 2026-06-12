@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useCartStore } from "@/store/cart";
 import { products } from "@/lib/mock-data";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 
 function ProductCard({ product, index }: { product: Product; index: number }) {
   const { items, addItem, updateQuantity, removeItem } = useCartStore();
+  const isMobile = useIsMobile();
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem?.quantity ?? 0;
 
@@ -23,8 +25,8 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={isMobile ? false : { opacity: 0, y: 24 }}
+      whileInView={isMobile ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
       className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-lg hover:border-primary/20 transition-all duration-300 flex flex-col h-full"
@@ -93,12 +95,13 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 }
 
 export function FeaturedProducts() {
+  const isMobile = useIsMobile();
   return (
     <section className="py-14 sm:py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={isMobile ? false : { opacity: 0, y: 20 }}
+          whileInView={isMobile ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="flex items-end justify-between mb-10 flex-wrap gap-4"

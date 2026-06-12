@@ -5,10 +5,14 @@ function createTransport() {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST ?? "smtp.mail.ru",
     port: Number(process.env.SMTP_PORT ?? 465),
-    secure: process.env.SMTP_SECURE !== "false", // true by default (SSL/TLS)
+    secure: process.env.SMTP_SECURE !== "false", // true = SSL on port 465
     auth: {
       user: process.env.SMTP_USER ?? "inevolin228@mail.ru",
       pass: process.env.SMTP_PASS,
+    },
+    tls: {
+      // mail.ru requires this — allows self-signed / intermediate certs
+      rejectUnauthorized: false,
     },
   });
 }
@@ -69,16 +73,26 @@ function formatOrderEmailHtml(order: Order): string {
 
 export async function sendOrderNotification(order: Order): Promise<void> {
   const to = process.env.SMTP_TO ?? "inevolin228@mail.ru";
+  const user = process.env.SMTP_USER ?? "inevolin228@mail.ru";
+
   if (!process.env.SMTP_PASS) {
-    console.warn("[email] SMTP_PASS not configured — skipping notification");
+    console.warn("[email] SMTP_PASS not set — skipping order notification");
     return;
   }
 
+  console.log(`[email] Sending order #${order.orderNumber} to ${to} via ${process.env.SMTP_HOST ?? "smtp.mail.ru"}`);
+
   const transporter = createTransport();
-  await transporter.sendMail({
-    from: `"Долина молока" <${process.env.SMTP_USER ?? "inevolin228@mail.ru"}>`,
+
+  // Verify connection before sending
+  await transporter.verify();
+
+  const info = await transporter.sendMail({
+    from: `"Долина молока" <${user}>`,
     to,
     subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
     html: formatOrderEmailHtml(order),
   });
+
+  console.log(`[email] Sent: ${info.messageId}`);
 }
