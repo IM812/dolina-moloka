@@ -1,114 +1,126 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Truck, Calendar, Clock, MapPin, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-const deliveryItems = [
+const steps = [
   {
-    icon: Calendar,
-    title: "Два раза в неделю",
-    desc: "Доставляем по четвергам и воскресеньям с 10:00 до 19:00.",
+    num: "01",
+    title: "Выберите продукты",
+    desc: "Свежий ассортимент молочных продуктов с фермы — молоко, творог, кефир, масло и йогурты.",
   },
   {
-    icon: Clock,
-    title: "Дедлайн приёма заказов",
-    desc: "На четверг — до вторника 20:00. На воскресенье — до пятницы 20:00.",
+    num: "02",
+    title: "Оформите заказ",
+    desc: "Укажите адрес доставки, имя и телефон. Принимаем заказы до 20:00 накануне дня доставки.",
   },
   {
-    icon: MapPin,
-    title: "Доставка по адресу",
-    desc: "Привозим прямо к вашей двери. Укажите адрес при оформлении заказа.",
+    num: "03",
+    title: "Получите у двери",
+    desc: "Доставляем каждый четверг и воскресенье. Все продукты едут в холодильных контейнерах.",
   },
-  {
-    icon: ShieldCheck,
-    title: "Температурный режим",
-    desc: "Все продукты перевозятся в холодильных контейнерах. Цепочка холода не прерывается.",
-  },
-  {
-    icon: Truck,
-    title: "Стоимость доставки",
-    desc: "Доставка от 500 рублей. При заказе от 2 000 рублей — бесплатно.",
-  },
+];
+
+const scheduleRows = [
+  { day: "Четверг", label: "Приём заказов", deadline: "до вторника, 20:00" },
+  { day: "Воскресенье", label: "Приём заказов", deadline: "до пятницы, 20:00" },
 ];
 
 export function DeliverySection() {
   return (
-    <section id="delivery" className="py-24 bg-secondary">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <section id="delivery" className="py-24 overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
 
-          {/* Left: text */}
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-4">
-              Доставка
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-10 text-balance leading-tight">
-              Свежие продукты — прямо к вашей двери
+            <span className="text-sm font-semibold text-primary uppercase tracking-widest mb-3 block">
+              Как это работает
+            </span>
+            <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground leading-tight text-balance">
+              От фермы —<br className="hidden sm:block" /> к вашей двери
             </h2>
-
-            <div className="flex flex-col gap-6">
-              {deliveryItems.map(({ icon: Icon, title, desc }, i) => (
-                <motion.div
-                  key={title}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.07, duration: 0.4 }}
-                  className="flex items-start gap-4"
-                >
-                  <div className="size-11 bg-background border border-border rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <Icon className="size-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-0.5">{title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
           </motion.div>
 
-          {/* Right: visual delivery card */}
           <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.55, delay: 0.1 }}
-            className="relative"
+            transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="shrink-0"
           >
-            <div className="bg-background rounded-3xl border border-border p-8 shadow-sm">
-              <div className="flex flex-col gap-4">
-                {[
-                  { day: "Четверг", deadline: "Приём заказов до вторника 20:00" },
-                  { day: "Воскресенье", deadline: "Приём заказов до пятницы 20:00" },
-                ].map(({ day, deadline }) => (
-                  <div
-                    key={day}
-                    className="flex items-center justify-between rounded-2xl px-5 py-4 bg-secondary border border-border"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="size-2.5 rounded-full bg-primary" />
-                      <span className="font-semibold text-foreground">{day}</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">{deadline}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 rounded-2xl bg-primary/5 border border-primary/15 px-5 py-4 text-sm text-foreground leading-relaxed">
-                Бесплатная доставка при заказе от{" "}
-                <span className="font-bold text-primary">2 000 ₽</span>
-              </div>
-            </div>
-
-            <div className="absolute -top-4 -right-4 size-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+            <Link href="/catalog">
+              <Button variant="outline" className="gap-2 rounded-full h-11 px-6 border-foreground/20">
+                Перейти к заказу
+                <ArrowRight className="size-4" />
+              </Button>
+            </Link>
           </motion.div>
         </div>
+
+        {/* Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border rounded-3xl overflow-hidden mb-6">
+          {steps.map(({ num, title, desc }, i) => (
+            <motion.div
+              key={num}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.55, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="bg-background px-8 py-10 flex flex-col gap-5 group"
+            >
+              <span className="font-heading text-5xl font-bold text-primary/20 leading-none select-none group-hover:text-primary/40 transition-colors duration-300">
+                {num}
+              </span>
+              <div>
+                <h3 className="font-semibold text-lg text-foreground mb-2">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Schedule + free delivery strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
+          {scheduleRows.map(({ day, label, deadline }, i) => (
+            <div
+              key={day}
+              className="flex items-center justify-between bg-foreground text-background rounded-2xl px-7 py-5"
+            >
+              <div className="flex items-center gap-4">
+                <div className="size-2.5 rounded-full bg-primary shrink-0" />
+                <div>
+                  <p className="font-bold text-base leading-tight">{day}</p>
+                  <p className="text-xs text-background/60 mt-0.5">{label}</p>
+                </div>
+              </div>
+              <span className="text-sm font-medium text-background/80 text-right">{deadline}</span>
+            </div>
+          ))}
+
+          <div className="sm:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-primary/8 border border-primary/15 rounded-2xl px-7 py-5">
+            <p className="text-sm text-foreground leading-relaxed">
+              Стоимость доставки — <span className="font-semibold">от 500 ₽</span>
+            </p>
+            <p className="text-sm font-semibold text-primary whitespace-nowrap">
+              Бесплатно от 2 000 ₽
+            </p>
+          </div>
+        </motion.div>
+
       </div>
     </section>
   );
