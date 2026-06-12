@@ -19,8 +19,8 @@ export function HeroSection() {
         sizes="100vw"
       />
 
-      {/* Gradient overlay — bottom-heavy for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+      {/* Gradient overlay — stronger top coverage for badge legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/45" />
 
       {/* Content */}
       <div className="relative z-10 w-full container mx-auto px-5 sm:px-6 max-w-7xl pb-14 sm:pb-20 md:pb-28">
@@ -35,7 +35,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="inline-flex items-center gap-2 border border-white/25 bg-white/15 backdrop-blur-md text-white px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 tracking-wide"
+            className="inline-flex items-center gap-2 border border-white/30 bg-white/20 text-white px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6 tracking-widest uppercase"
           >
             Натуральная молочная продукция
           </motion.div>
