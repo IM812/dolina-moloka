@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, PackageCheck, Banknote, ShoppingCart, Users, Lock, RefreshCw, Phone, Mail, MapPin, MessageSquare } from "lucide-react";
 import Image from "next/image";
 
-const ADMIN_PASSWORD = "dolina2024";
+const ADMIN_PASSWORD = "dolinamoloka2026";
 
 const PAYMENT_LABELS: Record<Order["paymentStatus"], string> = {
   pending: "Ожидает оплаты",

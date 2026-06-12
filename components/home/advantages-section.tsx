@@ -26,8 +26,8 @@ const advantages = [
   },
   {
     number: "04",
-    title: "Удобная доставка",
-    description: "Заказы принимаются до 22:00, сборка и доставка — в течение следующего дня. Всё просто.",
+    title: "Доставка по адресу",
+    description: "Привозим прямо к вашей двери дважды в неделю. Укажите адрес при оформлении — остальное сделаем мы.",
     color: "from-purple-50 to-white",
     accent: "text-purple-400",
   },
@@ -66,9 +66,10 @@ export function AdvantagesSection() {
               key={adv.number}
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.08 }}
-              className={`group relative bg-gradient-to-br ${adv.color} border border-border rounded-3xl p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 cursor-default overflow-hidden`}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.55, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.10)" }}
+              className={`group relative bg-gradient-to-br ${adv.color} border border-border rounded-3xl p-8 cursor-default overflow-hidden`}
             >
               <span className={`font-heading text-7xl font-bold ${adv.accent} opacity-15 absolute -top-3 -right-2 select-none`}>
                 {adv.number}

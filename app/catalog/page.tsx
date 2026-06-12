@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ProductCard } from "@/components/products/product-card";
 import { products } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
@@ -24,8 +24,8 @@ export default function CatalogPage() {
   });
 
   return (
-    <div className="py-12">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <div className="py-8 md:py-12">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -77,21 +77,25 @@ export default function CatalogPage() {
 
         {/* Grid */}
         {filtered.length > 0 ? (
-          <motion.div
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
-          >
-            {filtered.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06, duration: 0.4 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </motion.div>
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              layout
+              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
+            >
+              {filtered.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <ProductCard product={product} index={i} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-muted-foreground text-lg">Продукты не найдены</p>

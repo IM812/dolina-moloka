@@ -42,19 +42,25 @@ export function ProductDetailClient({ product, related }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Image */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="relative aspect-square bg-secondary rounded-3xl overflow-hidden border border-border">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                priority
-                className="object-contain p-10"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
+            <div className="relative aspect-square bg-white rounded-3xl overflow-hidden border border-border shadow-sm">
+              <motion.div
+                className="absolute inset-0"
+                whileHover={{ scale: 1.04 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  priority
+                  className="object-contain p-12"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </motion.div>
             </div>
           </motion.div>
 

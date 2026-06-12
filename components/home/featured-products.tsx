@@ -119,7 +119,7 @@ export function FeaturedProducts() {
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
           {products.map((product, i) => (
             <ProductCard key={product.id} product={product} index={i} />
           ))}
