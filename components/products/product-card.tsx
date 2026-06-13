@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { Product } from "@/types";
@@ -15,7 +14,7 @@ interface ProductCardProps {
   index?: number;
 }
 
-export function ProductCard({ product, className, index = 0 }: ProductCardProps) {
+export function ProductCard({ product, className }: ProductCardProps) {
   const { items, addItem, updateQuantity, removeItem } = useCartStore();
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem?.quantity ?? 0;
@@ -26,20 +25,15 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.45, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -6, transition: { duration: 0.25 } }}
+    <div
       className={cn(
-        "group bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:shadow-xl hover:shadow-black/5 hover:border-primary/25 transition-shadow duration-300",
+        "group bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:shadow-xl hover:shadow-black/5 hover:border-primary/25 transition-all duration-300",
         className
       )}
     >
-      {/* Image zone — white bg, generous padding, contained */}
+      {/* Image */}
       <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
-        <div className="relative bg-white h-52 sm:h-56 overflow-hidden rounded-t-2xl">
+        <div className="relative bg-white h-40 sm:h-44 overflow-hidden rounded-t-2xl">
           <Image
             src={product.image}
             alt={product.name}
@@ -75,46 +69,35 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
           </div>
 
           {quantity === 0 ? (
-            <motion.button
+            <button
               onClick={handleAdd}
-              whileTap={{ scale: 0.93 }}
-              className="flex items-center gap-1.5 bg-foreground text-background hover:bg-foreground/80 px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200"
+              className="flex items-center gap-1.5 bg-foreground text-background hover:bg-foreground/80 active:scale-95 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200"
             >
               <ShoppingCart className="size-3.5" />
               <span className="hidden sm:inline">В корзину</span>
               <span className="sm:hidden">+</span>
-            </motion.button>
+            </button>
           ) : (
             <div className="flex items-center gap-1.5 bg-secondary rounded-xl p-1">
-              <motion.button
+              <button
                 onClick={() => quantity === 1 ? removeItem(product.id) : updateQuantity(product.id, quantity - 1)}
-                whileTap={{ scale: 0.88 }}
-                className="size-7 rounded-lg bg-card border border-border hover:border-primary/40 flex items-center justify-center transition-colors"
+                className="size-7 rounded-lg bg-card border border-border hover:border-primary/40 flex items-center justify-center transition-all active:scale-90"
                 aria-label="Уменьшить"
               >
                 <Minus className="size-3" />
-              </motion.button>
-              <motion.span
-                key={quantity}
-                initial={{ scale: 1.3, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.18 }}
-                className="w-6 text-center font-bold text-sm"
-              >
-                {quantity}
-              </motion.span>
-              <motion.button
+              </button>
+              <span className="w-6 text-center font-bold text-sm">{quantity}</span>
+              <button
                 onClick={() => updateQuantity(product.id, quantity + 1)}
-                whileTap={{ scale: 0.88 }}
-                className="size-7 rounded-lg bg-foreground text-background hover:bg-foreground/80 flex items-center justify-center transition-colors"
+                className="size-7 rounded-lg bg-foreground text-background hover:bg-foreground/80 flex items-center justify-center transition-all active:scale-90"
                 aria-label="Увеличить"
               >
                 <Plus className="size-3" />
-              </motion.button>
+              </button>
             </div>
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
