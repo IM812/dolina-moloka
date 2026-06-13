@@ -1,51 +1,82 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
-import { Loader2, CreditCard, ShieldCheck, Lock } from "lucide-react";
+import { Loader2, CreditCard, ShieldCheck, Lock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { setPaymentStatus } from "@/lib/cookies";
 import { toast } from "sonner";
-import { Order } from "@/types";
 import Link from "next/link";
 
-function PaymentContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const orderNumber = searchParams.get("order");
+interface PendingOrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  price: number;
+}
 
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loadingOrder, setLoadingOrder] = useState(true);
+interface PendingOrder {
+  customer: {
+    fullName: string;
+    phone: string;
+    email: string;
+    pickupAddress: string;
+    comment: string;
+  };
+  items: PendingOrderItem[];
+  totalAmount: number;
+}
+
+function PaymentContent() {
+  const router = useRouter();
+  const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [paying, setPaying] = useState(false);
 
   useEffect(() => {
-    if (!orderNumber) { setLoadingOrder(false); return; }
-
-    fetch(`/api/orders/${encodeURIComponent(orderNumber)}`)
-      .then((r) => r.json())
-      .then(({ order }) => setOrder(order ?? null))
-      .catch(() => setOrder(null))
-      .finally(() => setLoadingOrder(false));
-  }, [orderNumber]);
+    const raw = sessionStorage.getItem("pendingOrder");
+    if (raw) {
+      try {
+        setPendingOrder(JSON.parse(raw));
+      } catch {
+        setPendingOrder(null);
+      }
+    }
+    setLoaded(true);
+  }, []);
 
   const handlePay = async () => {
-    if (!order) return;
+    if (!pendingOrder) return;
     setPaying(true);
 
     try {
-      const res = await fetch("/api/payment/create", {
+      // Step 1: simulate payment processing
+      const payRes = await fetch("/api/payment/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderNumber: order.orderNumber }),
+        body: JSON.stringify({ amount: pendingOrder.totalAmount }),
       });
 
-      if (!res.ok) throw new Error("Ошибка оплаты");
+      if (!payRes.ok) throw new Error("Ошибка оплаты");
+      const { success } = await payRes.json();
+      if (!success) throw new Error("Оплата отклонена");
 
-      setPaymentStatus("paid");
+      // Step 2: payment succeeded — now save order to DB
+      const orderRes = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pendingOrder),
+      });
+
+      if (!orderRes.ok) throw new Error("Ошибка сохранения заказа");
+      const { order } = await orderRes.json();
+
+      // Cleanup
+      sessionStorage.removeItem("pendingOrder");
+
       toast.success("Оплата прошла успешно!");
       router.push(`/success?order=${order.orderNumber}`);
     } catch (err) {
@@ -56,7 +87,7 @@ function PaymentContent() {
     }
   };
 
-  if (loadingOrder) {
+  if (!loaded) {
     return (
       <div className="py-20 flex items-center justify-center">
         <Loader2 className="size-8 animate-spin text-primary" />
@@ -64,14 +95,17 @@ function PaymentContent() {
     );
   }
 
-  if (!orderNumber || !order) {
+  if (!pendingOrder) {
     return (
       <div className="py-20">
-        <div className="container mx-auto px-4 max-w-lg text-center flex flex-col gap-4">
+        <div className="container mx-auto px-4 max-w-lg text-center flex flex-col items-center gap-4">
+          <div className="size-16 bg-destructive/10 rounded-full flex items-center justify-center">
+            <AlertCircle className="size-8 text-destructive" />
+          </div>
           <h1 className="text-2xl font-bold text-foreground">Заказ не найден</h1>
-          <p className="text-muted-foreground">Проверьте номер заказа или вернитесь в каталог</p>
-          <Link href="/catalog">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">В каталог</Button>
+          <p className="text-muted-foreground">Вернитесь в корзину и оформите заказ заново</p>
+          <Link href="/cart">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Вернуться в корзину</Button>
           </Link>
         </div>
       </div>
@@ -92,24 +126,24 @@ function PaymentContent() {
               <CreditCard className="size-7 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">Оплата заказа</h1>
-            <p className="text-muted-foreground text-sm">Заказ создан и ожидает оплаты</p>
+            <p className="text-muted-foreground text-sm">Заказ будет сохранён после успешной оплаты</p>
           </div>
 
           <Separator className="bg-border" />
 
-          {/* Order info */}
+          {/* Customer info */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Номер заказа</span>
-              <span className="font-mono font-bold text-foreground">{order.orderNumber}</span>
-            </div>
-            <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Покупатель</span>
-              <span className="text-sm font-medium text-foreground">{order.customer.fullName}</span>
+              <span className="text-sm font-medium text-foreground">{pendingOrder.customer.fullName}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Точка выдачи</span>
-              <span className="text-sm text-foreground text-right max-w-[200px]">{order.customer.pickupAddress}</span>
+              <span className="text-sm text-muted-foreground">Телефон</span>
+              <span className="text-sm text-foreground">{pendingOrder.customer.phone}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Адрес</span>
+              <span className="text-sm text-foreground text-right max-w-[200px]">{pendingOrder.customer.pickupAddress}</span>
             </div>
           </div>
 
@@ -118,8 +152,8 @@ function PaymentContent() {
           {/* Items */}
           <div className="flex flex-col gap-2.5">
             <h3 className="font-semibold text-foreground text-sm">Состав заказа</h3>
-            {order.items.map((item) => (
-              <div key={item.productId} className="flex items-center justify-between text-sm">
+            {pendingOrder.items.map((item, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
                   {item.productName} × {item.quantity}
                 </span>
@@ -135,7 +169,7 @@ function PaymentContent() {
           <div className="flex items-center justify-between">
             <span className="font-bold text-foreground text-lg">К оплате</span>
             <span className="font-bold text-foreground text-2xl">
-              {order.totalAmount.toLocaleString("ru-RU")} ₽
+              {pendingOrder.totalAmount.toLocaleString("ru-RU")} ₽
             </span>
           </div>
 
@@ -143,8 +177,7 @@ function PaymentContent() {
           <div className="bg-secondary border border-border rounded-xl p-3 flex items-center gap-3">
             <ShieldCheck className="size-5 text-[#22C55E] flex-shrink-0" />
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Платёж защищён. После подключения реальной оплаты здесь будет
-              виджет ЮKassa или CloudPayments.
+              Заказ появится в базе только после успешной оплаты. При отмене — данные не сохраняются.
             </p>
           </div>
 
@@ -160,7 +193,7 @@ function PaymentContent() {
             ) : (
               <Lock className="size-4" data-icon="inline-start" />
             )}
-            {paying ? "Обработка..." : `Оплатить ${order.totalAmount.toLocaleString("ru-RU")} ₽`}
+            {paying ? "Обработка..." : `Оплатить ${pendingOrder.totalAmount.toLocaleString("ru-RU")} ₽`}
           </Button>
 
           <Badge variant="secondary" className="text-center text-xs text-muted-foreground justify-center">

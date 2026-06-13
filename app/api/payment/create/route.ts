@@ -1,58 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPayment } from "@/lib/payment/mock-payment";
-import { getMockOrderByNumber, updateMockOrderStatus } from "@/lib/mock-data";
-import { sendPaidOrderEmail } from "@/lib/email/send-paid-order-email";
 
+/**
+ * Simulates payment processing.
+ * In production: integrate ЮKassa / CloudPayments here.
+ * The order is NOT saved to DB here — only after this returns success
+ * does the client call POST /api/orders to persist it.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { orderNumber } = body;
+    const { amount } = body;
 
-    if (!orderNumber) {
-      return NextResponse.json(
-        { error: "orderNumber is required" },
-        { status: 400 }
-      );
+    if (!amount || amount <= 0) {
+      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
-    const order = getMockOrderByNumber(orderNumber);
-    if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
+    // Simulate payment gateway delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const result = await createPayment({
-      orderNumber: order.orderNumber,
-      amount: order.totalAmount,
-      currency: "RUB",
-      description: `Заказ ${order.orderNumber} — Долина молока`,
-      returnUrl: `${req.nextUrl.origin}/payment?order=${order.orderNumber}`,
-      customerEmail: order.customer.email,
-    });
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: "Payment creation failed" },
-        { status: 500 }
-      );
-    }
-
-    // Mock: mark as paid immediately (in real flow, status is set by webhook after redirect)
-    const updatedOrder = updateMockOrderStatus(orderNumber, "paid");
-
-    if (updatedOrder) {
-      await sendPaidOrderEmail(updatedOrder);
-    }
-
+    // In production: call ЮKassa / CloudPayments API and return redirect URL
+    // For demo: always succeed
     return NextResponse.json({
       success: true,
-      paymentId: result.paymentId,
-      orderNumber,
+      paymentId: `demo_${Date.now()}`,
     });
   } catch (error) {
     console.error("[api/payment/create] error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Payment processing failed" }, { status: 500 });
   }
 }

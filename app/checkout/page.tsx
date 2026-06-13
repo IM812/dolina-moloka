@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart";
-import { setLastOrderNumber, setCheckoutSession } from "@/lib/cookies";
 import { toast } from "sonner";
 import { Loader2, ArrowRight, ShoppingCart, MapPin } from "lucide-react";
 import Link from "next/link";
@@ -106,30 +105,21 @@ export default function CheckoutPage() {
         price: item.product.price,
       }));
 
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer: {
-            fullName: form.fullName,
-            phone: form.phone,
-            email: form.email,
-            pickupAddress: form.address,
-            comment: form.comment,
-          },
-          items: orderItems,
-          totalAmount: total,
-        }),
-      });
+      // Save order data to sessionStorage — NOT written to DB until payment succeeds
+      const pendingOrder = {
+        customer: {
+          fullName: form.fullName,
+          phone: form.phone,
+          email: form.email,
+          pickupAddress: form.address,
+          comment: form.comment,
+        },
+        items: orderItems,
+        totalAmount: total,
+      };
+      sessionStorage.setItem("pendingOrder", JSON.stringify(pendingOrder));
 
-      if (!res.ok) throw new Error("Ошибка создания заказа");
-      const { order } = await res.json();
-
-      setLastOrderNumber(order.orderNumber);
-      setCheckoutSession({ orderNumber: order.orderNumber, email: form.email });
-
-      clearCart();
-      router.push(`/payment?order=${order.orderNumber}`);
+      router.push("/payment");
     } catch (err) {
       console.error("[checkout] error:", err);
       toast.error("Произошла ошибка. Попробуйте ещё раз.");
@@ -294,7 +284,7 @@ export default function CheckoutPage() {
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  Нажимая кнопку, вы соглашаетесь с{" "}
+                  Нажимая кнопку, вы соглашаетесь ��{" "}
                   <Link href="/offer" className="text-primary hover:underline">публичной офертой</Link>{" "}
                   и{" "}
                   <Link href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</Link>
