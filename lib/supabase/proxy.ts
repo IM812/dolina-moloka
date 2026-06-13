@@ -27,15 +27,17 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect /admin routes
-  if (request.nextUrl.pathname.startsWith('/admin') && !user) {
+  const isAdminLogin = request.nextUrl.pathname === '/admin/login'
+
+  // Protect /admin routes (but not the login page itself)
+  if (request.nextUrl.pathname.startsWith('/admin') && !isAdminLogin && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin/login'
     return NextResponse.redirect(url)
   }
 
-  // Allow /admin/login even when logged in
-  if (request.nextUrl.pathname === '/admin/login' && user) {
+  // Redirect to dashboard if already logged in and visiting login page
+  if (isAdminLogin && user) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin'
     return NextResponse.redirect(url)
