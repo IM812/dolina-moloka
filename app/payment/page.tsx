@@ -177,7 +177,7 @@ function PaymentContent() {
           <div className="bg-secondary border border-border rounded-xl p-3 flex items-center gap-3">
             <ShieldCheck className="size-5 text-[#22C55E] flex-shrink-0" />
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Заказ появится в базе только после успешной оплаты. При отмене — данные не сохраняются.
+              Нажимая кнопку, вы подтверждаете оплату. Заказ будет передан в обработку сразу после списания средств.
             </p>
           </div>
 

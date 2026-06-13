@@ -132,17 +132,7 @@ function OrderResult({ orderNumber }: { orderNumber: string }) {
             {order.totalAmount} ₽
           </span>
         </div>
-        <Separator />
-        <div className="text-sm text-muted-foreground flex flex-col gap-1">
-          <p>
-            <span className="text-foreground">Получатель:</span>{" "}
-            {order.customer.fullName}
-          </p>
-          <p>
-            <span className="text-foreground">Самовывоз:</span>{" "}
-            {order.customer.pickupAddress}
-          </p>
-        </div>
+
       </CardContent>
     </Card>
   );
