@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, priority }: { product: Product; priority?: boolean }) {
   const { items, addItem, updateQuantity, removeItem } = useCartStore();
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem?.quantity ?? 0;
@@ -28,8 +28,9 @@ function ProductCard({ product }: { product: Product }) {
             src={product.image}
             alt={product.name}
             fill
+            priority={priority}
             className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
           />
         </div>
       </Link>
@@ -106,8 +107,8 @@ export function FeaturedProducts() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {products.map((product, i) => (
+            <ProductCard key={product.id} product={product} priority={i < 4} />
           ))}
         </div>
       </div>
