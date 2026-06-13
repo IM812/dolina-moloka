@@ -66,19 +66,19 @@ export function Footer() {
             <ul className="flex flex-col gap-3">
               <li className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <Phone className="size-4 text-primary flex-shrink-0" />
-                <a href="tel:+74951234567" className="hover:text-primary transition-colors">
-                  +7 (495) 123-45-67
+                <a href="tel:+79166950988" className="hover:text-primary transition-colors">
+                  +7-916-695-09-88
                 </a>
               </li>
               <li className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <Mail className="size-4 text-primary flex-shrink-0" />
-                <a href="mailto:hello@dolina-moloka.ru" className="hover:text-primary transition-colors">
-                  hello@dolina-moloka.ru
+                <a href="mailto:inevolin228@mail.ru" className="hover:text-primary transition-colors">
+                  inevolin228@mail.ru
                 </a>
               </li>
               <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
                 <MapPin className="size-4 text-primary flex-shrink-0 mt-0.5" />
-                <span>г. Дмитров, Московская обл.</span>
+                <span>Моск. обл., г.о. Дмитровский, дер. Саввино</span>
               </li>
             </ul>
 
@@ -101,7 +101,7 @@ export function Footer() {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <span>© {new Date().getFullYear()} Долина молока. Все права защищены.</span>
-          <span>ИНН 1234567890 / ОГРН 1231234567890</span>
+          <span>ИП Прямова Анна Александровна. ИНН 504209373809 / ОГРНИП 309504234800012</span>
         </div>
       </div>
     </footer>

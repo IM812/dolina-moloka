@@ -29,19 +29,19 @@ export default function ContactsPage() {
                 {
                   icon: <Phone className="size-5 text-primary" />,
                   label: "Телефон",
-                  value: "+7 (800) 123-45-67",
-                  sub: "Бесплатно по России",
+                  value: "+7-916-695-09-88",
+                  sub: "Принимаем заказы: Max / Telegram",
                 },
                 {
                   icon: <MessageCircle className="size-5 text-primary" />,
-                  label: "WhatsApp / Telegram",
-                  value: "+7 (900) 000-00-00",
+                  label: "Telegram / Max",
+                  value: "+7-916-695-09-88",
                   sub: "Принимаем заказы в мессенджерах",
                 },
                 {
                   icon: <Mail className="size-5 text-primary" />,
                   label: "E-mail",
-                  value: "info@dolina-moloka.ru",
+                  value: "inevolin228@mail.ru",
                   sub: "Ответим в течение 1 рабочего дня",
                 },
               ].map((item) => (
@@ -69,12 +69,12 @@ export default function ContactsPage() {
                 <div>
                   <h2 className="font-semibold text-foreground">Адрес фермы</h2>
                   <p className="text-muted-foreground text-sm mt-1">
-                    Московская область, Сергиево-Посадский район,
+                    Московская область, г.о. Дмитровский,
                     <br />
-                    д. Молочная, д. 1
+                    дер. Саввино (возле МТК &laquo;Саввино&raquo;)
                   </p>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Самовывоз возможен по предварительной записи
+                    Самовывоз возможен по предварительной договорённости
                   </p>
                 </div>
               </CardContent>
@@ -89,8 +89,8 @@ export default function ContactsPage() {
                   <h2 className="font-semibold text-foreground">Время работы</h2>
                   <div className="flex flex-col gap-1.5 mt-2 text-sm">
                     {[
-                      { days: "Пн–Пт", hours: "8:00 – 20:00" },
-                      { days: "Сб–Вс", hours: "9:00 – 18:00" },
+                      { days: "Пн–Пт", hours: "9:00 – 17:00" },
+                      { days: "Сб–Вс", hours: "9:00 – 15:00" },
                     ].map(({ days, hours }) => (
                       <div key={days} className="flex justify-between gap-8">
                         <span className="text-muted-foreground">{days}</span>
@@ -109,10 +109,10 @@ export default function ContactsPage() {
             <Card className="border-border shadow-sm bg-accent">
               <CardContent className="p-6">
                 <p className="text-sm text-foreground font-medium">
-                  Принимаем заказы на доставку по всей России
+                  Доставка по Москве и области
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Сроки доставки: 1–3 рабочих дня в зависимости от региона. Минимальный заказ 500 ₽.
+                  Дни доставки: среда и суббота. Минимальный заказ 600 ₽.
                 </p>
               </CardContent>
             </Card>

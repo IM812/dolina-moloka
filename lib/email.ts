@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import type { Order } from "@/types";
 
 function formatOrderEmailHtml(order: Order): string {
@@ -54,28 +54,36 @@ function formatOrderEmailHtml(order: Order): string {
 }
 
 export async function sendOrderNotification(order: Order): Promise<void> {
-  const to = process.env.NOTIFICATION_EMAIL ?? "inevolin228@mail.ru";
+  const smtpUser = process.env.SMTP_USER ?? "inevolin228@mail.ru";
+  const smtpPass = process.env.SMTP_PASS;
+  const to = process.env.NOTIFICATION_EMAIL ?? smtpUser;
 
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("[email] RESEND_API_KEY not set — skipping notification");
+  if (!smtpPass) {
+    console.warn("[email] SMTP_PASS not set — skipping notification");
     return;
   }
 
-  console.log(`[email] Sending order #${order.orderNumber} → ${to}`);
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
-  const { data, error } = await resend.emails.send({
-    from: "Долина молока <onboarding@resend.dev>",
-    to,
-    subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
-    html: formatOrderEmailHtml(order),
+  const transporter = nodemailer.createTransport({
+    host: "smtp.mail.ru",
+    port: 465,
+    secure: true,
+    auth: { user: smtpUser, pass: smtpPass },
+    tls: { rejectUnauthorized: false },
   });
 
-  if (error) {
-    console.error("[email] Resend error:", JSON.stringify(error));
-    throw new Error(String(error));
-  }
+  console.log(`[email] Sending order #${order.orderNumber} → ${to}`);
 
-  console.log(`[email] Sent OK — id: ${data?.id}`);
+  try {
+    const info = await transporter.sendMail({
+      from: `"Долина молока" <${smtpUser}>`,
+      to,
+      subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
+      html: formatOrderEmailHtml(order),
+    });
+    console.log(`[email] Sent OK — messageId: ${info.messageId}`);
+  } catch (err: unknown) {
+    const e = err as { code?: string; message?: string; response?: string };
+    console.error(`[email] FAILED — code:${e.code} message:${e.message} response:${e.response}`);
+    throw err;
+  }
 }
