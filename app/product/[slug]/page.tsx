@@ -1,36 +1,69 @@
 import { notFound } from "next/navigation";
-import { products } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
 import { ProductDetailClient } from "@/components/products/product-detail-client";
 import type { Metadata } from "next";
+import type { Product } from "@/types";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
-  if (!product) return { title: "Продукт не найден" };
+function mapProduct(p: any): Product {
   return {
-    title: `${product.name} — Долина молока`,
-    description: product.description,
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    description: p.description ?? "",
+    fullDescription: p.full_description ?? "",
+    price: p.price,
+    image: p.image_url ?? "/products/placeholder.png",
+    volume: p.volume ?? "",
+    composition: p.composition ?? "",
+    storageConditions: p.storage_conditions ?? "",
+    category: p.category,
+    inStock: p.in_stock,
   };
 }
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase.from("products").select("name, description").eq("slug", slug).single();
+  if (!data) return { title: "Продукт не найден" };
+  return {
+    title: `${data.name} — Долина молока`,
+    description: data.description ?? undefined,
+  };
 }
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  const supabase = await createClient();
 
-  if (!product) notFound();
+  const { data: raw } = await supabase.from("products").select("*").eq("slug", slug).single();
+  if (!raw) notFound();
 
-  // First show same category, then fill up to 4 with others
-  const sameCategory = products.filter((p) => p.id !== product.id && p.category === product.category);
-  const others = products.filter((p) => p.id !== product.id && p.category !== product.category);
-  const related = [...sameCategory, ...others].slice(0, 4);
+  const product = mapProduct(raw);
+
+  // Related: same category first
+  const { data: relatedRaw } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category", product.category)
+    .neq("slug", slug)
+    .limit(4);
+
+  let related = (relatedRaw ?? []).map(mapProduct);
+
+  if (related.length < 4) {
+    const { data: othersRaw } = await supabase
+      .from("products")
+      .select("*")
+      .neq("category", product.category)
+      .neq("slug", slug)
+      .limit(4 - related.length);
+    related = [...related, ...(othersRaw ?? []).map(mapProduct)];
+  }
 
   return <ProductDetailClient product={product} related={related} />;
 }
