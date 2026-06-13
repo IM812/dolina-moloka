@@ -40,7 +40,7 @@ const advantages = [
 
 export function AdvantagesSection() {
   return (
-    <section className="py-14 sm:py-24 md:py-32 bg-background">
+    <section className="py-12 sm:py-20 md:py-28 bg-background">
       <div className="container mx-auto px-5 sm:px-6 max-w-7xl">
         <div className="max-w-xl mb-10 sm:mb-16">
           <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium block mb-4">

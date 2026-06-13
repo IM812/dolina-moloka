@@ -86,7 +86,7 @@ function ProductCard({ product }: { product: Product }) {
 
 export function FeaturedProducts() {
   return (
-    <section className="py-12 sm:py-20 md:py-28 bg-background">
+    <section className="py-10 sm:py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="flex items-end justify-between mb-8 sm:mb-10 flex-wrap gap-4">
           <div>

@@ -38,7 +38,7 @@ const pillars = [
 export function AboutSection() {
   return (
     <section className="bg-secondary overflow-hidden">
-      <div className="container mx-auto px-5 sm:px-6 max-w-7xl py-14 sm:py-20 md:py-28">
+      <div className="container mx-auto px-5 sm:px-6 max-w-7xl py-12 sm:py-20 md:py-28">
 
         {/* Header */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 mb-10 sm:mb-16">

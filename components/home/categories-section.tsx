@@ -37,7 +37,7 @@ const categories = [
 
 export function CategoriesSection() {
   return (
-    <section className="py-14 sm:py-24 md:py-32 bg-secondary">
+    <section className="py-12 sm:py-20 md:py-28 bg-secondary">
       <div className="container mx-auto px-5 sm:px-6 max-w-7xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-14">
           <div>
