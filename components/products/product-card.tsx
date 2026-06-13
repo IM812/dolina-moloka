@@ -40,19 +40,13 @@ export function ProductCard({ product, className, index = 0 }: ProductCardProps)
       {/* Image zone — white bg, generous padding, contained */}
       <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
         <div className="relative bg-white h-52 sm:h-56 overflow-hidden rounded-t-2xl">
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center p-6"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.35 }}
-          >
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-contain p-6"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            />
-          </motion.div>
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          />
         </div>
       </Link>
 
