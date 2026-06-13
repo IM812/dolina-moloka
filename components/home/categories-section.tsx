@@ -40,35 +40,8 @@ export function CategoriesSection() {
           </Link>
         </div>
 
-        {/* Layout: hero photo left + category grid right */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-
-          {/* Hero photo card */}
-          <div className="lg:col-span-2 relative bg-background rounded-3xl overflow-hidden border border-border min-h-[380px] lg:min-h-0">
-            <Image
-              src="/dairy-products.jpg"
-              alt="Ассортимент молочных продуктов"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 40vw"
-            />
-            {/* Overlay badge */}
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-6">
-              <p className="text-primary-foreground/80 text-sm font-medium mb-1">Фермерское хозяйство</p>
-              <p className="text-white text-xl font-bold font-heading leading-snug">
-                Натуральные молочные<br />продукты из Подмосковья
-              </p>
-              <Link
-                href="/catalog"
-                className="mt-4 inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors"
-              >
-                В каталог
-                <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
+        {/* Layout: category grid left + hero photo right */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-stretch">
 
           {/* Category grid */}
           <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -94,6 +67,27 @@ export function CategoriesSection() {
               );
             })}
           </div>
+
+          {/* Hero photo card */}
+          <Link
+            href="/catalog"
+            className="group lg:col-span-2 relative bg-white rounded-3xl overflow-hidden border border-border flex flex-col items-center justify-center min-h-[340px]"
+          >
+            <Image
+              src="/dairy-products.jpg"
+              alt="Ассортимент молочных продуктов"
+              fill
+              priority
+              className="object-contain p-4"
+              sizes="(max-width: 1024px) 100vw, 40vw"
+            />
+            <div className="absolute bottom-4 right-4">
+              <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 rounded-xl group-hover:bg-primary/90 transition-colors shadow-md">
+                В каталог
+                <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </div>
+          </Link>
 
         </div>
       </div>
