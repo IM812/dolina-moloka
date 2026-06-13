@@ -41,24 +41,33 @@ export function CategoriesSection() {
           </Link>
         </div>
 
-        {/* Full-width photo strip */}
-        <div className="relative w-full h-56 sm:h-72 md:h-80 rounded-3xl overflow-hidden mb-6 bg-white">
+        {/* Full-width photo banner */}
+        <div className="relative w-full h-52 sm:h-64 md:h-72 rounded-3xl overflow-hidden mb-6">
           <Image
-            src="/dairy-products.jpg"
-            alt="Ассортимент молочных продуктов"
+            src="/hero-bg.png"
+            alt="Ферма Долина Молока — Подмосковье"
             fill
             priority
-            className="object-contain"
+            className="object-cover object-center"
             sizes="100vw"
           />
-          {/* CTA overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/40 via-transparent to-transparent" />
+          {/* Dark overlay for text */}
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/65 via-foreground/20 to-transparent" />
           <div className="absolute left-6 bottom-6 sm:left-8 sm:bottom-8">
-            <p className="text-white/80 text-sm font-medium mb-1">Фермерское хозяйство · Подмосковье</p>
-            <p className="text-white text-xl sm:text-2xl font-heading font-bold leading-snug">
-              Натуральные молочные<br className="hidden sm:block" /> продукты с фермы
+            <p className="text-white/70 text-xs sm:text-sm font-medium mb-1.5 tracking-wide">
+              Фермерское хозяйство · Подмосковье
+            </p>
+            <p className="text-white text-xl sm:text-2xl md:text-3xl font-heading font-bold leading-snug text-balance">
+              Натуральные молочные<br />продукты с фермы
             </p>
           </div>
+          <Link
+            href="/catalog"
+            className="absolute right-6 bottom-6 sm:right-8 sm:bottom-8 inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/30 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-white/25 transition-colors"
+          >
+            В каталог
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
 
         {/* Category row */}
