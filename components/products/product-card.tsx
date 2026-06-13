@@ -33,7 +33,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     >
       {/* Image */}
       <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
-        <div className="relative bg-white h-44 sm:h-48 overflow-hidden rounded-t-2xl">
+        <div className="relative bg-white h-56 sm:h-64 overflow-hidden rounded-t-2xl">
           <Image
             src={product.image}
             alt={product.name}
