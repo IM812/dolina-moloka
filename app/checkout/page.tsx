@@ -284,7 +284,7 @@ export default function CheckoutPage() {
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  Нажимая кнопку, вы соглашаетесь ��{" "}
+                  Нажимая кнопку, вы соглашаетесь с{" "}
                   <Link href="/offer" className="text-primary hover:underline">публичной офертой</Link>{" "}
                   и{" "}
                   <Link href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</Link>
