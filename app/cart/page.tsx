@@ -12,6 +12,8 @@ import { toast } from "sonner";
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, getTotal } = useCartStore();
   const total = getTotal();
+  const MIN_ORDER = 600;
+  const belowMin = total < MIN_ORDER;
 
   const handleRemove = (name: string, id: string) => {
     removeItem(id);
@@ -182,8 +184,19 @@ export default function CartPage() {
                 </span>
               </div>
 
-              <Link href="/checkout" className="block">
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2" size="lg">
+              {belowMin && (
+                <div className="bg-destructive/10 border border-destructive/25 rounded-xl px-4 py-3 text-sm text-destructive leading-snug">
+                  Минимальный заказ — <span className="font-bold">600 ₽</span>. Добавьте ещё товаров на{" "}
+                  <span className="font-bold">{MIN_ORDER - total} ₽</span>.
+                </div>
+              )}
+
+              <Link href={belowMin ? "#" : "/checkout"} className="block" aria-disabled={belowMin} tabIndex={belowMin ? -1 : 0}>
+                <Button
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                  size="lg"
+                  disabled={belowMin}
+                >
                   Оформить заказ
                   <ArrowRight className="size-4" data-icon="inline-end" />
                 </Button>

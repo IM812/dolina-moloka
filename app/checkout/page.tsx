@@ -43,6 +43,8 @@ export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore();
   const total = getTotal();
 
+  const MIN_ORDER = 600;
+  const belowMin = total < MIN_ORDER;
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
@@ -56,7 +58,10 @@ export default function CheckoutPage() {
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.fullName.trim()) e.fullName = "Введите фамилию и имя";
+    const digits = form.phone.replace(/\D/g, "");
     if (!form.phone.trim()) e.phone = "Введите номер телефона";
+    else if (digits.length < 10) e.phone = "Номер должен содержать не менее 10 цифр";
+    else if (digits.length > 11) e.phone = "Проверьте номер телефона";
     if (!form.email.trim() || !form.email.includes("@")) e.email = "Введите корректный email";
     if (!form.address.trim()) e.address = "Введите адрес доставки";
     return e;
@@ -260,9 +265,16 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
+                {belowMin && (
+                  <div className="bg-destructive/10 border border-destructive/25 rounded-xl px-4 py-3 text-sm text-destructive leading-snug">
+                    Минимальный заказ — <span className="font-bold">600 ₽</span>. Не хватает{" "}
+                    <span className="font-bold">{MIN_ORDER - total} ₽</span>.
+                  </div>
+                )}
+
                 <Button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || belowMin}
                   size="lg"
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
                 >
