@@ -33,12 +33,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
     >
       {/* Image */}
       <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
-        <div className="relative bg-white h-40 sm:h-44 overflow-hidden rounded-t-2xl">
+        <div className="relative bg-white h-28 sm:h-32 overflow-hidden rounded-t-2xl">
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           />
         </div>
