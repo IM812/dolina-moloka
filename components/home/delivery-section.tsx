@@ -72,28 +72,48 @@ export function DeliverySection() {
               <div className="size-2.5 rounded-full bg-primary shrink-0" />
               <div>
                 <p className="font-bold text-sm leading-tight">Среда</p>
-                <p className="text-xs text-background/60 mt-0.5">Приём заказов</p>
+                <p className="text-xs text-background/60 mt-0.5">Приём заказов до вторника, 20:00</p>
               </div>
             </div>
-            <span className="text-sm font-medium text-background/80">до вторника, 20:00</span>
           </div>
           <div className="flex items-center justify-between bg-foreground text-background rounded-2xl px-5 py-4 gap-3">
             <div className="flex items-center gap-3">
               <div className="size-2.5 rounded-full bg-primary shrink-0" />
               <div>
                 <p className="font-bold text-sm leading-tight">Суббота</p>
-                <p className="text-xs text-background/60 mt-0.5">Приём заказов</p>
+                <p className="text-xs text-background/60 mt-0.5">Приём заказов до пятницы, 20:00</p>
               </div>
             </div>
-            <span className="text-sm font-medium text-background/80">до пятницы, 20:00</span>
           </div>
-          <div className="sm:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-primary/8 border border-primary/15 rounded-2xl px-5 py-4">
-            <p className="text-sm text-foreground">
-              Минимальный заказ — <span className="font-semibold">600 ₽</span>
-            </p>
-            <p className="text-sm font-semibold text-primary">
-              Доставка по Москве и области
-            </p>
+
+          {/* Working hours */}
+          <div className="bg-secondary border border-border rounded-2xl px-5 py-5">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">Время работы</p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Пн–Пт</span>
+                <span className="font-semibold text-foreground">9:00 – 17:00</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Сб–Вс</span>
+                <span className="font-semibold text-foreground">9:00 – 15:00</span>
+              </div>
+              <div className="h-px bg-border my-1" />
+              <p className="text-xs text-muted-foreground">Заказы принимаем круглосуточно через сайт</p>
+            </div>
+          </div>
+
+          {/* Delivery info */}
+          <div className="flex flex-col justify-between gap-3 bg-primary/8 border border-primary/15 rounded-2xl px-5 py-5">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest">Доставка</p>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-semibold text-foreground">По Москве и области</p>
+              <p className="text-sm text-muted-foreground">Дни доставки: среда и суббота</p>
+              <div className="h-px bg-primary/15 my-1" />
+              <p className="text-sm text-foreground">
+                Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
+              </p>
+            </div>
           </div>
         </div>
 

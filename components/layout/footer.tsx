@@ -82,8 +82,23 @@ export function Footer() {
               </li>
             </ul>
 
+            {/* Hours */}
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-xs font-semibold text-foreground mb-2">Время работы</p>
+              <div className="flex flex-col gap-1">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Пн–Пт</span><span className="font-medium text-foreground">9:00–17:00</span>
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Сб–Вс</span><span className="font-medium text-foreground">9:00–15:00</span>
+                </div>
+              </div>
+              <p className="text-xs text-primary font-medium mt-2">Доставка: среда и суббота</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Мин. заказ 600 ₽ · Москва и область</p>
+            </div>
+
             {/* Social */}
-            <div className="flex items-center gap-3 mt-5">
+            <div className="flex items-center gap-3 mt-4">
               {["VK", "TG"].map((s) => (
                 <a
                   key={s}
