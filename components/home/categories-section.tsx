@@ -44,11 +44,11 @@ export function CategoriesSection() {
         {/* Full-width photo banner */}
         <div className="relative w-full h-52 sm:h-64 md:h-72 rounded-3xl overflow-hidden mb-6">
           <Image
-            src="/hero-bg.png"
+            src="/story-bg.png"
             alt="Ферма Долина Молока — Подмосковье"
             fill
             priority
-            className="object-cover object-center"
+            className="object-cover object-[center_40%]"
             sizes="100vw"
           />
           {/* Dark overlay for text */}
