@@ -60,9 +60,9 @@ function PaymentContent() {
         body: JSON.stringify({ amount: pendingOrder.totalAmount }),
       });
 
-      if (!payRes.ok) throw new Error("Ошибка оплаты");
-      const { success } = await payRes.json();
-      if (!success) throw new Error("Оплата отклонена");
+      if (!payRes.ok) throw new Error("Ошибка платёжного сервиса");
+      const payData = await payRes.json();
+      if (!payData.success) throw new Error(payData.error ?? "Оплата отклонена");
 
       // Step 2: payment succeeded — now save order to DB
       const orderRes = await fetch("/api/orders", {

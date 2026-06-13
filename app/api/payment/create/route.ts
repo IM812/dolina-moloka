@@ -18,8 +18,13 @@ export async function POST(req: NextRequest) {
     // Simulate payment gateway delay
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // In production: call ЮKassa / CloudPayments API and return redirect URL
-    // For demo: always succeed
+    // In production: call ЮKassa / CloudPayments API here.
+    // For demo: succeed. To test failure, pass amount=1 (sentinel value).
+    const isFailure = amount === 1;
+    if (isFailure) {
+      return NextResponse.json({ success: false, error: "Платёж отклонён банком (тестовый сценарий)" });
+    }
+
     return NextResponse.json({
       success: true,
       paymentId: `demo_${Date.now()}`,

@@ -26,67 +26,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    // Use anon client — RPC runs with SECURITY DEFINER so no auth needed
+    const { createBrowserClient } = await import("@supabase/ssr");
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
-    // Generate order number based on count
+    // Generate order number
     const { count } = await supabase.from("orders").select("*", { count: "exact", head: true });
     const orderNum = (count ?? 0) + 1;
     const orderNumber = `DM-${String(orderNum).padStart(4, "0")}`;
 
-    // Insert customer
-    const { data: dbCustomer, error: customerError } = await supabase
-      .from("customers")
-      .insert({
-        full_name: customer.fullName,
-        phone: customer.phone,
-        email: customer.email || null,
-        pickup_address: customer.pickupAddress || null,
-      })
-      .select()
-      .single();
+    // Single atomic transaction via RPC (SECURITY DEFINER bypasses RLS)
+    const { data: result, error: rpcError } = await supabase.rpc("create_order", {
+      p_full_name: customer.fullName,
+      p_phone: customer.phone,
+      p_email: customer.email || "",
+      p_pickup_address: customer.pickupAddress || "",
+      p_comment: customer.comment || "",
+      p_order_number: orderNumber,
+      p_total_amount: totalAmount,
+      p_payment_status: "paid",
+      p_items: items,
+    });
 
-    if (customerError) throw customerError;
+    if (rpcError) {
+      console.error("[api/orders] RPC error:", rpcError);
+      throw rpcError;
+    }
 
-    // Insert order
-    const { data: dbOrder, error: orderError } = await supabase
-      .from("orders")
-      .insert({
-        order_number: orderNumber,
-        customer_id: dbCustomer.id,
-        total_amount: totalAmount,
-        payment_status: "pending",
-        delivery_status: "new",
-        comment: customer.comment || null,
-      })
-      .select()
-      .single();
-
-    if (orderError) throw orderError;
-
-    // Insert order items
-    const orderItems = items.map((item: { productId: string; productName: string; quantity: number; price: number }) => ({
-      order_id: dbOrder.id,
-      product_id: item.productId || null,
-      product_name: item.productName,
-      quantity: item.quantity,
-      price: item.price,
-    }));
-
-    const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-    if (itemsError) throw itemsError;
-
-    const order = { ...dbOrder, orderNumber, customer: dbCustomer, items };
+    const order = { orderNumber: result.orderNumber, ...result };
 
     // Send email notification (non-blocking)
     sendOrderNotification({
-      id: dbOrder.id,
+      id: result.orderId,
       orderNumber,
       customer: { fullName: customer.fullName, phone: customer.phone, email: customer.email, pickupAddress: customer.pickupAddress },
       items,
       totalAmount,
-      paymentStatus: "pending",
+      paymentStatus: "paid",
       deliveryStatus: "new",
-      createdAt: dbOrder.created_at,
+      createdAt: new Date().toISOString(),
     } as any).catch((err) => console.error("[api/orders] email notification failed:", err));
 
     return NextResponse.json({ order }, { status: 201 });
