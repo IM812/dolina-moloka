@@ -5,23 +5,40 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ProductCard } from "@/components/products/product-card";
 import { products } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const categories = ["Все", ...Array.from(new Set(products.map((p) => p.category)))];
 
+type SortKey = "default" | "price-asc" | "price-desc" | "name-asc";
+
+const sortOptions: { value: SortKey; label: string }[] = [
+  { value: "default", label: "По умолчанию" },
+  { value: "price-asc", label: "Сначала дешевле" },
+  { value: "price-desc", label: "Сначала дороже" },
+  { value: "name-asc", label: "По названию А–Я" },
+];
+
 export default function CatalogPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("Все");
+  const [sort, setSort] = useState<SortKey>("default");
 
-  const filtered = products.filter((p) => {
-    const matchesSearch =
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.description.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory =
-      activeCategory === "Все" || p.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filtered = products
+    .filter((p) => {
+      const matchesSearch =
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.description.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory =
+        activeCategory === "Все" || p.category === activeCategory;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sort === "price-asc") return a.price - b.price;
+      if (sort === "price-desc") return b.price - a.price;
+      if (sort === "name-asc") return a.name.localeCompare(b.name, "ru");
+      return 0;
+    });
 
   return (
     <div className="py-8 md:py-12">
@@ -41,15 +58,30 @@ export default function CatalogPage() {
         </motion.div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="relative flex-1 max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Поиск продуктов..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-secondary border-border"
-            />
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Поиск продуктов..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 bg-secondary border-border"
+              />
+            </div>
+            {/* Sort */}
+            <div className="relative">
+              <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+                className="h-10 pl-9 pr-8 rounded-xl bg-secondary border border-border text-sm text-foreground appearance-none cursor-pointer hover:border-primary/30 transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {sortOptions.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (

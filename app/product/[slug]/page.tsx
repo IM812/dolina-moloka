@@ -27,7 +27,10 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const related = products.filter((p) => p.id !== product.id).slice(0, 4);
+  // First show same category, then fill up to 4 with others
+  const sameCategory = products.filter((p) => p.id !== product.id && p.category === product.category);
+  const others = products.filter((p) => p.id !== product.id && p.category !== product.category);
+  const related = [...sameCategory, ...others].slice(0, 4);
 
   return <ProductDetailClient product={product} related={related} />;
 }
