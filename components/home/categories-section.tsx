@@ -6,54 +6,12 @@ import { ArrowRight } from "lucide-react";
 import { products } from "@/lib/mock-data";
 
 const categories = [
-  {
-    title: "Молоко",
-    description: "Цельное, пастеризованное",
-    image: "/products/milk.png",
-    href: "/catalog?category=Молоко",
-    span: "lg:col-span-2 lg:row-span-2",
-    imgScale: "scale-90",
-  },
-  {
-    title: "Кефир",
-    description: "Живой, на кефирных грибках",
-    image: "/products/kefir.png",
-    href: "/catalog?category=Кефир",
-    span: "",
-    imgScale: "scale-80",
-  },
-  {
-    title: "Йогурт",
-    description: "Питьевой и греческий",
-    image: "/products/yogurt.png",
-    href: "/catalog?category=Йогурт",
-    span: "",
-    imgScale: "scale-80",
-  },
-  {
-    title: "Творог",
-    description: "Фермерский, 9%",
-    image: "/products/cottage-cheese.png",
-    href: "/catalog?category=Творог",
-    span: "",
-    imgScale: "scale-80",
-  },
-  {
-    title: "Сметана",
-    description: "Термостатная 20%",
-    image: "/products/sour-cream.png",
-    href: "/catalog?category=Сметана",
-    span: "",
-    imgScale: "scale-80",
-  },
-  {
-    title: "Масло",
-    description: "Сладко-сливочное 82,5%",
-    image: "/products/butter.png",
-    href: "/catalog?category=Масло",
-    span: "lg:col-span-2",
-    imgScale: "scale-80",
-  },
+  { title: "Молоко",  description: "Цельное, пастеризованное",   href: "/catalog?category=Молоко" },
+  { title: "Кефир",   description: "Живой, на кефирных грибках",  href: "/catalog?category=Кефир" },
+  { title: "Йогурт",  description: "Питьевой и греческий",        href: "/catalog?category=Йогурт" },
+  { title: "Творог",  description: "Фермерский, 9%",              href: "/catalog?category=Творог" },
+  { title: "Сметана", description: "Термостатная 20%",            href: "/catalog?category=Сметана" },
+  { title: "Масло",   description: "Сладко-сливочное 82,5%",      href: "/catalog?category=Масло" },
 ];
 
 export function CategoriesSection() {
@@ -82,44 +40,61 @@ export function CategoriesSection() {
           </Link>
         </div>
 
-        {/* Bento grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 lg:grid-rows-3 gap-3 sm:gap-4">
-          {categories.map((cat) => {
-            const count = countByCategory(cat.title);
-            const isLarge = cat.span.includes("row-span-2");
-            return (
-              <Link
-                key={cat.title}
-                href={cat.href}
-                className={`group relative bg-background rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col ${cat.span} border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300`}
-              >
-                {/* Image area */}
-                <div className={`relative w-full overflow-hidden bg-background ${isLarge ? "h-56 sm:h-72 lg:h-80" : "h-36 sm:h-44"}`}>
-                  <Image
-                    src={cat.image}
-                    alt={cat.title}
-                    fill
-                    className={`object-contain transition-transform duration-500 group-hover:scale-105 ${cat.imgScale}`}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                </div>
+        {/* Layout: hero photo left + category grid right */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
-                {/* Footer */}
-                <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-t border-border mt-auto">
+          {/* Hero photo card */}
+          <div className="lg:col-span-2 relative bg-background rounded-3xl overflow-hidden border border-border min-h-[380px] lg:min-h-0">
+            <Image
+              src="/dairy-products.jpg"
+              alt="Ассортимент молочных продуктов"
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 40vw"
+            />
+            {/* Overlay badge */}
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <p className="text-primary-foreground/80 text-sm font-medium mb-1">Фермерское хозяйство</p>
+              <p className="text-white text-xl font-bold font-heading leading-snug">
+                Натуральные молочные<br />продукты из Подмосковья
+              </p>
+              <Link
+                href="/catalog"
+                className="mt-4 inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors"
+              >
+                В каталог
+                <ArrowRight className="size-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Category grid */}
+          <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {categories.map((cat) => {
+              const count = countByCategory(cat.title);
+              return (
+                <Link
+                  key={cat.title}
+                  href={cat.href}
+                  className="group bg-background rounded-2xl border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 p-4 sm:p-5 flex flex-col justify-between gap-4 min-h-[130px]"
+                >
                   <div>
-                    <p className="font-semibold text-foreground text-sm sm:text-base leading-tight">{cat.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 hidden sm:block">{cat.description}</p>
+                    <p className="font-semibold text-foreground text-base leading-tight">{cat.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{cat.description}</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground tabular-nums">{count} поз.</span>
                     <div className="size-7 rounded-full bg-secondary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                       <ArrowRight className="size-3.5" />
                     </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
+          </div>
+
         </div>
       </div>
     </section>
