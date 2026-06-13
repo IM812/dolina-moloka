@@ -12,9 +12,10 @@ interface ProductCardProps {
   product: Product;
   className?: string;
   index?: number;
+  priority?: boolean;
 }
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, className, priority }: ProductCardProps) {
   const { items, addItem, updateQuantity, removeItem } = useCartStore();
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem?.quantity ?? 0;
@@ -33,13 +34,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
     >
       {/* Image */}
       <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
-        <div className="relative bg-white h-56 sm:h-64 overflow-hidden rounded-t-2xl">
+        <div className="relative bg-white h-40 sm:h-44 overflow-hidden rounded-t-2xl">
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            priority={priority}
+            className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 20vw"
           />
         </div>
       </Link>

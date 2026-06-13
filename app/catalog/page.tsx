@@ -91,7 +91,7 @@ export default function CatalogPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <ProductCard product={product} index={i} />
+                  <ProductCard product={product} index={i} priority={i < 8} />
                 </motion.div>
               ))}
             </motion.div>
