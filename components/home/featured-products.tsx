@@ -23,7 +23,7 @@ function ProductCard({ product }: { product: Product }) {
     <div className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-lg hover:border-primary/20 transition-shadow duration-300 flex flex-col h-full">
       {/* Image */}
       <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
-        <div className="relative bg-white h-28 sm:h-32 overflow-hidden">
+        <div className="relative bg-white h-32 sm:h-36 overflow-hidden">
           <Image
             src={product.image}
             alt={product.name}
