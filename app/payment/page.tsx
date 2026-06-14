@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
+import { useCartStore } from "@/store/cart";
 import { motion } from "framer-motion";
 import { Loader2, CreditCard, ShieldCheck, Lock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ interface PendingOrder {
 
 function PaymentContent() {
   const router = useRouter();
+  const clearCart = useCartStore((s) => s.clearCart);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [paying, setPaying] = useState(false);
@@ -75,6 +77,7 @@ function PaymentContent() {
       if (!orderRes.ok) throw new Error(orderBody?.error ?? "Ошибка сохранения заказа");
 
       sessionStorage.removeItem("pendingOrder");
+      clearCart();
       toast.success("Оплата прошла успешно!");
       router.push(`/success?order=${orderBody.order.orderNumber}`);
     } catch (err) {
