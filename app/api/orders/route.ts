@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    console.log("[v0] orders POST: url present:", !!supabaseUrl, "key present:", !!supabaseKey);
 
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Supabase env vars missing" }, { status: 500 });
@@ -39,13 +38,18 @@ export async function POST(req: NextRequest) {
     const supabase = createAnonClient(supabaseUrl, supabaseKey);
 
     // Generate order number
-    const { count, error: countError } = await supabase.from("orders").select("*", { count: "exact", head: true });
-    console.log("[v0] orders count:", count, "countError:", countError?.message);
+    const { count } = await supabase.from("orders").select("*", { count: "exact", head: true });
     const orderNum = (count ?? 0) + 1;
     const orderNumber = `DM-${String(orderNum).padStart(4, "0")}`;
 
+    // Sanitize items — productId must be a valid UUID or null
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const sanitizedItems = items.map((item: { productId?: string | null; productName: string; quantity: number; price: number }) => ({
+      ...item,
+      productId: item.productId && UUID_REGEX.test(item.productId) ? item.productId : null,
+    }));
+
     // Single atomic transaction via RPC (SECURITY DEFINER bypasses RLS)
-    console.log("[v0] calling create_order RPC, orderNumber:", orderNumber, "total:", totalAmount, "items:", items.length);
     const { data: result, error: rpcError } = await supabase.rpc("create_order", {
       p_full_name: customer.fullName,
       p_phone: customer.phone,
@@ -55,14 +59,12 @@ export async function POST(req: NextRequest) {
       p_order_number: orderNumber,
       p_total_amount: totalAmount,
       p_payment_status: "paid",
-      p_items: items,
+      p_items: sanitizedItems,
     });
 
     if (rpcError) {
-      console.error("[v0] RPC error:", JSON.stringify(rpcError));
       throw new Error(rpcError.message);
     }
-    console.log("[v0] RPC result:", result);
 
     const order = { orderNumber: result.orderNumber, ...result };
 
