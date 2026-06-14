@@ -27,18 +27,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    console.log("[v0] orders POST: url present:", !!supabaseUrl, "key present:", !!supabaseKey);
+
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: "Supabase env vars missing" }, { status: 500 });
+    }
+
     // Use anon supabase-js client — RPC has SECURITY DEFINER so bypasses RLS
-    const supabase = createAnonClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createAnonClient(supabaseUrl, supabaseKey);
 
     // Generate order number
-    const { count } = await supabase.from("orders").select("*", { count: "exact", head: true });
+    const { count, error: countError } = await supabase.from("orders").select("*", { count: "exact", head: true });
+    console.log("[v0] orders count:", count, "countError:", countError?.message);
     const orderNum = (count ?? 0) + 1;
     const orderNumber = `DM-${String(orderNum).padStart(4, "0")}`;
 
     // Single atomic transaction via RPC (SECURITY DEFINER bypasses RLS)
+    console.log("[v0] calling create_order RPC, orderNumber:", orderNumber, "total:", totalAmount, "items:", items.length);
     const { data: result, error: rpcError } = await supabase.rpc("create_order", {
       p_full_name: customer.fullName,
       p_phone: customer.phone,
@@ -52,9 +59,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (rpcError) {
-      console.error("[api/orders] RPC error:", rpcError);
-      throw rpcError;
+      console.error("[v0] RPC error:", JSON.stringify(rpcError));
+      throw new Error(rpcError.message);
     }
+    console.log("[v0] RPC result:", result);
 
     const order = { orderNumber: result.orderNumber, ...result };
 
@@ -72,7 +80,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
-    console.error("[api/orders] POST error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[v0] orders POST catch:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
