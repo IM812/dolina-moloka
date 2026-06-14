@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Mail, MapPin, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -76,27 +76,6 @@ function SuccessContent() {
 
           {order && (
             <>
-              <Separator className="bg-border" />
-
-              {/* Order details */}
-              <div className="flex flex-col gap-3 text-left">
-                <div className="flex items-start gap-3 bg-secondary border border-border rounded-xl p-3">
-                  <MapPin className="size-4 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Точка выдачи</p>
-                    <p className="text-sm font-medium text-foreground">{order.customer.pickupAddress}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 bg-secondary border border-border rounded-xl p-3">
-                  <Mail className="size-4 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Подтверждение отправлено</p>
-                    <p className="text-sm font-medium text-foreground">{order.customer.email}</p>
-                  </div>
-                </div>
-              </div>
-
               <Separator className="bg-border" />
 
               {/* Items */}
