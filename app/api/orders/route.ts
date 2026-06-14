@@ -75,17 +75,21 @@ export async function POST(req: NextRequest) {
 
     const order = { orderNumber: result.orderNumber, ...result };
 
-    // Send email notification (non-blocking)
-    sendOrderNotification({
-      id: result.orderId,
-      orderNumber,
-      customer: { fullName: customer.fullName, phone: customer.phone, email: customer.email, pickupAddress: customer.pickupAddress },
-      items,
-      totalAmount,
-      paymentStatus: "paid",
-      deliveryStatus: "new",
-      createdAt: new Date().toISOString(),
-    } as any).catch((err) => console.error("[api/orders] email notification failed:", err));
+    // Send email notification — must be awaited on Vercel (serverless closes before fire-and-forget resolves)
+    try {
+      await sendOrderNotification({
+        id: result.orderId,
+        orderNumber,
+        customer: { fullName: customer.fullName, phone: customer.phone, email: customer.email, pickupAddress: customer.pickupAddress },
+        items,
+        totalAmount,
+        paymentStatus: "paid",
+        deliveryStatus: "new",
+        createdAt: new Date().toISOString(),
+      } as any);
+    } catch (emailErr) {
+      console.error("[api/orders] email notification failed:", emailErr);
+    }
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
