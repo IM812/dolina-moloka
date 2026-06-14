@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import { FileText, Download, Image as ImageIcon, FileCheck, Shield, Award } from "lucide-react";
+import { FileText, Download, FileCheck, Shield, Award } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -101,56 +101,81 @@ export default function DocumentsPage() {
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {docs.map((doc) => (
-                    <Card key={doc.id} className="border-border hover:border-primary/40 transition-colors group">
-                      <CardContent className="p-5">
-                        <div className="flex items-start gap-4">
-                          {/* Preview or icon */}
-                          <div className="size-14 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 overflow-hidden border border-border">
-                            {isImage(doc.file_name) ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={doc.file_url} alt={doc.title} className="w-full h-full object-cover" />
-                            ) : (
-                              <FileText className="size-6 text-muted-foreground" />
-                            )}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm text-foreground leading-tight line-clamp-2">
-                              {doc.title}
-                            </p>
-                            {doc.description && (
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                {doc.description}
-                              </p>
-                            )}
-                            <div className="flex items-center gap-3 mt-2">
-                              {formatSize(doc.file_size) && (
-                                <span className="text-xs text-muted-foreground">
-                                  {formatSize(doc.file_size)}
-                                </span>
-                              )}
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(doc.created_at).toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" })}
-                              </span>
-                            </div>
-                          </div>
-
-                          <a
-                            href={doc.file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download={doc.file_name}
-                            className="size-9 rounded-xl bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors flex-shrink-0 mt-0.5"
-                            aria-label={`Скачать ${doc.title}`}
-                          >
-                            {isImage(doc.file_name) ? (
-                              <ImageIcon className="size-4" />
-                            ) : (
-                              <Download className="size-4" />
-                            )}
+                    <Card key={doc.id} className="border-border hover:border-primary/40 transition-colors group overflow-hidden">
+                      {isImage(doc.file_name) ? (
+                        /* Image document — full-width photo + meta below */
+                        <div>
+                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={doc.file_url}
+                              alt={doc.title}
+                              className="w-full max-h-72 object-contain bg-secondary border-b border-border"
+                            />
                           </a>
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm text-foreground leading-tight">{doc.title}</p>
+                                {doc.description && (
+                                  <p className="text-xs text-muted-foreground mt-1">{doc.description}</p>
+                                )}
+                                <div className="flex items-center gap-3 mt-1.5">
+                                  {formatSize(doc.file_size) && (
+                                    <span className="text-xs text-muted-foreground">{formatSize(doc.file_size)}</span>
+                                  )}
+                                  <span className="text-xs text-muted-foreground">
+                                    {new Date(doc.created_at).toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" })}
+                                  </span>
+                                </div>
+                              </div>
+                              <a
+                                href={doc.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download={doc.file_name}
+                                className="size-9 rounded-xl bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors shrink-0"
+                                aria-label={`Скачать ${doc.title}`}
+                              >
+                                <Download className="size-4" />
+                              </a>
+                            </div>
+                          </CardContent>
                         </div>
-                      </CardContent>
+                      ) : (
+                        /* Non-image document — compact row */
+                        <CardContent className="p-5">
+                          <div className="flex items-start gap-4">
+                            <div className="size-14 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 border border-border">
+                              <FileText className="size-6 text-muted-foreground" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-foreground leading-tight line-clamp-2">{doc.title}</p>
+                              {doc.description && (
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{doc.description}</p>
+                              )}
+                              <div className="flex items-center gap-3 mt-2">
+                                {formatSize(doc.file_size) && (
+                                  <span className="text-xs text-muted-foreground">{formatSize(doc.file_size)}</span>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(doc.created_at).toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" })}
+                                </span>
+                              </div>
+                            </div>
+                            <a
+                              href={doc.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download={doc.file_name}
+                              className="size-9 rounded-xl bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors flex-shrink-0 mt-0.5"
+                              aria-label={`Скачать ${doc.title}`}
+                            >
+                              <Download className="size-4" />
+                            </a>
+                          </div>
+                        </CardContent>
+                      )}
                     </Card>
                   ))}
                 </div>

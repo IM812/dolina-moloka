@@ -41,7 +41,7 @@ export default function ContactsPage() {
                 {
                   icon: <Mail className="size-5 text-primary" />,
                   label: "E-mail",
-                  value: "info@dolina-moloka.ru",
+                  value: "dolinamoloka50@gmail.com",
                   sub: "Ответим в течение 1 рабочего дня",
                 },
               ].map((item) => (
