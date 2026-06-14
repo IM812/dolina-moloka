@@ -132,7 +132,6 @@ function OrderResult({ orderNumber }: { orderNumber: string }) {
             {order.totalAmount} ₽
           </span>
         </div>
-
       </CardContent>
     </Card>
   );

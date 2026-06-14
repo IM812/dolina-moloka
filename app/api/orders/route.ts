@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAnonClient } from "@supabase/supabase-js";
 import { sendOrderNotification } from "@/lib/email";
 
 export async function GET() {
@@ -26,9 +27,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Use anon client — RPC runs with SECURITY DEFINER so no auth needed
-    const { createBrowserClient } = await import("@supabase/ssr");
-    const supabase = createBrowserClient(
+    // Use anon supabase-js client — RPC has SECURITY DEFINER so bypasses RLS
+    const supabase = createAnonClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );

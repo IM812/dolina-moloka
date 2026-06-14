@@ -18,16 +18,10 @@ export async function GET(
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  // Map to app format
+  // Map to app format — no personal data exposed publicly
   const order = {
     id: data.id,
     orderNumber: data.order_number,
-    customer: {
-      fullName: data.customers?.full_name ?? "",
-      phone: data.customers?.phone ?? "",
-      email: data.customers?.email ?? "",
-      pickupAddress: data.customers?.pickup_address ?? "",
-    },
     items: (data.order_items ?? []).map((i: any) => ({
       productId: i.product_id ?? i.id,
       productName: i.product_name,
