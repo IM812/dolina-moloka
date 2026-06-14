@@ -18,7 +18,7 @@ import {
   ShieldCheck, PackageCheck, Banknote, ShoppingCart,
   Users, RefreshCw, Phone, Mail, MapPin, MessageSquare, LogOut,
   Search, TrendingUp, Package, User, ChevronDown, ChevronUp,
-  Tag, Plus, Pencil, Trash2, Eye, EyeOff, Calendar,
+  Plus, Pencil, Trash2, Eye, EyeOff, Calendar,
   FileText, Upload, Download, Award, Shield, FileCheck,
 } from "lucide-react";
 import Image from "next/image";
@@ -544,7 +544,7 @@ function PromotionsTab() {
           {loading ? (
             <div className="p-4 flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div>
           ) : promotions.length === 0 ? (
-            <div className="py-16 text-center text-muted-foreground text-sm">Акций пока нет. Добавьте первую.</div>
+            <div className="py-16 text-center text-muted-foreground text-sm">Акций пока нет. Д��бавьте первую.</div>
           ) : (
             <Table>
               <TableHeader>
@@ -925,7 +925,6 @@ export default function AdminPage() {
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2"><TrendingUp className="size-4" />Аналитика</TabsTrigger>
             <TabsTrigger value="customers" className="gap-2"><Users className="size-4" />Клиенты</TabsTrigger>
-            <TabsTrigger value="promotions" className="gap-2"><Tag className="size-4" />Акции</TabsTrigger>
             <TabsTrigger value="documents" className="gap-2"><FileText className="size-4" />Документы</TabsTrigger>
             <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
           </TabsList>
@@ -939,7 +938,6 @@ export default function AdminPage() {
           <TabsContent value="customers">
             {loading ? <div className="flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <CustomersTab orders={orders} onRefresh={loadOrders} />}
           </TabsContent>
-          <TabsContent value="promotions"><PromotionsTab /></TabsContent>
           <TabsContent value="documents"><DocumentsTab /></TabsContent>
           <TabsContent value="email"><EmailTab /></TabsContent>
         </Tabs>

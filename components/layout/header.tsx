@@ -13,7 +13,6 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 const navLinks = [
   { href: "/", label: "Главная" },
   { href: "/catalog", label: "Каталог" },
-  { href: "/promotions", label: "Акции" },
   { href: "/delivery", label: "Доставка" },
   { href: "/orders", label: "Заказы" },
   { href: "/documents", label: "Документы" },
