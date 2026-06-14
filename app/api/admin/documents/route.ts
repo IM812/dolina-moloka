@@ -1,17 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
-// Admin-only: returns ALL documents regardless of is_public
+// Returns ALL documents including hidden ones — service role bypasses RLS
 export async function GET() {
   try {
-    const supabase = await createClient();
-
-    // Verify session — only authenticated admins can call this
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    const supabase = createServiceClient();
     const { data, error } = await supabase
       .from("documents")
       .select("*")
@@ -21,6 +14,6 @@ export async function GET() {
     return NextResponse.json({ documents: data ?? [] });
   } catch (err) {
     console.error("[admin/documents GET]", err);
-    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }

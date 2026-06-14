@@ -31,7 +31,8 @@ type DbOrder = {
   delivery_status: string;
   comment: string | null;
   created_at: string;
-  customers: { full_name: string; phone: string; email: string | null; pickup_address: string | null } | null;
+  customer_id: string | null;
+  customers: { id: string; full_name: string; phone: string; email: string | null; pickup_address: string | null } | null;
   order_items: { id: string; product_name: string; quantity: number; price: number }[];
 };
 
@@ -136,18 +137,30 @@ function RevenueChart({ orders }: { orders: DbOrder[] }) {
   );
 }
 
-function CustomersTab({ orders }: { orders: DbOrder[] }) {
+function CustomersTab({ orders, onRefresh }: { orders: DbOrder[]; onRefresh: () => void }) {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
-  const customerMap: Record<string, { phone: string; name: string; email: string | null; address: string | null; orders: DbOrder[] }> = {};
+  const customerMap: Record<string, { id: string | null; phone: string; name: string; email: string | null; address: string | null; orders: DbOrder[] }> = {};
   orders.forEach((o) => {
     const phone = o.customers?.phone ?? "unknown";
-    if (!customerMap[phone]) customerMap[phone] = { phone, name: o.customers?.full_name ?? "—", email: o.customers?.email ?? null, address: o.customers?.pickup_address ?? null, orders: [] };
+    if (!customerMap[phone]) customerMap[phone] = { id: o.customers?.id ?? null, phone, name: o.customers?.full_name ?? "—", email: o.customers?.email ?? null, address: o.customers?.pickup_address ?? null, orders: [] };
     customerMap[phone].orders.push(o);
   });
   const customers = Object.values(customerMap)
     .sort((a, b) => b.orders.length - a.orders.length)
     .filter((c) => !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search));
+
+  const handleDeleteCustomer = async (customerId: string | null, name: string) => {
+    if (!customerId) return;
+    if (!confirm(`Удалить клиента "${name}" и все его заказы? Это действие нельзя отменить.`)) return;
+    const res = await fetch(`/api/admin/customers/${customerId}`, { method: "DELETE" });
+    if (res.ok) {
+      setExpanded(null);
+      onRefresh();
+    } else {
+      alert("Не удалось удалить клиента");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -203,6 +216,17 @@ function CustomersTab({ orders }: { orders: DbOrder[] }) {
                               </div>
                             ))}
                           </div>
+                          {c.id && (
+                            <div className="mt-2 pt-2 border-t border-border">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteCustomer(c.id, c.name); }}
+                                className="flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="size-3" />
+                                Удалить клиента и все его заказы
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -217,7 +241,7 @@ function CustomersTab({ orders }: { orders: DbOrder[] }) {
   );
 }
 
-function OrdersTab({ orders, onStatusChange }: { orders: DbOrder[]; onStatusChange: (num: string, field: "paymentStatus" | "deliveryStatus", value: string) => void }) {
+function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[]; onStatusChange: (num: string, field: "paymentStatus" | "deliveryStatus", value: string) => void; onDeleteOrder: (id: string, orderNumber: string) => void }) {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const filtered = orders
@@ -259,6 +283,7 @@ function OrdersTab({ orders, onStatusChange }: { orders: DbOrder[]; onStatusChan
                     <TableHead className="font-semibold">Оплата</TableHead>
                     <TableHead className="font-semibold">Статус</TableHead>
                     <TableHead className="font-semibold">Дата</TableHead>
+                    <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -293,6 +318,15 @@ function OrdersTab({ orders, onStatusChange }: { orders: DbOrder[]; onStatusChan
                         </Select>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(order.created_at).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}</TableCell>
+                      <TableCell>
+                        <button
+                          onClick={() => onDeleteOrder(order.id, order.order_number)}
+                          className="size-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-red-600 transition-colors"
+                          title="Удалить заказ"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -818,6 +852,13 @@ export default function AdminPage() {
     loadOrders();
   };
 
+  const handleDeleteOrder = async (id: string, orderNumber: string) => {
+    if (!confirm(`Удалить заказ ${orderNumber}? Это действие нельзя отменить.`)) return;
+    const res = await fetch(`/api/admin/orders/${id}`, { method: "DELETE" });
+    if (res.ok) loadOrders();
+    else alert("Не удалось удалить заказ");
+  };
+
   const handleLogout = async () => { await createClient().auth.signOut(); router.push("/admin/login"); };
 
   if (!authChecked) return (
@@ -890,13 +931,13 @@ export default function AdminPage() {
           </TabsList>
 
           <TabsContent value="orders">
-            {loading ? <div className="flex flex-col gap-3">{[1,2,3].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <OrdersTab orders={orders} onStatusChange={handleStatusChange} />}
+            {loading ? <div className="flex flex-col gap-3">{[1,2,3].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <OrdersTab orders={orders} onStatusChange={handleStatusChange} onDeleteOrder={handleDeleteOrder} />}
           </TabsContent>
           <TabsContent value="analytics">
             {loading ? <div className="flex flex-col gap-3"><Skeleton className="h-48 w-full" /><Skeleton className="h-48 w-full" /></div> : <RevenueChart orders={orders} />}
           </TabsContent>
           <TabsContent value="customers">
-            {loading ? <div className="flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <CustomersTab orders={orders} />}
+            {loading ? <div className="flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <CustomersTab orders={orders} onRefresh={loadOrders} />}
           </TabsContent>
           <TabsContent value="promotions"><PromotionsTab /></TabsContent>
           <TabsContent value="documents"><DocumentsTab /></TabsContent>

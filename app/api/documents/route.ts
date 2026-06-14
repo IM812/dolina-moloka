@@ -1,8 +1,9 @@
 import { put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
 
-// GET — public list of documents
+// GET — public list of documents (anon, RLS: is_public = true)
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -20,7 +21,7 @@ export async function GET() {
   }
 }
 
-// POST — upload file to Blob + save metadata to Supabase
+// POST — upload file to Blob + save metadata (service role bypasses RLS)
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -40,8 +41,8 @@ export async function POST(request: NextRequest) {
       access: "public",
     });
 
-    // Save metadata to Supabase using service role (bypass RLS)
-    const supabase = await createClient();
+    // Save metadata with service role (bypasses RLS)
+    const supabase = createServiceClient();
     const { data, error } = await supabase
       .from("documents")
       .insert({
@@ -57,13 +58,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error("[documents POST] supabase error", error);
+      console.error("[documents POST] supabase insert error", error);
       throw error;
     }
 
     return NextResponse.json({ document: data });
   } catch (err) {
     console.error("[documents POST]", err);
-    return NextResponse.json({ error: "Failed to upload document" }, { status: 500 });
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
