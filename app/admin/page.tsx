@@ -18,6 +18,7 @@ import {
   ShieldCheck, PackageCheck, Banknote, ShoppingCart,
   Users, RefreshCw, Phone, Mail, MapPin, MessageSquare, LogOut,
   Search, TrendingUp, Package, User, ChevronDown, ChevronUp,
+  Tag, Plus, Pencil, Trash2, Eye, EyeOff, Calendar,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -372,6 +373,204 @@ function EmailTab() {
   );
 }
 
+type Promotion = {
+  id: string;
+  title: string;
+  description: string | null;
+  badge_text: string | null;
+  discount_percent: number | null;
+  active_from: string | null;
+  active_until: string | null;
+  is_active: boolean;
+  show_on_homepage: boolean;
+  created_at: string;
+};
+
+const EMPTY_PROMO: Omit<Promotion, "id" | "created_at"> = {
+  title: "", description: "", badge_text: "", discount_percent: null,
+  active_from: "", active_until: "", is_active: true, show_on_homepage: true,
+};
+
+function PromotionsTab() {
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Partial<Promotion> | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/promotions");
+    const data = await res.json();
+    setPromotions(data.promotions ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleSave = async () => {
+    if (!editing || !editing.title) return;
+    setSaving(true);
+    try {
+      const isNew = !editing.id;
+      const payload = { ...editing };
+      if (!payload.active_from) payload.active_from = null;
+      if (!payload.active_until) payload.active_until = null;
+      if (!payload.discount_percent) payload.discount_percent = null;
+      if (!payload.badge_text) payload.badge_text = null;
+      if (!payload.description) payload.description = null;
+
+      if (isNew) {
+        await fetch("/api/promotions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      } else {
+        await fetch(`/api/promotions/${editing.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      }
+      setEditing(null);
+      load();
+    } finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Удалить акцию?")) return;
+    await fetch(`/api/promotions/${id}`, { method: "DELETE" });
+    load();
+  };
+
+  const handleToggle = async (promo: Promotion) => {
+    await fetch(`/api/promotions/${promo.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_active: !promo.is_active }) });
+    load();
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">{promotions.length} акций в базе</p>
+        <Button size="sm" onClick={() => setEditing({ ...EMPTY_PROMO })} className="gap-2">
+          <Plus className="size-4" />Добавить акцию
+        </Button>
+      </div>
+
+      {/* Form */}
+      {editing && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">{editing.id ? "Редактировать акцию" : "Новая акция"}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground mb-1 block">Название *</label>
+                <Input value={editing.title ?? ""} onChange={(e) => setEditing({ ...editing, title: e.target.value })} placeholder="Летняя скидка на молоко" className="border-border" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground mb-1 block">Описание</label>
+                <Input value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} placeholder="Подробное описание акции..." className="border-border" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Текст бейджа</label>
+                <Input value={editing.badge_text ?? ""} onChange={(e) => setEditing({ ...editing, badge_text: e.target.value })} placeholder="Скидка 15%" className="border-border" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Скидка, %</label>
+                <Input type="number" value={editing.discount_percent ?? ""} onChange={(e) => setEditing({ ...editing, discount_percent: e.target.value ? Number(e.target.value) : null })} placeholder="15" className="border-border" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1"><Calendar className="size-3" />Начало</label>
+                <Input type="date" value={editing.active_from ?? ""} onChange={(e) => setEditing({ ...editing, active_from: e.target.value })} className="border-border" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1"><Calendar className="size-3" />Конец</label>
+                <Input type="date" value={editing.active_until ?? ""} onChange={(e) => setEditing({ ...editing, active_until: e.target.value })} className="border-border" />
+              </div>
+            </div>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <input type="checkbox" checked={!!editing.is_active} onChange={(e) => setEditing({ ...editing, is_active: e.target.checked })} className="accent-primary" />
+                Активна
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <input type="checkbox" checked={!!editing.show_on_homepage} onChange={(e) => setEditing({ ...editing, show_on_homepage: e.target.checked })} className="accent-primary" />
+                Показывать на главной
+              </label>
+            </div>
+            <div className="flex gap-2 pt-2 border-t border-border">
+              <Button onClick={handleSave} disabled={saving || !editing.title} size="sm" className="gap-2">
+                {saving ? <RefreshCw className="size-3 animate-spin" /> : null}
+                Сохранить
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setEditing(null)} className="border-border">Отмена</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* List */}
+      <Card className="border-border">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-4 flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div>
+          ) : promotions.length === 0 ? (
+            <div className="py-16 text-center text-muted-foreground text-sm">Акций пока нет. Добавьте первую.</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border bg-secondary/60">
+                  <TableHead className="font-semibold">Название</TableHead>
+                  <TableHead className="font-semibold">Бейдж</TableHead>
+                  <TableHead className="font-semibold">Период</TableHead>
+                  <TableHead className="font-semibold">На главной</TableHead>
+                  <TableHead className="font-semibold">Статус</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {promotions.map((promo) => (
+                  <TableRow key={promo.id} className="border-border hover:bg-secondary/40">
+                    <TableCell>
+                      <p className="font-medium text-sm text-foreground">{promo.title}</p>
+                      {promo.description && <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{promo.description}</p>}
+                    </TableCell>
+                    <TableCell>
+                      {promo.badge_text ? (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{promo.badge_text}</span>
+                      ) : <span className="text-muted-foreground text-xs">—</span>}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {promo.active_from && <span>{new Date(promo.active_from).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" })}</span>}
+                      {promo.active_from && promo.active_until && " — "}
+                      {promo.active_until && <span>{new Date(promo.active_until).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" })}</span>}
+                      {!promo.active_from && !promo.active_until && <span className="text-emerald-600">Бессрочная</span>}
+                    </TableCell>
+                    <TableCell>
+                      {promo.show_on_homepage
+                        ? <span className="text-xs text-emerald-600 flex items-center gap-1"><Eye className="size-3" />Да</span>
+                        : <span className="text-xs text-muted-foreground flex items-center gap-1"><EyeOff className="size-3" />Нет</span>}
+                    </TableCell>
+                    <TableCell>
+                      <button onClick={() => handleToggle(promo)} className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${promo.is_active ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-secondary text-muted-foreground border-border hover:bg-muted"}`}>
+                        {promo.is_active ? "Активна" : "Выкл."}
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => setEditing(promo)} className="size-7 rounded-lg hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" title="Редактировать">
+                          <Pencil className="size-3.5" />
+                        </button>
+                        <button onClick={() => handleDelete(promo.id)} className="size-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-red-600 transition-colors" title="Удалить">
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<DbOrder[]>([]);
@@ -468,6 +667,7 @@ export default function AdminPage() {
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2"><TrendingUp className="size-4" />Аналитика</TabsTrigger>
             <TabsTrigger value="customers" className="gap-2"><Users className="size-4" />Клиенты</TabsTrigger>
+            <TabsTrigger value="promotions" className="gap-2"><Tag className="size-4" />Акции</TabsTrigger>
             <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
           </TabsList>
 
@@ -480,6 +680,7 @@ export default function AdminPage() {
           <TabsContent value="customers">
             {loading ? <div className="flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <CustomersTab orders={orders} />}
           </TabsContent>
+          <TabsContent value="promotions"><PromotionsTab /></TabsContent>
           <TabsContent value="email"><EmailTab /></TabsContent>
         </Tabs>
       </div>
