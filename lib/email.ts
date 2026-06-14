@@ -54,21 +54,25 @@ function formatOrderEmailHtml(order: Order): string {
 }
 
 export async function sendOrderNotification(order: Order): Promise<void> {
-  const smtpUser = process.env.SMTP_USER ?? "inevolin228@mail.ru";
+  const smtpHost = process.env.SMTP_HOST ?? "smtp.mail.ru";
+  const smtpPort = parseInt(process.env.SMTP_PORT ?? "465", 10);
+  const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  const to = process.env.NOTIFICATION_EMAIL ?? smtpUser;
+  const to = process.env.SMTP_TO ?? process.env.NOTIFICATION_EMAIL ?? smtpUser;
 
-  if (!smtpPass) {
-    console.warn("[email] SMTP_PASS not set — skipping notification");
+  if (!smtpUser || !smtpPass) {
+    console.warn("[email] SMTP_USER or SMTP_PASS not set — skipping notification");
     return;
   }
 
   const transporter = nodemailer.createTransport({
-    host: "smtp.mail.ru",
-    port: 465,
-    secure: true,
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort === 465,
     auth: { user: smtpUser, pass: smtpPass },
     tls: { rejectUnauthorized: false },
+    connectionTimeout: 10000,
+    socketTimeout: 10000,
   });
 
   console.log(`[email] Sending order #${order.orderNumber} → ${to}`);

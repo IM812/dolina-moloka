@@ -340,19 +340,9 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
 }
 
 function EmailTab() {
-  const [smtp, setSmtp] = useState({ host: "", port: "587", user: "", pass: "", to: "" });
+  const [smtp, setSmtp] = useState({ host: "smtp.mail.ru", port: "465", user: "", pass: "", to: "" });
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
-
-  useEffect(() => {
-    setSmtp({
-      host: process.env.NEXT_PUBLIC_SMTP_HOST ?? "",
-      port: "587",
-      user: process.env.NEXT_PUBLIC_SMTP_USER ?? "",
-      pass: "",
-      to: process.env.NEXT_PUBLIC_SMTP_TO ?? "",
-    });
-  }, []);
 
   const handleTest = async () => {
     setTesting(true); setResult(null);
@@ -389,6 +379,9 @@ function EmailTab() {
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Пароль / App Password</label>
             <Input type="password" placeholder="••••••••" value={smtp.pass} onChange={(e) => setSmtp({ ...smtp, pass: e.target.value })} className="border-border" />
+            <p className="text-xs text-muted-foreground mt-1">
+              Для mail.ru: включите {"«"}Пароли для внешних приложений{"»"} в настройках почты и вставьте сгенерированный пароль.
+            </p>
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Получатель уведомлений</label>
