@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             },
             {
               title: "6. Контактная информация",
-              text: "По вопросам обработки персональных данных вы можете обратиться к нам: e-mail: info@dolina-moloka.ru, тел.: +7 (800) 123-45-67.",
+              text: "По вопросам обработки персональных данных вы можете обратиться к нам: e-mail: dolinamoloka50@gmail.com, тел.: +7 (800) 123-45-67.",
             },
           ].map((section) => (
             <div key={section.title}>

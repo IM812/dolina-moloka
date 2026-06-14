@@ -72,8 +72,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <Mail className="size-4 text-primary flex-shrink-0" />
-                <a href="mailto:info@dolina-moloka.ru" className="hover:text-primary transition-colors">
-                  info@dolina-moloka.ru
+                <a href="mailto:dolinamoloka50@gmail.com" className="hover:text-primary transition-colors">
+                  dolinamoloka50@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
