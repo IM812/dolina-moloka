@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -19,7 +20,7 @@ import {
   Users, RefreshCw, Phone, Mail, MapPin, MessageSquare, LogOut,
   Search, TrendingUp, Package, User, ChevronDown, ChevronUp,
   Plus, Pencil, Trash2, Eye, EyeOff, Calendar,
-  FileText, Upload, Download, Award, Shield, FileCheck,
+  FileText, Upload, Download, Award, Shield, FileCheck, X, ImageIcon, ToggleLeft, ToggleRight,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -339,8 +340,238 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
   );
 }
 
+type AdminProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  full_description: string;
+  price: number;
+  image_url: string;
+  volume: string;
+  composition: string;
+  storage_conditions: string;
+  category: string;
+  in_stock: boolean;
+  created_at: string;
+};
+
+const EMPTY_PRODUCT: Omit<AdminProduct, "id" | "slug" | "created_at"> = {
+  name: "", description: "", full_description: "", price: 0,
+  image_url: "", volume: "", composition: "", storage_conditions: "",
+  category: "", in_stock: true,
+};
+
+const CATEGORIES = ["Молоко", "Кефир", "Йогурт", "Творог", "Сметана", "Масло", "Сыр", "Другое"];
+
+function ProductsTab() {
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [form, setForm] = useState<Omit<AdminProduct, "id" | "slug" | "created_at"> | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/admin/products");
+    const data = await res.json();
+    setProducts(data.products ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const openAdd = () => { setEditId(null); setForm({ ...EMPTY_PRODUCT }); };
+  const openEdit = (p: AdminProduct) => { setEditId(p.id); setForm({ name: p.name, description: p.description, full_description: p.full_description, price: p.price, image_url: p.image_url, volume: p.volume, composition: p.composition, storage_conditions: p.storage_conditions, category: p.category, in_stock: p.in_stock }); };
+  const closeForm = () => { setForm(null); setEditId(null); };
+
+  const handleSave = async () => {
+    if (!form) return;
+    setSaving(true);
+    const method = editId ? "PUT" : "POST";
+    const body = editId ? { ...form, id: editId } : form;
+    const res = await fetch("/api/admin/products", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    setSaving(false);
+    if (res.ok) { closeForm(); load(); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Удалить товар?")) return;
+    setDeleting(id);
+    await fetch("/api/admin/products", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    setDeleting(null);
+    load();
+  };
+
+  const handleToggleStock = async (p: AdminProduct) => {
+    await fetch("/api/admin/products", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: p.id, in_stock: !p.in_stock }) });
+    load();
+  };
+
+  const filtered = products.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.category.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input placeholder="Поиск товара..." className="pl-9 border-border" value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+        <Button onClick={openAdd} className="gap-2 shrink-0"><Plus className="size-4" />Добавить товар</Button>
+      </div>
+
+      {/* Form */}
+      {form && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">{editId ? "Редактировать товар" : "Новый товар"}</CardTitle>
+              <Button variant="ghost" size="icon" onClick={closeForm}><X className="size-4" /></Button>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Название *</label>
+                <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Творог 9%" className="border-border" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Категория *</label>
+                <Select value={form.category} onValueChange={v => setForm({ ...form, category: v })}>
+                  <SelectTrigger className="border-border"><SelectValue placeholder="Выберите..." /></SelectTrigger>
+                  <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Цена (₽) *</label>
+                <Input type="number" value={form.price} onChange={e => setForm({ ...form, price: parseInt(e.target.value) || 0 })} className="border-border" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Объём / вес</label>
+                <Input value={form.volume} onChange={e => setForm({ ...form, volume: e.target.value })} placeholder="400 г" className="border-border" />
+              </div>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <label className="text-xs text-muted-foreground">Фото (URL или /products/...)</label>
+                <div className="flex gap-2">
+                  <Input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} placeholder="/products/tvorog.jpg" className="border-border flex-1" />
+                  {form.image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={form.image_url} alt="" className="size-10 rounded-lg object-cover border border-border shrink-0" />
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Краткое описание</label>
+                <Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Фермерский творог 9%..." className="border-border" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Состав</label>
+                <Input value={form.composition} onChange={e => setForm({ ...form, composition: e.target.value })} placeholder="Молоко нормализованное, закваска..." className="border-border" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Условия хранения</label>
+                <Input value={form.storage_conditions} onChange={e => setForm({ ...form, storage_conditions: e.target.value })} placeholder="+2...+6°C, 10 суток" className="border-border" />
+              </div>
+              <div className="flex items-center gap-2 mt-auto">
+                <label className="text-xs text-muted-foreground">В наличии</label>
+                <button type="button" onClick={() => setForm({ ...form, in_stock: !form.in_stock })} className="focus:outline-none">
+                  {form.in_stock
+                    ? <ToggleRight className="size-7 text-primary" />
+                    : <ToggleLeft className="size-7 text-muted-foreground" />}
+                </button>
+              </div>
+              <div className="flex flex-col gap-1 sm:col-span-2">
+                <label className="text-xs text-muted-foreground">Полное описание</label>
+                <Textarea value={form.full_description} onChange={e => setForm({ ...form, full_description: e.target.value })} placeholder="Подробное описание товара..." className="border-border min-h-[80px]" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleSave} disabled={saving || !form.name || !form.category || form.price <= 0} className="gap-2">
+                {saving ? <RefreshCw className="size-4 animate-spin" /> : <PackageCheck className="size-4" />}
+                {editId ? "Сохранить" : "Создать товар"}
+              </Button>
+              <Button variant="outline" onClick={closeForm} className="border-border">Отмена</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Table */}
+      {loading ? (
+        <div className="flex flex-col gap-2">{[1,2,3,4].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <ImageIcon className="size-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm">Товары не найдены</p>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-secondary/50">
+                <TableHead className="w-12"></TableHead>
+                <TableHead>Название</TableHead>
+                <TableHead>Категория</TableHead>
+                <TableHead>Цена</TableHead>
+                <TableHead>Объём</TableHead>
+                <TableHead>Наличие</TableHead>
+                <TableHead className="text-right">Действия</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map(p => (
+                <TableRow key={p.id} className="hover:bg-secondary/30">
+                  <TableCell>
+                    {p.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.image_url} alt={p.name} className="size-9 rounded-lg object-cover border border-border" />
+                    ) : (
+                      <div className="size-9 rounded-lg bg-secondary border border-border flex items-center justify-center">
+                        <ImageIcon className="size-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="font-medium text-sm">{p.name}</TableCell>
+                  <TableCell><Badge variant="secondary" className="text-xs">{p.category}</Badge></TableCell>
+                  <TableCell className="text-sm font-semibold">{p.price.toLocaleString("ru-RU")} ₽</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{p.volume || "—"}</TableCell>
+                  <TableCell>
+                    <button onClick={() => handleToggleStock(p)} className="focus:outline-none" title={p.in_stock ? "В наличии" : "Нет в наличии"}>
+                      {p.in_stock
+                        ? <ToggleRight className="size-6 text-primary" />
+                        : <ToggleLeft className="size-6 text-muted-foreground" />}
+                    </button>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(p)} className="size-8 hover:bg-secondary">
+                        <Pencil className="size-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)} disabled={deleting === p.id} className="size-8 hover:bg-red-50 hover:text-red-600">
+                        {deleting === p.id ? <RefreshCw className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      <p className="text-xs text-muted-foreground">Всего товаров: {products.length}</p>
+    </div>
+  );
+}
+
 function EmailTab() {
-  const [smtp, setSmtp] = useState({ host: "smtp.mail.ru", port: "465", user: "", pass: "", to: "" });
+  const [smtp, setSmtp] = useState({ host: "smtp.mail.ru", port: "465", user: "inevolin228@mail.ru", pass: "", to: "inevolin228@mail.ru" });
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
@@ -918,6 +1149,7 @@ export default function AdminPage() {
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2"><TrendingUp className="size-4" />Аналитика</TabsTrigger>
             <TabsTrigger value="customers" className="gap-2"><Users className="size-4" />Клиенты</TabsTrigger>
+            <TabsTrigger value="products" className="gap-2"><Package className="size-4" />Товары</TabsTrigger>
             <TabsTrigger value="documents" className="gap-2"><FileText className="size-4" />Документы</TabsTrigger>
             <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
           </TabsList>
@@ -931,6 +1163,7 @@ export default function AdminPage() {
           <TabsContent value="customers">
             {loading ? <div className="flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <CustomersTab orders={orders} onRefresh={loadOrders} />}
           </TabsContent>
+          <TabsContent value="products"><ProductsTab /></TabsContent>
           <TabsContent value="documents"><DocumentsTab /></TabsContent>
           <TabsContent value="email"><EmailTab /></TabsContent>
         </Tabs>
