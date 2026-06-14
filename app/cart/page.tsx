@@ -7,13 +7,17 @@ import { Minus, Plus, Trash2, ShoppingCart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart";
+import { usePromotions, getBestDiscount } from "@/hooks/use-promotions";
 import { toast } from "sonner";
+import { Tag } from "lucide-react";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, getTotal } = useCartStore();
+  const { promotions } = usePromotions();
   const total = getTotal();
+  const { promotion, discountAmount, finalTotal } = getBestDiscount(promotions, total);
   const MIN_ORDER = 600;
-  const belowMin = total < MIN_ORDER;
+  const belowMin = finalTotal < MIN_ORDER;
 
   const handleRemove = (name: string, id: string) => {
     removeItem(id);
@@ -175,19 +179,45 @@ export default function CartPage() {
                 ))}
               </div>
 
-              <Separator className="bg-border mb-5" />
+              {promotion && discountAmount > 0 && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-start gap-2 mb-4">
+                  <Tag className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-emerald-700 leading-tight">{promotion.title}</p>
+                    {promotion.badge_text && (
+                      <p className="text-xs text-emerald-600 mt-0.5">{promotion.badge_text}</p>
+                    )}
+                  </div>
+                  <span className="text-emerald-700 font-bold text-sm shrink-0">
+                    −{discountAmount.toLocaleString("ru-RU")} ₽
+                  </span>
+                </div>
+              )}
+
+              <Separator className="bg-border mb-4" />
+
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between mb-2 text-sm">
+                  <span className="text-muted-foreground">Сумма товаров</span>
+                  <span className="text-muted-foreground line-through">
+                    {total.toLocaleString("ru-RU")} ₽
+                  </span>
+                </div>
+              )}
 
               <div className="flex items-center justify-between mb-6">
-                <span className="font-bold text-foreground text-lg">Сумма</span>
+                <span className="font-bold text-foreground text-lg">
+                  {discountAmount > 0 ? "Итого со скидкой" : "Сумма"}
+                </span>
                 <span className="font-bold text-foreground text-xl">
-                  {total.toLocaleString("ru-RU")} ₽
+                  {finalTotal.toLocaleString("ru-RU")} ₽
                 </span>
               </div>
 
               {belowMin && (
-                <div className="bg-destructive/10 border border-destructive/25 rounded-xl px-4 py-3 text-sm text-destructive leading-snug">
+                <div className="bg-destructive/10 border border-destructive/25 rounded-xl px-4 py-3 text-sm text-destructive leading-snug mb-4">
                   Минимальный заказ — <span className="font-bold">600 ₽</span>. Добавьте ещё товаров на{" "}
-                  <span className="font-bold">{MIN_ORDER - total} ₽</span>.
+                  <span className="font-bold">{MIN_ORDER - finalTotal} ₽</span>.
                 </div>
               )}
 
