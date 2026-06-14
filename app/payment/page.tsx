@@ -128,6 +128,26 @@ function PaymentContent() {
 
           <Separator className="bg-border" />
 
+          {/* Customer info */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Покупатель</span>
+              <span className="text-sm font-medium text-foreground">{pendingOrder.customer.fullName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Телефон</span>
+              <span className="text-sm text-foreground">{pendingOrder.customer.phone}</span>
+            </div>
+            {pendingOrder.customer.pickupAddress && (
+              <div className="flex items-start justify-between gap-4">
+                <span className="text-sm text-muted-foreground shrink-0">Адрес</span>
+                <span className="text-sm text-foreground text-right">{pendingOrder.customer.pickupAddress}</span>
+              </div>
+            )}
+          </div>
+
+          <Separator className="bg-border" />
+
           {/* Items */}
           <div className="flex flex-col gap-2.5">
             <h3 className="font-semibold text-foreground text-sm">Состав заказа</h3>
