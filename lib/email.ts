@@ -1,5 +1,40 @@
 import nodemailer from "nodemailer";
 import type { Order } from "@/types";
+import { createServiceClient } from "@/lib/supabase/service";
+
+// ── SMTP config loaded from `settings` table ──────────────────────────────────
+type SmtpConfig = { host: string; port: number; user: string; pass: string; to: string };
+let _cachedConfig: SmtpConfig | null = null;
+let _cachedAt = 0;
+const CACHE_TTL = 60_000; // 60 seconds
+
+async function loadSmtpConfig(): Promise<SmtpConfig | null> {
+  if (_cachedConfig && Date.now() - _cachedAt < CACHE_TTL) return _cachedConfig;
+  try {
+    const sb = createServiceClient();
+    const { data } = await sb.from("settings").select("key, value");
+    const map: Record<string, string> = {};
+    for (const row of data ?? []) map[row.key] = row.value;
+    if (!map.smtp_user || !map.smtp_pass) return null;
+    _cachedConfig = {
+      host: map.smtp_host ?? "smtp.mail.ru",
+      port: parseInt(map.smtp_port ?? "465", 10),
+      user: map.smtp_user,
+      pass: map.smtp_pass,
+      to:   map.smtp_to ?? map.smtp_user,
+    };
+    _cachedAt = Date.now();
+    return _cachedConfig;
+  } catch (e) {
+    console.error("[email] Failed to load SMTP config from DB:", e);
+    return null;
+  }
+}
+
+export function invalidateSmtpCache() {
+  _cachedConfig = null;
+  _cachedAt = 0;
+}
 
 function formatOrderEmailHtml(order: Order): string {
   const rows = order.items
@@ -54,33 +89,28 @@ function formatOrderEmailHtml(order: Order): string {
 }
 
 export async function sendOrderNotification(order: Order): Promise<void> {
-  const smtpHost = process.env.SMTP_HOST ?? "smtp.mail.ru";
-  const smtpPort = parseInt(process.env.SMTP_PORT ?? "465", 10);
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const to = process.env.SMTP_TO ?? process.env.NOTIFICATION_EMAIL ?? "inevolin228@mail.ru";
-
-  if (!smtpUser || !smtpPass) {
-    console.warn("[email] SMTP_USER or SMTP_PASS not set — skipping notification");
+  const cfg = await loadSmtpConfig();
+  if (!cfg) {
+    console.warn("[email] SMTP not configured in DB — skipping notification");
     return;
   }
 
   const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465,
-    auth: { user: smtpUser, pass: smtpPass },
+    host: cfg.host,
+    port: cfg.port,
+    secure: cfg.port === 465,
+    auth: { user: cfg.user, pass: cfg.pass },
     tls: { rejectUnauthorized: false },
     connectionTimeout: 10000,
     socketTimeout: 10000,
   });
 
-  console.log(`[email] Sending order #${order.orderNumber} → ${to}`);
+  console.log(`[email] Sending order #${order.orderNumber} → ${cfg.to}`);
 
   try {
     const info = await transporter.sendMail({
-      from: `"Долина молока" <${smtpUser}>`,
-      to,
+      from: `"Долина молока" <${cfg.user}>`,
+      to: cfg.to,
       subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
       html: formatOrderEmailHtml(order),
     });

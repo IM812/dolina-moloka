@@ -571,60 +571,115 @@ function ProductsTab() {
 }
 
 function EmailTab() {
-  const [smtp, setSmtp] = useState({ host: "smtp.mail.ru", port: "465", user: "inevolin228@mail.ru", pass: "", to: "inevolin228@mail.ru" });
+  const [smtp, setSmtp] = useState({ host: "smtp.mail.ru", port: "465", user: "", pass: "", to: "" });
+  const [loadingSettings, setLoadingSettings] = useState(true);
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  // Load saved settings from DB on mount
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok && data.settings) {
+          const s = data.settings;
+          setSmtp({
+            host: s.smtp_host ?? "smtp.mail.ru",
+            port: s.smtp_port ?? "465",
+            user: s.smtp_user ?? "",
+            pass: s.smtp_pass ?? "",
+            to:   s.smtp_to   ?? "",
+          });
+        }
+      })
+      .finally(() => setLoadingSettings(false));
+  }, []);
 
   const handleTest = async () => {
-    setTesting(true); setResult(null);
+    setTesting(true); setResult(null); setSaved(false);
     try {
-      const res = await fetch("/api/admin/test-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(smtp) });
+      const res = await fetch("/api/admin/test-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(smtp),
+      });
       const data = await res.json();
-      setResult(data.ok ? "Письмо отправлено успешно" : `Ошибка: ${data.error}`);
-    } catch { setResult("Ошибка соединения"); }
-    finally { setTesting(false); }
+      if (data.ok) {
+        setResult("Письмо отправлено успешно. Настройки сохранены.");
+        setSaved(true);
+      } else {
+        setResult(`Ошибка: ${data.error}`);
+      }
+    } catch {
+      setResult("Ошибка соединения");
+    } finally {
+      setTesting(false);
+    }
   };
 
   return (
     <div className="max-w-lg flex flex-col gap-6">
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2"><Mail className="size-4 text-primary" />SMTP настройки</CardTitle>
-          <CardDescription>Уведомления при новых заказах. Настройте переменные среды в Vercel: SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_TO.</CardDescription>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Mail className="size-4 text-primary" />SMTP настройки
+          </CardTitle>
+          <CardDescription>
+            Настройки хранятся в базе данных. Нажмите "Отправить тест" — если всё верно, письмо уйдёт и настройки сохранятся автоматически.
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <label className="text-xs text-muted-foreground mb-1 block">SMTP хост</label>
-              <Input placeholder="smtp.gmail.com" value={smtp.host} onChange={(e) => setSmtp({ ...smtp, host: e.target.value })} className="border-border" />
+          {loadingSettings ? (
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
             </div>
-            <div className="w-24">
-              <label className="text-xs text-muted-foreground mb-1 block">Порт</label>
-              <Input placeholder="587" value={smtp.port} onChange={(e) => setSmtp({ ...smtp, port: e.target.value })} className="border-border" />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Email отправителя</label>
-            <Input placeholder="shop@dolina-moloka.ru" value={smtp.user} onChange={(e) => setSmtp({ ...smtp, user: e.target.value })} className="border-border" />
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Пароль / App Password</label>
-            <Input type="password" placeholder="••••••••" value={smtp.pass} onChange={(e) => setSmtp({ ...smtp, pass: e.target.value })} className="border-border" />
-            <p className="text-xs text-muted-foreground mt-1">
-              Для mail.ru: включите {"«"}Пароли для внешних приложений{"»"} в настройках почты и вставьте сгенерированный пароль.
-            </p>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Получатель уведомлений</label>
-            <Input placeholder="admin@dolina-moloka.ru" value={smtp.to} onChange={(e) => setSmtp({ ...smtp, to: e.target.value })} className="border-border" />
-          </div>
-          <Separator className="bg-border" />
-          <Button onClick={handleTest} disabled={testing || !smtp.host || !smtp.user} variant="outline" className="border-border gap-2 self-start">
-            {testing ? <RefreshCw className="size-4 animate-spin" /> : <Mail className="size-4" />}
-            Отправить тест
-          </Button>
-          {result && (
-            <p className={`text-sm px-3 py-2 rounded-lg border ${result.startsWith("Ошибка") ? "bg-red-50 text-red-700 border-red-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>{result}</p>
+          ) : (
+            <>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-muted-foreground mb-1 block">SMTP хост</label>
+                  <Input placeholder="smtp.mail.ru" value={smtp.host} onChange={(e) => setSmtp({ ...smtp, host: e.target.value })} className="border-border" />
+                </div>
+                <div className="w-24">
+                  <label className="text-xs text-muted-foreground mb-1 block">Порт</label>
+                  <Input placeholder="465" value={smtp.port} onChange={(e) => setSmtp({ ...smtp, port: e.target.value })} className="border-border" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Email отправителя</label>
+                <Input placeholder="inevolin228@mail.ru" value={smtp.user} onChange={(e) => setSmtp({ ...smtp, user: e.target.value })} className="border-border" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Пароль / App Password</label>
+                <Input type="password" placeholder="••••••••" value={smtp.pass} onChange={(e) => setSmtp({ ...smtp, pass: e.target.value })} className="border-border" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Для mail.ru: включите {"«"}Пароли для внешних приложений{"»"} в настройках почты и вставьте сгенерированный пароль.
+                </p>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Получатель уведомлений о заказах</label>
+                <Input placeholder="inevolin228@mail.ru" value={smtp.to} onChange={(e) => setSmtp({ ...smtp, to: e.target.value })} className="border-border" />
+              </div>
+              <Separator className="bg-border" />
+              <Button
+                onClick={handleTest}
+                disabled={testing || !smtp.host || !smtp.user || !smtp.pass}
+                variant="outline"
+                className="border-border gap-2 self-start"
+              >
+                {testing ? <RefreshCw className="size-4 animate-spin" /> : <Mail className="size-4" />}
+                {testing ? "Проверяем..." : "Отправить тест и сохранить"}
+              </Button>
+              {saved && (
+                <p className="text-xs text-muted-foreground">Настройки сохранены в базе данных. Все новые заказы будут уведомлять на {smtp.to || smtp.user}.</p>
+              )}
+              {result && (
+                <p className={`text-sm px-3 py-2 rounded-lg border ${result.startsWith("Ошибка") ? "bg-red-50 text-red-700 border-red-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>{result}</p>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
@@ -1113,7 +1168,7 @@ export default function AdminPage() {
             <Image src="/logo.jpg" alt="Долина молока" width={80} height={32} className="h-8 w-auto object-contain" />
             <Separator orientation="vertical" className="h-6 bg-border" />
             <div>
-              <h1 className="text-xl font-bold text-foreground flex items-center gap-2"><ShieldCheck className="size-5 text-primary" />Панель администратора</h1>
+              <h1 className="text-xl font-bold text-foreground flex items-center gap-2"><ShieldCheck className="size-5 text-primary" />Панель а��министратора</h1>
               <p className="text-muted-foreground text-xs">Долина молока</p>
             </div>
           </div>

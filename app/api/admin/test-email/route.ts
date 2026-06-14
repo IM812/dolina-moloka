@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { createServiceClient } from "@/lib/supabase/service";
+import { invalidateSmtpCache } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -30,6 +32,19 @@ export async function POST(req: Request) {
       subject: "Тест уведомлений — Долина молока",
       html: `<p>SMTP настроен успешно. Уведомления о заказах будут приходить на этот адрес.</p>`,
     });
+
+    // Save config to DB so all future order emails use these settings
+    const sb = createServiceClient();
+    await sb.from("settings").upsert([
+      { key: "smtp_host", value: host, updated_at: new Date().toISOString() },
+      { key: "smtp_port", value: String(port ?? "465"), updated_at: new Date().toISOString() },
+      { key: "smtp_user", value: user, updated_at: new Date().toISOString() },
+      { key: "smtp_pass", value: pass, updated_at: new Date().toISOString() },
+      { key: "smtp_to",   value: to || user, updated_at: new Date().toISOString() },
+    ], { onConflict: "key" });
+
+    // Invalidate in-memory cache so next email uses fresh config
+    invalidateSmtpCache();
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
