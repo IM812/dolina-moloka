@@ -74,18 +74,12 @@ export default function DeliveryPage() {
           {/* Wed */}
           <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
-            <div>
-              <p className="font-bold text-sm leading-tight">Среда</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов в понедельник до 12:00</p>
-            </div>
+            <p className="text-sm text-background/80">Приём заказов в понедельник до 12:00</p>
           </div>
           {/* Thu */}
           <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
-            <div>
-              <p className="font-bold text-sm leading-tight">Четверг</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов в четверг до 12:00</p>
-            </div>
+            <p className="text-sm text-background/80">Приём заказов в четверг до 12:00</p>
           </div>
           {/* Hours */}
           <div className="bg-secondary border border-border rounded-2xl px-5 py-5">
