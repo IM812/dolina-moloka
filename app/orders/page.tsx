@@ -3,6 +3,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,9 +25,10 @@ import {
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Search, Package, ArrowRight } from "lucide-react";
+import { Search, Package, ArrowRight, CheckCircle2, Clock, ChefHat, ShoppingBag, XCircle } from "lucide-react";
 import type { Order } from "@/types";
 import { getLastOrderNumber } from "@/lib/cookies";
+import { cn } from "@/lib/utils";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -34,18 +36,60 @@ const fetcher = (url: string) =>
     return r.json();
   });
 
-const paymentLabels: Record<string, string> = {
-  pending: "Ожидает оплаты",
-  paid: "Оплачен",
-  cancelled: "Отменён",
-};
+const DELIVERY_STEPS = [
+  { key: "new",        label: "Принят",           icon: CheckCircle2 },
+  { key: "processing", label: "Готовится",         icon: ChefHat      },
+  { key: "completed",  label: "Готов к выдаче",    icon: ShoppingBag  },
+];
 
-const deliveryLabels: Record<string, string> = {
-  pending: "Принят",
-  processing: "Готовится",
-  ready: "Готов к выдаче",
-  delivered: "Выдан",
-};
+const deliveryOrder = ["new", "processing", "completed"];
+
+function DeliveryProgress({ status }: { status: string }) {
+  const currentIdx = deliveryOrder.indexOf(status);
+  if (status === "cancelled") {
+    return (
+      <div className="flex items-center gap-2 text-sm text-destructive">
+        <XCircle className="size-4" />
+        Заказ отменён
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-0 w-full">
+      {DELIVERY_STEPS.map((step, idx) => {
+        const done = idx <= currentIdx;
+        const active = idx === currentIdx;
+        const Icon = step.icon;
+        return (
+          <div key={step.key} className="flex items-center flex-1 last:flex-none">
+            <div className="flex flex-col items-center gap-1.5">
+              <div className={cn(
+                "size-9 rounded-full flex items-center justify-center border-2 transition-colors",
+                done
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : "bg-background border-border text-muted-foreground"
+              )}>
+                <Icon className="size-4" />
+              </div>
+              <span className={cn(
+                "text-xs text-center leading-tight max-w-[64px]",
+                active ? "text-foreground font-medium" : "text-muted-foreground"
+              )}>
+                {step.label}
+              </span>
+            </div>
+            {idx < DELIVERY_STEPS.length - 1 && (
+              <div className={cn(
+                "flex-1 h-0.5 mb-5 mx-1 transition-colors",
+                idx < currentIdx ? "bg-primary" : "bg-border"
+              )} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function OrderResult({ orderNumber }: { orderNumber: string }) {
   const { data, error, isLoading } = useSWR<{ order: Order }>(
@@ -60,7 +104,8 @@ function OrderResult({ orderNumber }: { orderNumber: string }) {
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-4 w-24" />
         </CardHeader>
-        <CardContent className="flex flex-col gap-3">
+        <CardContent className="flex flex-col gap-4">
+          <Skeleton className="h-16 w-full" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
         </CardContent>
@@ -85,53 +130,84 @@ function OrderResult({ orderNumber }: { orderNumber: string }) {
   }
 
   const order = data.order;
+  const isPaid = order.paymentStatus === "paid";
+  const date = new Date(order.createdAt).toLocaleDateString("ru-RU", {
+    day: "numeric", month: "long", year: "numeric"
+  });
+  const time = new Date(order.createdAt).toLocaleTimeString("ru-RU", {
+    hour: "2-digit", minute: "2-digit"
+  });
 
   return (
-    <Card className="border-border">
-      <CardHeader>
-        <div className="flex items-center justify-between gap-2 flex-wrap">
+    <Card className="border-border overflow-hidden">
+      {/* Header */}
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-2 flex-wrap">
           <div>
-            <CardTitle className="text-lg">Заказ {order.orderNumber}</CardTitle>
-            <CardDescription>
-              от {new Date(order.createdAt).toLocaleDateString("ru-RU")}
+            <CardTitle className="text-xl">Заказ {order.orderNumber}</CardTitle>
+            <CardDescription className="mt-0.5">
+              {date} в {time}
             </CardDescription>
           </div>
-          <div className="flex gap-2">
-            <Badge
-              variant={order.paymentStatus === "paid" ? "default" : "secondary"}
-            >
-              {paymentLabels[order.paymentStatus]}
-            </Badge>
-            <Badge variant="outline">
-              {deliveryLabels[order.deliveryStatus]}
-            </Badge>
-          </div>
+          <Badge
+            variant={isPaid ? "default" : "secondary"}
+            className="text-sm px-3 py-1"
+          >
+            {isPaid ? (
+              <><CheckCircle2 className="size-3.5 mr-1.5" />Оплачен</>
+            ) : (
+              <><Clock className="size-3.5 mr-1.5" />Ожидает оплаты</>
+            )}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          {order.items.map((item: Order["items"][number]) => (
-            <div
-              key={item.productId}
-              className="flex items-center justify-between text-sm"
-            >
-              <span className="text-foreground">
-                {item.productName}{" "}
-                <span className="text-muted-foreground">× {item.quantity}</span>
-              </span>
-              <span className="font-medium text-foreground">
-                {item.price * item.quantity} ₽
-              </span>
-            </div>
-          ))}
+
+      <CardContent className="flex flex-col gap-6">
+        {/* Delivery progress */}
+        <div className="bg-muted/40 rounded-xl p-4">
+          <p className="text-xs text-muted-foreground font-medium mb-4 uppercase tracking-wide">Статус доставки</p>
+          <DeliveryProgress status={order.deliveryStatus} />
         </div>
+
+        {/* Items */}
+        <div>
+          <p className="text-xs text-muted-foreground font-medium mb-3 uppercase tracking-wide">Состав заказа</p>
+          <div className="flex flex-col gap-3">
+            {order.items.map((item: Order["items"][number], idx: number) => (
+              <div key={item.productId ?? idx} className="flex items-center gap-3">
+                <div className="size-12 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
+                  <Image
+                    src={`/products/${item.productId ? "" : ""}${item.productName?.toLowerCase().includes("молок") ? "milk-1l" : item.productName?.toLowerCase().includes("кефир") ? "kefir-pet" : item.productName?.toLowerCase().includes("йогурт") && item.productName?.toLowerCase().includes("греч") ? "yogurt-greek" : item.productName?.toLowerCase().includes("малин") ? "yogurt-raspberry" : item.productName?.toLowerCase().includes("черник") ? "yogurt-blueberry" : item.productName?.toLowerCase().includes("творог") ? "tvorog-cup" : item.productName?.toLowerCase().includes("сметан") ? "smetana-cup" : item.productName?.toLowerCase().includes("масл") ? "butter-200g" : "milk-1l"}.png`}
+                    alt={item.productName}
+                    width={48}
+                    height={48}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground leading-tight line-clamp-2">{item.productName}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.quantity} шт. × {item.price} ₽</p>
+                </div>
+                <span className="text-sm font-semibold text-foreground shrink-0">
+                  {item.price * item.quantity} ₽
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <Separator />
+
+        {/* Total */}
         <div className="flex items-center justify-between">
-          <span className="font-medium text-foreground">Итого</span>
-          <span className="text-lg font-bold text-foreground">
-            {order.totalAmount} ₽
-          </span>
+          <span className="text-base font-medium text-foreground">Итого</span>
+          <span className="text-2xl font-bold text-foreground">{order.totalAmount} ₽</span>
         </div>
+
+        {/* Help text */}
+        <p className="text-xs text-muted-foreground text-center">
+          Вопросы по заказу? Позвоните нам или напишите в WhatsApp
+        </p>
       </CardContent>
     </Card>
   );
