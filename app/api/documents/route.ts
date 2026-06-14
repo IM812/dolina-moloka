@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to Vercel Blob
     const blob = await put(`documents/${Date.now()}-${file.name}`, file, {
-      access: "public",
+      access: "private",
     });
 
     // Save metadata with service role (bypasses RLS)

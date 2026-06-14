@@ -19,13 +19,13 @@ const steps = [
     num: "02",
     icon: <Clock className="size-5" />,
     title: "Оформите заказ",
-    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — до понедельника 12:00. На четверг — до четверга 12:00.",
+    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — до понедельника 12:00. На субботу — до пятницы 12:00.",
   },
   {
     num: "03",
     icon: <Truck className="size-5" />,
     title: "Получите у двери",
-    desc: "Доставляем каждую среду и четверг в точки выдачи. Все продукты едут в автомобиле-рефрижераторе.",
+    desc: "Доставляем каждую среду и субботу в точки выдачи. Все продукты едут в автомобиле-рефрижераторе.",
   },
 ];
 
@@ -36,7 +36,7 @@ const faq = [
   },
   {
     q: "До какого времени принимаются заказы?",
-    a: "На среду — до понедельника 12:00. На четверг — до четверга 12:00.",
+    a: "На среду — до понедельника 12:00. На субботу — до пятницы 12:00.",
   },
 ];
 
@@ -88,12 +88,12 @@ export default function DeliveryPage() {
               <p className="text-xs text-background/60 mt-0.5">Приём заказов до понедельника, 12:00</p>
             </div>
           </div>
-          {/* Thu */}
+          {/* Sat */}
           <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
             <div>
-              <p className="font-bold text-sm leading-tight">Четверг</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов до четверга, 12:00</p>
+              <p className="font-bold text-sm leading-tight">Суббота</p>
+              <p className="text-xs text-background/60 mt-0.5">Приём заказов до пятницы, 12:00</p>
             </div>
           </div>
           {/* Hours */}
@@ -120,7 +120,7 @@ export default function DeliveryPage() {
                 <MapPin className="size-4 text-primary shrink-0" />
                 По Москве и Московской области
               </div>
-              <p className="text-sm text-muted-foreground">Доставка в точки выдачи: среда и четверг</p>
+              <p className="text-sm text-muted-foreground">Доставка в точки выдачи: среда и суббота</p>
               <div className="h-px bg-primary/15 my-1" />
               <p className="text-sm text-foreground">
                 Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
