@@ -19,7 +19,7 @@ const steps = [
     num: "02",
     icon: <Clock className="size-5" />,
     title: "Оформите заказ",
-    desc: "Укажите адрес точки выдачи, имя и телефон. Приём заказов на среду — до понедельника 12:00, на четверг — до четверга 12:00.",
+    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — приём в понедельник до 12:00, на четверг — в четверг до 12:00.",
   },
   {
     num: "03",
@@ -76,7 +76,7 @@ export default function DeliveryPage() {
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
             <div>
               <p className="font-bold text-sm leading-tight">Среда</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов до понедельника, 12:00</p>
+              <p className="text-xs text-background/60 mt-0.5">Приём заказов в понедельник до 12:00</p>
             </div>
           </div>
           {/* Thu */}
@@ -84,7 +84,7 @@ export default function DeliveryPage() {
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
             <div>
               <p className="font-bold text-sm leading-tight">Четверг</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов до четверга, 12:00</p>
+              <p className="text-xs text-background/60 mt-0.5">Приём заказов в четверг до 12:00</p>
             </div>
           </div>
           {/* Hours */}
@@ -111,7 +111,7 @@ export default function DeliveryPage() {
                 <MapPin className="size-4 text-primary shrink-0" />
                 По Москве и Московской области
               </div>
-              <p className="text-sm text-muted-foreground">Доставка в точки выдачи: среда и четверг</p>
+              <p className="text-sm text-muted-foreground">Дни доставки: среда и четверг</p>
               <div className="h-px bg-primary/15 my-1" />
               <p className="text-sm text-foreground">
                 Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
