@@ -54,25 +54,33 @@ function PaymentContent() {
 
     try {
       // Step 1: simulate payment processing
+      console.log("[v0] Step 1: calling /api/payment/create, amount:", pendingOrder.totalAmount);
       const payRes = await fetch("/api/payment/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: pendingOrder.totalAmount }),
       });
 
+      console.log("[v0] payment/create status:", payRes.status);
       if (!payRes.ok) throw new Error("Ошибка платёжного сервиса");
       const payData = await payRes.json();
+      console.log("[v0] payment/create response:", payData);
       if (!payData.success) throw new Error(payData.error ?? "Оплата отклонена");
 
       // Step 2: payment succeeded — now save order to DB
+      console.log("[v0] Step 2: calling /api/orders, payload:", JSON.stringify(pendingOrder).slice(0, 200));
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pendingOrder),
       });
 
-      if (!orderRes.ok) throw new Error("Ошибка сохранения заказа");
-      const { order } = await orderRes.json();
+      console.log("[v0] /api/orders status:", orderRes.status);
+      const orderBody = await orderRes.json();
+      console.log("[v0] /api/orders response:", orderBody);
+
+      if (!orderRes.ok) throw new Error(orderBody?.error ?? "Ошибка сохранения заказа");
+      const { order } = orderBody;
 
       // Cleanup
       sessionStorage.removeItem("pendingOrder");
@@ -80,8 +88,8 @@ function PaymentContent() {
       toast.success("Оплата прошла успешно!");
       router.push(`/success?order=${order.orderNumber}`);
     } catch (err) {
-      console.error("[payment] error:", err);
-      toast.error("Ошибка при обработке оплаты. Попробуйте ещё раз.");
+      console.error("[v0] payment error:", err);
+      toast.error(err instanceof Error ? err.message : "Ошибка при обработке оплаты. Попробуйте ещё раз.");
     } finally {
       setPaying(false);
     }
