@@ -100,13 +100,13 @@ export function Footer() {
             {/* Social */}
             <div className="flex items-center gap-3 mt-4">
               <a
-                href="https://vk.com/search?c[section]=people&c[phone]=79166950988"
+                href="https://max.ru/profile?phone=79166950988"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="size-9 rounded-xl bg-accent flex items-center justify-center text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="ВКонтакте"
+                aria-label="Max"
               >
-                VK
+                Max
               </a>
             </div>
           </div>
