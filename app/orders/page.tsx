@@ -179,6 +179,12 @@ export default function OrdersPage() {
     const trimmed = phone.trim();
     if (!trimmed) return;
 
+    // Normalize: keep digits only, replace leading 8 → 7
+    const digits = trimmed.replace(/\D/g, "");
+    const normalized = digits.startsWith("8") && digits.length === 11
+      ? "7" + digits.slice(1)
+      : digits;
+
     setLoading(true);
     setError(null);
     setSearched(false);
@@ -187,7 +193,7 @@ export default function OrdersPage() {
       const res = await fetch("/api/orders/by-phone", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: trimmed }),
+        body: JSON.stringify({ phone: normalized }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Ошибка поиска");

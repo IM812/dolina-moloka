@@ -42,6 +42,13 @@ export async function POST(req: NextRequest) {
     const orderNum = (count ?? 0) + 1;
     const orderNumber = `DM-${String(orderNum).padStart(4, "0")}`;
 
+    // Normalize phone — strip everything except digits, ensure starts with 7
+    const rawPhone: string = customer.phone ?? "";
+    const phoneDigits = rawPhone.replace(/\D/g, "");
+    const normalizedPhone = phoneDigits.startsWith("8") && phoneDigits.length === 11
+      ? "7" + phoneDigits.slice(1)
+      : phoneDigits;
+
     // Sanitize items — productId must be a valid UUID or null
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const sanitizedItems = items.map((item: { productId?: string | null; productName: string; quantity: number; price: number }) => ({
@@ -52,7 +59,7 @@ export async function POST(req: NextRequest) {
     // Single atomic transaction via RPC (SECURITY DEFINER bypasses RLS)
     const { data: result, error: rpcError } = await supabase.rpc("create_order", {
       p_full_name: customer.fullName,
-      p_phone: customer.phone,
+      p_phone: normalizedPhone,
       p_email: customer.email || "",
       p_pickup_address: customer.pickupAddress || "",
       p_comment: customer.comment || "",
