@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart";
+import { usePromotions, getBestDiscount } from "@/hooks/use-promotions";
 import { toast } from "sonner";
-import { Loader2, ArrowRight, ShoppingCart, MapPin } from "lucide-react";
+import { Loader2, ArrowRight, ShoppingCart, MapPin, Tag } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -40,10 +41,12 @@ function FormField({
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, getTotal, clearCart } = useCartStore();
+  const { promotions } = usePromotions();
   const total = getTotal();
+  const { promotion, discountAmount, finalTotal } = getBestDiscount(promotions, total);
 
   const MIN_ORDER = 600;
-  const belowMin = total < MIN_ORDER;
+  const belowMin = finalTotal < MIN_ORDER;
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
