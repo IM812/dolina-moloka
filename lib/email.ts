@@ -84,6 +84,6 @@ export async function sendOrderNotification(order: Order): Promise<void> {
   } catch (err: unknown) {
     const e = err as { code?: string; message?: string; response?: string };
     console.error(`[email] FAILED — code:${e.code} message:${e.message} response:${e.response}`);
-    throw err;
+    // Never throw — email failure must not break order creation
   }
 }

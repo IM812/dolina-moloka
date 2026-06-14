@@ -53,42 +53,31 @@ function PaymentContent() {
     setPaying(true);
 
     try {
-      // Step 1: simulate payment processing
-      console.log("[v0] Step 1: calling /api/payment/create, amount:", pendingOrder.totalAmount);
+      // Step 1: process payment
       const payRes = await fetch("/api/payment/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: pendingOrder.totalAmount }),
       });
 
-      console.log("[v0] payment/create status:", payRes.status);
       if (!payRes.ok) throw new Error("Ошибка платёжного сервиса");
       const payData = await payRes.json();
-      console.log("[v0] payment/create response:", payData);
       if (!payData.success) throw new Error(payData.error ?? "Оплата отклонена");
 
-      // Step 2: payment succeeded — now save order to DB
-      console.log("[v0] Step 2: calling /api/orders, payload:", JSON.stringify(pendingOrder).slice(0, 200));
+      // Step 2: payment succeeded — save order to DB
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pendingOrder),
       });
 
-      console.log("[v0] /api/orders status:", orderRes.status);
       const orderBody = await orderRes.json();
-      console.log("[v0] /api/orders response:", orderBody);
-
       if (!orderRes.ok) throw new Error(orderBody?.error ?? "Ошибка сохранения заказа");
-      const { order } = orderBody;
 
-      // Cleanup
       sessionStorage.removeItem("pendingOrder");
-
       toast.success("Оплата прошла успешно!");
-      router.push(`/success?order=${order.orderNumber}`);
+      router.push(`/success?order=${orderBody.order.orderNumber}`);
     } catch (err) {
-      console.error("[v0] payment error:", err);
       toast.error(err instanceof Error ? err.message : "Ошибка при обработке оплаты. Попробуйте ещё раз.");
     } finally {
       setPaying(false);
@@ -135,24 +124,6 @@ function PaymentContent() {
             </div>
             <h1 className="text-2xl font-bold text-foreground">Оплата заказа</h1>
             <p className="text-muted-foreground text-sm">Заказ будет сохранён после успешной оплаты</p>
-          </div>
-
-          <Separator className="bg-border" />
-
-          {/* Customer info */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Покупатель</span>
-              <span className="text-sm font-medium text-foreground">{pendingOrder.customer.fullName}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Телефон</span>
-              <span className="text-sm text-foreground">{pendingOrder.customer.phone}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Адрес</span>
-              <span className="text-sm text-foreground text-right max-w-[200px]">{pendingOrder.customer.pickupAddress}</span>
-            </div>
           </div>
 
           <Separator className="bg-border" />
