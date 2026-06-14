@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { products } from "@/lib/mock-data";
 
 const categories = [
@@ -21,25 +20,6 @@ export function CategoriesSection() {
   return (
     <section className="py-12 sm:py-20 md:py-28 bg-secondary overflow-hidden">
       <div className="container mx-auto px-5 sm:px-6 max-w-7xl">
-
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10">
-          <div>
-            <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground font-medium block mb-3">
-              Каталог
-            </span>
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-              Категории продукции
-            </h2>
-          </div>
-          <Link
-            href="/catalog"
-            className="group inline-flex items-center gap-2 text-primary font-medium text-sm hover:underline underline-offset-4 transition-all shrink-0"
-          >
-            Весь каталог
-            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
 
         {/* Full-width photo banner */}
         <div className="relative w-full h-52 sm:h-64 md:h-72 rounded-3xl overflow-hidden mb-6">

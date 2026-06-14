@@ -19,32 +19,24 @@ const steps = [
     num: "02",
     icon: <Clock className="size-5" />,
     title: "Оформите заказ",
-    desc: "Укажите адрес доставки, имя и телефон. Принимаем заказы до 20:00 накануне дня доставки.",
+    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — до понедельника 12:00. На четверг — до четверга 12:00.",
   },
   {
     num: "03",
     icon: <Truck className="size-5" />,
     title: "Получите у двери",
-    desc: "Доставляем каждую среду и субботу. Все продукты едут в холодильных контейнерах.",
+    desc: "Доставляем каждую среду и четверг в точки выдачи. Все продукты едут в автомобиле-рефрижераторе.",
   },
 ];
 
 const faq = [
-  {
-    q: "Сколько стоит доставка?",
-    a: "Стоимость доставки рассчитывается индивидуально в зависимости от адреса. Уточняйте при оформлении заказа.",
-  },
   {
     q: "Можно ли сделать самовывоз?",
     a: "Да, самовывоз возможен по предварительной договорённости. Свяжитесь с нами по телефону +7-916-695-09-88.",
   },
   {
     q: "До какого времени принимаются заказы?",
-    a: "На среду — до вторника 20:00. На субботу — до пятницы 20:00.",
-  },
-  {
-    q: "Как хранятся продукты при доставке?",
-    a: "Все продукты доставляются в холодильных контейнерах, сохраняя свежесть и необходимую температуру.",
+    a: "На среду — до понедельника 12:00. На четверг — до четверга 12:00.",
   },
 ];
 
@@ -93,15 +85,15 @@ export default function DeliveryPage() {
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
             <div>
               <p className="font-bold text-sm leading-tight">Среда</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов до вторника, 20:00</p>
+              <p className="text-xs text-background/60 mt-0.5">Приём заказов до понедельника, 12:00</p>
             </div>
           </div>
-          {/* Sat */}
+          {/* Thu */}
           <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
             <div>
-              <p className="font-bold text-sm leading-tight">Суббота</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов до пятницы, 20:00</p>
+              <p className="font-bold text-sm leading-tight">Четверг</p>
+              <p className="text-xs text-background/60 mt-0.5">Приём заказов до четверга, 12:00</p>
             </div>
           </div>
           {/* Hours */}
@@ -128,7 +120,7 @@ export default function DeliveryPage() {
                 <MapPin className="size-4 text-primary shrink-0" />
                 По Москве и Московской области
               </div>
-              <p className="text-sm text-muted-foreground">Дни доставки: среда и суббота</p>
+              <p className="text-sm text-muted-foreground">Доставка в точки выдачи: среда и четверг</p>
               <div className="h-px bg-primary/15 my-1" />
               <p className="text-sm text-foreground">
                 Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
