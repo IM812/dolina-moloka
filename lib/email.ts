@@ -58,7 +58,7 @@ export async function sendOrderNotification(order: Order): Promise<void> {
   const smtpPort = parseInt(process.env.SMTP_PORT ?? "465", 10);
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  const to = process.env.SMTP_TO ?? process.env.NOTIFICATION_EMAIL ?? smtpUser;
+  const to = process.env.SMTP_TO ?? process.env.NOTIFICATION_EMAIL ?? "dolinamoloka50@gmail.com";
 
   if (!smtpUser || !smtpPass) {
     console.warn("[email] SMTP_USER or SMTP_PASS not set — skipping notification");

@@ -17,7 +17,7 @@ function mapProduct(p: any): Product {
     fullDescription: p.full_description ?? "",
     price: p.price,
     image: p.image_url ?? "/products/placeholder.png",
-    volume: p.volume ?? "",
+    weight: p.volume ?? "",
     composition: p.composition ?? "",
     storageConditions: p.storage_conditions ?? "",
     category: p.category,
