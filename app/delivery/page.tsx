@@ -19,7 +19,7 @@ const steps = [
     num: "02",
     icon: <Clock className="size-5" />,
     title: "Оформите заказ",
-    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — до понедельника 12:00. На субботу — до пятницы 12:00.",
+    desc: "Укажите адрес точки выдачи, имя и телефон. Приём заказов на среду — до понедельника 12:00, на четверг — до четверга 12:00.",
   },
   {
     num: "03",
@@ -29,16 +29,7 @@ const steps = [
   },
 ];
 
-const faq = [
-  {
-    q: "Можно ли сделать самовывоз?",
-    a: "Да, самовывоз возможен по предварительной договорённости. Свяжитесь с нами по телефону +7-916-695-09-88.",
-  },
-  {
-    q: "До какого времени принимаются заказы?",
-    a: "На среду — до понедельника 12:00. На субботу — до пятницы 12:00.",
-  },
-];
+
 
 export default function DeliveryPage() {
   return (
@@ -88,12 +79,12 @@ export default function DeliveryPage() {
               <p className="text-xs text-background/60 mt-0.5">Приём заказов до понедельника, 12:00</p>
             </div>
           </div>
-          {/* Sat */}
+          {/* Thu */}
           <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
             <div>
-              <p className="font-bold text-sm leading-tight">Суббота</p>
-              <p className="text-xs text-background/60 mt-0.5">Приём заказов до пятницы, 12:00</p>
+              <p className="font-bold text-sm leading-tight">Четверг</p>
+              <p className="text-xs text-background/60 mt-0.5">Приём заказов до четверга, 12:00</p>
             </div>
           </div>
           {/* Hours */}
@@ -120,7 +111,7 @@ export default function DeliveryPage() {
                 <MapPin className="size-4 text-primary shrink-0" />
                 По Москве и Московской области
               </div>
-              <p className="text-sm text-muted-foreground">Доставка в точки выдачи: среда и суббота</p>
+              <p className="text-sm text-muted-foreground">Доставка в точки выдачи: среда и четверг</p>
               <div className="h-px bg-primary/15 my-1" />
               <p className="text-sm text-foreground">
                 Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
@@ -129,20 +120,7 @@ export default function DeliveryPage() {
           </div>
         </div>
 
-        {/* FAQ */}
-        <div>
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-foreground mb-6">
-            Частые вопросы
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {faq.map(({ q, a }) => (
-              <div key={q} className="bg-secondary border border-border rounded-2xl px-5 py-5">
-                <p className="font-semibold text-sm text-foreground mb-2">{q}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+
 
       </div>
     </main>
