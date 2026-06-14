@@ -9,7 +9,6 @@ export default async function CatalogPage() {
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .eq("in_stock", true)
     .order("category");
 
   const products: Product[] = (data ?? []).map((p) => ({

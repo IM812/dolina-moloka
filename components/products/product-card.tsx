@@ -19,8 +19,10 @@ export function ProductCard({ product, className, priority }: ProductCardProps) 
   const { items, addItem, updateQuantity, removeItem } = useCartStore();
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem?.quantity ?? 0;
+  const outOfStock = product.inStock === false;
 
   const handleAdd = () => {
+    if (outOfStock) return;
     addItem(product);
     toast.success(`${product.name} добавлен в корзину`);
   };
@@ -29,11 +31,12 @@ export function ProductCard({ product, className, priority }: ProductCardProps) 
     <div
       className={cn(
         "group bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:shadow-xl hover:shadow-black/5 hover:border-primary/25 transition-all duration-300",
+        outOfStock && "opacity-75",
         className
       )}
     >
       {/* Image */}
-      <Link href={`/product/${product.slug}`} className="block flex-shrink-0">
+      <Link href={`/product/${product.slug}`} className="block flex-shrink-0 relative">
         <div className="relative bg-white h-40 sm:h-44 overflow-hidden rounded-t-2xl">
           <Image
             src={product.image}
@@ -44,6 +47,13 @@ export function ProductCard({ product, className, priority }: ProductCardProps) 
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 20vw"
           />
         </div>
+        {outOfStock && (
+          <div className="absolute inset-0 bg-background/60 rounded-t-2xl flex items-center justify-center">
+            <span className="bg-background border border-border text-muted-foreground text-xs font-medium px-3 py-1.5 rounded-lg">
+              Временно нет в наличии
+            </span>
+          </div>
+        )}
       </Link>
 
       {/* Content */}
@@ -70,7 +80,9 @@ export function ProductCard({ product, className, priority }: ProductCardProps) 
             <p className="text-[11px] text-muted-foreground mt-0.5">{product.weight}</p>
           </div>
 
-          {quantity === 0 ? (
+          {outOfStock ? (
+            <span className="text-xs text-muted-foreground font-medium">Нет в наличии</span>
+          ) : quantity === 0 ? (
             <button
               onClick={handleAdd}
               className="flex items-center gap-1.5 bg-foreground text-background hover:bg-foreground/80 active:scale-95 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200"

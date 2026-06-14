@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -372,6 +372,20 @@ function ProductsTab() {
   const [editId, setEditId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !form) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.url) setForm({ ...form, image_url: data.url });
+    setUploading(false);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -457,12 +471,23 @@ function ProductsTab() {
                 <Input value={form.volume} onChange={e => setForm({ ...form, volume: e.target.value })} placeholder="400 г" className="border-border" />
               </div>
               <div className="flex flex-col gap-1 sm:col-span-2">
-                <label className="text-xs text-muted-foreground">Фото (URL или /products/...)</label>
-                <div className="flex gap-2">
-                  <Input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} placeholder="/products/tvorog.jpg" className="border-border flex-1" />
-                  {form.image_url && (
+                <label className="text-xs text-muted-foreground">Фото товара</label>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1 flex flex-col gap-1.5">
+                    <Input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} placeholder="URL или загрузите файл →" className="border-border" />
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    <Button type="button" variant="outline" size="sm" className="border-border gap-2 self-start" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                      {uploading ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                      {uploading ? "Загружаем..." : "Загрузить фото"}
+                    </Button>
+                  </div>
+                  {form.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.image_url} alt="" className="size-10 rounded-lg object-cover border border-border shrink-0" />
+                    <img src={form.image_url} alt="" className="size-16 rounded-xl object-cover border border-border shrink-0" />
+                  ) : (
+                    <div className="size-16 rounded-xl bg-secondary border border-border flex items-center justify-center shrink-0">
+                      <ImageIcon className="size-5 text-muted-foreground" />
+                    </div>
                   )}
                 </div>
               </div>

@@ -21,6 +21,7 @@ export function CatalogClient({ products }: { products: Product[] }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("Все");
   const [sort, setSort] = useState<SortKey>("default");
+  const [onlyInStock, setOnlyInStock] = useState(false);
 
   const categories = ["Все", ...Array.from(new Set(products.map((p) => p.category)))];
 
@@ -31,7 +32,8 @@ export function CatalogClient({ products }: { products: Product[] }) {
         p.description.toLowerCase().includes(search.toLowerCase());
       const matchesCategory =
         activeCategory === "Все" || p.category === activeCategory;
-      return matchesSearch && matchesCategory;
+      const matchesStock = !onlyInStock || p.inStock;
+      return matchesSearch && matchesCategory && matchesStock;
     })
     .sort((a, b) => {
       if (sort === "price-asc") return a.price - b.price;
@@ -77,7 +79,7 @@ export function CatalogClient({ products }: { products: Product[] }) {
               </select>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -91,6 +93,17 @@ export function CatalogClient({ products }: { products: Product[] }) {
                 {cat}
               </button>
             ))}
+            <div className="h-5 w-px bg-border mx-1" />
+            <button
+              onClick={() => setOnlyInStock((v) => !v)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors border ${
+                onlyInStock
+                  ? "bg-emerald-600 text-white border-emerald-600"
+                  : "bg-secondary border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+              }`}
+            >
+              В наличии
+            </button>
           </div>
         </div>
 
