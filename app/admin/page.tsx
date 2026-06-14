@@ -601,11 +601,13 @@ function DocumentsTab() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    // Admin sees all — use service route that bypasses RLS
-    const supabase = createClient();
-    const { data } = await supabase.from("documents").select("*").order("created_at", { ascending: false });
-    setDocuments(data ?? []);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/documents");
+      const json = await res.json();
+      setDocuments(json.documents ?? []);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -621,12 +623,22 @@ function DocumentsTab() {
       fd.append("category", form.category);
       fd.append("is_public", String(form.is_public));
       const res = await fetch("/api/documents", { method: "POST", body: fd });
-      if (!res.ok) throw new Error("Ошибка загрузки");
+      const json = await res.json();
+      if (!res.ok) {
+        console.error("[admin] upload error", json);
+        alert(`Ошибка загрузки: ${json.error ?? res.status}`);
+        return;
+      }
       setFile(null);
       setForm({ title: "", description: "", category: "certificate", is_public: true });
       setShowForm(false);
       load();
-    } finally { setUploading(false); }
+    } catch (err) {
+      console.error("[admin] upload exception", err);
+      alert("Не удалось загрузить файл. Проверьте консоль.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
