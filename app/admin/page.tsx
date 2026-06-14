@@ -19,6 +19,7 @@ import {
   Users, RefreshCw, Phone, Mail, MapPin, MessageSquare, LogOut,
   Search, TrendingUp, Package, User, ChevronDown, ChevronUp,
   Tag, Plus, Pencil, Trash2, Eye, EyeOff, Calendar,
+  FileText, Upload, Download, Award, Shield, FileCheck,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -571,6 +572,210 @@ function PromotionsTab() {
   );
 }
 
+const DOC_CATEGORY_OPTIONS = [
+  { value: "certificate", label: "Сертификат", icon: <Award className="size-4 text-amber-600" /> },
+  { value: "license", label: "Лицензия", icon: <Shield className="size-4 text-blue-600" /> },
+  { value: "quality", label: "Качество", icon: <FileCheck className="size-4 text-emerald-600" /> },
+  { value: "other", label: "Прочее", icon: <FileText className="size-4 text-muted-foreground" /> },
+];
+
+type DocumentRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  file_url: string;
+  file_name: string;
+  file_size: number | null;
+  is_public: boolean;
+  created_at: string;
+};
+
+function DocumentsTab() {
+  const [documents, setDocuments] = useState<DocumentRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: "", description: "", category: "certificate", is_public: true });
+  const [file, setFile] = useState<File | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    // Admin sees all — use service route that bypasses RLS
+    const supabase = createClient();
+    const { data } = await supabase.from("documents").select("*").order("created_at", { ascending: false });
+    setDocuments(data ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleUpload = async () => {
+    if (!file || !form.title) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("title", form.title);
+      fd.append("description", form.description);
+      fd.append("category", form.category);
+      fd.append("is_public", String(form.is_public));
+      const res = await fetch("/api/documents", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Ошибка загрузки");
+      setFile(null);
+      setForm({ title: "", description: "", category: "certificate", is_public: true });
+      setShowForm(false);
+      load();
+    } finally { setUploading(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Удалить документ?")) return;
+    await fetch(`/api/documents/${id}`, { method: "DELETE" });
+    load();
+  };
+
+  const formatSize = (bytes: number | null) => {
+    if (!bytes) return "—";
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} КБ`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">{documents.length} файлов загружено</p>
+        <Button size="sm" onClick={() => setShowForm((v) => !v)} className="gap-2">
+          <Upload className="size-4" />Загрузить файл
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Новый документ</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground mb-1 block">Название *</label>
+                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Сертификат соответствия ГОСТ" className="border-border" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground mb-1 block">Описание</label>
+                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Краткое описание документа..." className="border-border" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Категория</label>
+                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm">
+                  {DOC_CATEGORY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Файл *</label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx"
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  className="w-full h-9 text-sm file:mr-3 file:h-full file:border-0 file:bg-secondary file:text-foreground file:text-xs file:font-medium file:rounded-md file:px-3 cursor-pointer"
+                />
+              </div>
+            </div>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={form.is_public} onChange={(e) => setForm({ ...form, is_public: e.target.checked })} className="accent-primary" />
+              Показывать на сайте в разделе Документы
+            </label>
+            <div className="flex gap-2 pt-2 border-t border-border">
+              <Button onClick={handleUpload} disabled={uploading || !file || !form.title} size="sm" className="gap-2">
+                {uploading ? <RefreshCw className="size-3 animate-spin" /> : <Upload className="size-3" />}
+                {uploading ? "Загрузка..." : "Загрузить"}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setShowForm(false)} className="border-border">Отмена</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="border-border">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-4 flex flex-col gap-3">{[1,2,3].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div>
+          ) : documents.length === 0 ? (
+            <div className="py-16 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+              <FileText className="size-8 opacity-30" />
+              Документы не загружены. Нажмите "Загрузить файл".
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border bg-secondary/60">
+                  <TableHead className="font-semibold">Документ</TableHead>
+                  <TableHead className="font-semibold">Категория</TableHead>
+                  <TableHead className="font-semibold">Размер</TableHead>
+                  <TableHead className="font-semibold">Видимость</TableHead>
+                  <TableHead className="font-semibold">Дата</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {documents.map((doc) => {
+                  const catOption = DOC_CATEGORY_OPTIONS.find((o) => o.value === doc.category);
+                  const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(doc.file_name);
+                  return (
+                    <TableRow key={doc.id} className="border-border hover:bg-secondary/40">
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="size-10 rounded-lg bg-secondary border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {isImg ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={doc.file_url} alt={doc.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <FileText className="size-4 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm text-foreground">{doc.title}</p>
+                            {doc.description && <p className="text-xs text-muted-foreground line-clamp-1">{doc.description}</p>}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          {catOption?.icon}
+                          {catOption?.label ?? doc.category}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{formatSize(doc.file_size)}</TableCell>
+                      <TableCell>
+                        {doc.is_public
+                          ? <span className="text-xs text-emerald-600 flex items-center gap-1"><Eye className="size-3" />Публично</span>
+                          : <span className="text-xs text-muted-foreground flex items-center gap-1"><EyeOff className="size-3" />Скрыто</span>}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {new Date(doc.created_at).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="size-7 rounded-lg hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" title="Открыть">
+                            <Download className="size-3.5" />
+                          </a>
+                          <button onClick={() => handleDelete(doc.id)} className="size-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-red-600 transition-colors" title="Удалить">
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<DbOrder[]>([]);
@@ -668,6 +873,7 @@ export default function AdminPage() {
             <TabsTrigger value="analytics" className="gap-2"><TrendingUp className="size-4" />Аналитика</TabsTrigger>
             <TabsTrigger value="customers" className="gap-2"><Users className="size-4" />Клиенты</TabsTrigger>
             <TabsTrigger value="promotions" className="gap-2"><Tag className="size-4" />Акции</TabsTrigger>
+            <TabsTrigger value="documents" className="gap-2"><FileText className="size-4" />Документы</TabsTrigger>
             <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
           </TabsList>
 
@@ -681,6 +887,7 @@ export default function AdminPage() {
             {loading ? <div className="flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-14 w-full" />)}</div> : <CustomersTab orders={orders} />}
           </TabsContent>
           <TabsContent value="promotions"><PromotionsTab /></TabsContent>
+          <TabsContent value="documents"><DocumentsTab /></TabsContent>
           <TabsContent value="email"><EmailTab /></TabsContent>
         </Tabs>
       </div>

@@ -16,6 +16,7 @@ const navLinks = [
   { href: "/promotions", label: "Акции" },
   { href: "/delivery", label: "Доставка" },
   { href: "/orders", label: "Заказы" },
+  { href: "/documents", label: "Документы" },
   { href: "/contacts", label: "Контакты" },
 ];
 
