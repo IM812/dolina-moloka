@@ -1193,7 +1193,7 @@ export default function AdminPage() {
             <Image src="/logo.jpg" alt="Долина молока" width={80} height={32} className="h-8 w-auto object-contain" />
             <Separator orientation="vertical" className="h-6 bg-border" />
             <div>
-              <h1 className="text-xl font-bold text-foreground flex items-center gap-2"><ShieldCheck className="size-5 text-primary" />Панель а��министратора</h1>
+              <h1 className="text-xl font-bold text-foreground flex items-center gap-2"><ShieldCheck className="size-5 text-primary" />Панель администратора</h1>
               <p className="text-muted-foreground text-xs">Долина молока</p>
             </div>
           </div>
