@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
 
 export const metadata = {
   title: "Контакты — Долина молока",
@@ -35,30 +35,11 @@ export default function ContactsPage() {
                   <a href="tel:+79166950988" className="font-semibold text-foreground hover:text-primary transition-colors">
                     +7-916-695-09-88
                   </a>
-                  <p className="text-xs text-muted-foreground">Принимаем заказы: Max / Telegram</p>
+                  <p className="text-xs text-muted-foreground">Принимаем заказы через сайт</p>
                 </div>
               </div>
 
-              {/* Messengers */}
-              <div className="flex items-start gap-4">
-                <div className="size-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                  <MessageCircle className="size-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Max / Telegram</p>
-                  <div className="flex gap-3 mt-1">
-                    <a
-                      href="https://vk.me/+79166950988"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-semibold text-foreground hover:text-primary transition-colors underline underline-offset-2"
-                    >
-                      Написать в Max
-                    </a>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">Ссылка на Telegram появится позже</p>
-                </div>
-              </div>
+
 
               {/* Email */}
               <div className="flex items-start gap-4">

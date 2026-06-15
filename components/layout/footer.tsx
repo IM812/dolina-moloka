@@ -97,27 +97,7 @@ export function Footer() {
               <p className="text-xs text-muted-foreground mt-0.5">Мин. заказ 600 ₽ · Москва и область</p>
             </div>
 
-            {/* Social */}
-            <div className="flex items-center gap-3 mt-4">
-              <a
-                href="https://vk.me/+79166950988"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="size-9 rounded-xl bg-accent flex items-center justify-center text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Max"
-              >
-                Max
-              </a>
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="size-9 rounded-xl bg-accent flex items-center justify-center text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                aria-label="Telegram"
-              >
-                TG
-              </a>
-            </div>
+
           </div>
         </div>
 
