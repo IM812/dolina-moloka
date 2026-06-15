@@ -26,7 +26,7 @@ const sections = [
   },
   {
     title: "6. Контакты",
-    text: "По вопросам использования cookies обращайтесь: info@dolina-moloka.ru.",
+    text: "По вопросам использования cookies обращайтесь: dolinamoloka50@gmail.com.",
   },
 ];
 
