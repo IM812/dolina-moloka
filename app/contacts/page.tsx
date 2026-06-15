@@ -25,37 +25,54 @@ export default function ContactsPage() {
             <CardContent className="p-6 flex flex-col gap-5">
               <h2 className="text-lg font-semibold text-foreground">Свяжитесь с нами</h2>
               <Separator className="bg-border" />
-              {[
-                {
-                  icon: <Phone className="size-5 text-primary" />,
-                  label: "Телефон",
-                  value: "+7-916-695-09-88",
-                  sub: "Принимаем заказы: Max / Telegram",
-                },
-                {
-                  icon: <MessageCircle className="size-5 text-primary" />,
-                  label: "Telegram / Max",
-                  value: "+7-916-695-09-88",
-                  sub: "Принимаем заказы в мессенджерах",
-                },
-                {
-                  icon: <Mail className="size-5 text-primary" />,
-                  label: "E-mail",
-                  value: "dolinamoloka50@gmail.com",
-                  sub: "Ответим в течение 1 рабочего дня",
-                },
-              ].map((item) => (
-                <div key={item.label} className="flex items-start gap-4">
-                  <div className="size-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">{item.label}</p>
-                    <p className="font-semibold text-foreground">{item.value}</p>
-                    <p className="text-xs text-muted-foreground">{item.sub}</p>
-                  </div>
+              {/* Phone */}
+              <div className="flex items-start gap-4">
+                <div className="size-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                  <Phone className="size-5 text-primary" />
                 </div>
-              ))}
+                <div>
+                  <p className="text-xs text-muted-foreground">Телефон</p>
+                  <a href="tel:+79166950988" className="font-semibold text-foreground hover:text-primary transition-colors">
+                    +7-916-695-09-88
+                  </a>
+                  <p className="text-xs text-muted-foreground">Принимаем заказы: Max / Telegram</p>
+                </div>
+              </div>
+
+              {/* Messengers */}
+              <div className="flex items-start gap-4">
+                <div className="size-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                  <MessageCircle className="size-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Max / Telegram</p>
+                  <div className="flex gap-3 mt-1">
+                    <a
+                      href="https://vk.me/+79166950988"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-foreground hover:text-primary transition-colors underline underline-offset-2"
+                    >
+                      Написать в Max
+                    </a>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">Ссылка на Telegram появится позже</p>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-start gap-4">
+                <div className="size-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                  <Mail className="size-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">E-mail</p>
+                  <a href="mailto:dolinamoloka50@gmail.com" className="font-semibold text-foreground hover:text-primary transition-colors">
+                    dolinamoloka50@gmail.com
+                  </a>
+                  <p className="text-xs text-muted-foreground">Ответим в течение 1 рабочего дня</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
