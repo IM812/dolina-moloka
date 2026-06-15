@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@dolina-moloka.ru"
+              placeholder="dolinamoloka50@gmail.com"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(""); }}
               className="bg-secondary border-border"

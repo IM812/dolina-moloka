@@ -20,15 +20,16 @@ export const metadata: Metadata = {
   description:
     "Натуральная молочная продукция с фермы. Молоко, творог, сметана, масло, кефир, сыр и йогурт. Доставка и самовывоз.",
   keywords: "молоко, творог, сметана, кефир, масло, сыр, йогурт, фермерские продукты",
-  metadataBase: new URL("https://долинамолока.рф"),
+  // metadataBase должен быть в punycode — иначе Next.js percent-кодирует кириллицу в OG-тегах
+  metadataBase: new URL("https://xn--e1afmapc4aix.xn--p1ai"),
   alternates: {
-    canonical: "https://долинамолока.рф",
+    canonical: "https://xn--e1afmapc4aix.xn--p1ai",
   },
   openGraph: {
     title: "Долина молока",
     description: "Натуральная молочная продукция прямо с фермы",
     type: "website",
-    url: "https://долинамолока.рф",
+    url: "https://xn--e1afmapc4aix.xn--p1ai",
     siteName: "Долина молока",
   },
 };
