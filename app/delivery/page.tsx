@@ -105,7 +105,7 @@ export default function DeliveryPage() {
                 <MapPin className="size-4 text-primary shrink-0" />
                 По Москве и Московской области
               </div>
-              <p className="text-sm text-muted-foreground">Дни доставки: среда и четверг</p>
+              <p className="text-sm text-muted-foreground">Дни доставки: среда и суббота</p>
               <div className="h-px bg-primary/15 my-1" />
               <p className="text-sm text-foreground">
                 Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
