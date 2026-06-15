@@ -19,7 +19,7 @@ const steps = [
     num: "02",
     icon: <Clock className="size-5" />,
     title: "Оформите заказ",
-    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — приём во вторник до 20:00, на субботу — в пятницу до 20:00.",
+    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — приём в понедельник до 12:00, на субботу — в четверг до 12:00.",
   },
   {
     num: "03",
@@ -79,7 +79,7 @@ export default function DeliveryPage() {
           {/* Sat */}
           <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
-            <p className="text-sm text-background/80">Приём заказов в пятницу до 20:00</p>
+            <p className="text-sm text-background/80">Приём заказов в четверг до 12:00</p>
           </div>
           {/* Hours */}
           <div className="bg-secondary border border-border rounded-2xl px-5 py-5">
