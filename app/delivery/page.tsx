@@ -76,10 +76,10 @@ export default function DeliveryPage() {
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
             <p className="text-sm text-background/80">Приём заказов в понедельник до 12:00</p>
           </div>
-          {/* Thu */}
+          {/* Sat */}
           <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
             <div className="size-2.5 rounded-full bg-primary shrink-0" />
-            <p className="text-sm text-background/80">Приём заказов в четверг до 12:00</p>
+            <p className="text-sm text-background/80">Приём заказов в пятницу до 20:00</p>
           </div>
           {/* Hours */}
           <div className="bg-secondary border border-border rounded-2xl px-5 py-5">
