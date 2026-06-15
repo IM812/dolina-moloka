@@ -98,11 +98,12 @@ export async function sendOrderNotification(order: Order): Promise<void> {
   const transporter = nodemailer.createTransport({
     host: cfg.host,
     port: cfg.port,
-    secure: cfg.port === 465,
+    secure: cfg.port === 465,          // true = SSL (465), false = STARTTLS (587)
+    requireTLS: cfg.port === 587,      // enforce STARTTLS for Gmail
     auth: { user: cfg.user, pass: cfg.pass },
     tls: { rejectUnauthorized: false },
-    connectionTimeout: 10000,
-    socketTimeout: 10000,
+    connectionTimeout: 15000,
+    socketTimeout: 15000,
   });
 
   console.log(`[email] Sending order #${order.orderNumber} → ${cfg.to}`);
