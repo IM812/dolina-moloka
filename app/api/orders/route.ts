@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error("[v0] orders POST catch:", msg);
+    console.error("[api/orders] POST error:", msg);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
