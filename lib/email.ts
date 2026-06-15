@@ -95,30 +95,28 @@ export async function sendOrderNotification(order: Order): Promise<void> {
     return;
   }
 
+  console.log(`[email] Config loaded — host:${cfg.host} port:${cfg.port} user:${cfg.user} to:${cfg.to}`);
+
   const transporter = nodemailer.createTransport({
     host: cfg.host,
     port: cfg.port,
-    secure: cfg.port === 465,          // true = SSL (465), false = STARTTLS (587)
-    requireTLS: cfg.port === 587,      // enforce STARTTLS for Gmail
+    secure: cfg.port === 465,
+    requireTLS: cfg.port === 587,
     auth: { user: cfg.user, pass: cfg.pass },
     tls: { rejectUnauthorized: false },
     connectionTimeout: 15000,
     socketTimeout: 15000,
   });
 
-  console.log(`[email] Sending order #${order.orderNumber} → ${cfg.to}`);
+  console.log(`[email] Verifying SMTP connection...`);
+  await transporter.verify();
+  console.log(`[email] SMTP verified OK. Sending order #${order.orderNumber} → ${cfg.to}`);
 
-  try {
-    const info = await transporter.sendMail({
-      from: `"Долина молока" <${cfg.user}>`,
-      to: cfg.to,
-      subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
-      html: formatOrderEmailHtml(order),
-    });
-    console.log(`[email] Sent OK — messageId: ${info.messageId}`);
-  } catch (err: unknown) {
-    const e = err as { code?: string; message?: string; response?: string };
-    console.error(`[email] FAILED — code:${e.code} message:${e.message} response:${e.response}`);
-    // Never throw — email failure must not break order creation
-  }
+  const info = await transporter.sendMail({
+    from: `"Долина молока" <${cfg.user}>`,
+    to: cfg.to,
+    subject: `Новый заказ #${order.orderNumber} — ${order.customer.fullName}`,
+    html: formatOrderEmailHtml(order),
+  });
+  console.log(`[email] Sent OK — messageId: ${info.messageId}`);
 }

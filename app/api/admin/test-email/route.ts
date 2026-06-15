@@ -14,14 +14,17 @@ export async function POST(req: Request) {
     const portNum = parseInt(port ?? "465", 10);
     const secure = portNum === 465;
 
+    console.log("[test-email] Connecting to", host, "port", portNum, "secure", secure);
+
     const transporter = nodemailer.createTransport({
       host,
       port: portNum,
       secure,
+      requireTLS: portNum === 587,
       auth: { user, pass },
       tls: { rejectUnauthorized: false },
-      connectionTimeout: 10000,
-      socketTimeout: 10000,
+      connectionTimeout: 15000,
+      socketTimeout: 15000,
     });
 
     await transporter.verify();
