@@ -11,12 +11,19 @@ export async function FeaturedProducts() {
     .from("products")
     .select("*")
     .eq("in_stock", true)
-    .order("category")
-    .limit(8);
+    .order("category");
 
   if (error) console.error("[featured-products] supabase error:", error);
 
-  const products: Product[] = (data ?? []).map((p) => ({
+  // По одному товару из каждой категории — чтобы все категории были представлены
+  const seen = new Set<string>();
+  const deduped = (data ?? []).filter((p) => {
+    if (seen.has(p.category)) return false;
+    seen.add(p.category);
+    return true;
+  });
+
+  const products: Product[] = deduped.map((p) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
