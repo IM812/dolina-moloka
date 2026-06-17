@@ -1,8 +1,5 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/products/product-card";
-import { Button } from "@/components/ui/button";
 import type { Product } from "@/types";
 
 export async function FeaturedProducts() {
@@ -15,15 +12,7 @@ export async function FeaturedProducts() {
 
   if (error) console.error("[featured-products] supabase error:", error);
 
-  // По одному товару из каждой категории — чтобы все категории были представлены
-  const seen = new Set<string>();
-  const deduped = (data ?? []).filter((p) => {
-    if (seen.has(p.category)) return false;
-    seen.add(p.category);
-    return true;
-  });
-
-  const products: Product[] = deduped.map((p) => ({
+  const products: Product[] = (data ?? []).map((p) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
@@ -50,12 +39,7 @@ export async function FeaturedProducts() {
               Наша продукция
             </h2>
           </div>
-          <Link href="/catalog">
-            <Button variant="outline" className="gap-2 border-border">
-              Весь каталог
-              <ArrowRight className="size-4" />
-            </Button>
-          </Link>
+
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
