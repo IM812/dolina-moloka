@@ -1,8 +1,5 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/products/product-card";
-import { Button } from "@/components/ui/button";
 import type { Product } from "@/types";
 
 export async function FeaturedProducts() {
@@ -11,8 +8,7 @@ export async function FeaturedProducts() {
     .from("products")
     .select("*")
     .eq("in_stock", true)
-    .order("category")
-    .limit(8);
+    .order("category");
 
   if (error) console.error("[featured-products] supabase error:", error);
 
@@ -43,12 +39,7 @@ export async function FeaturedProducts() {
               Наша продукция
             </h2>
           </div>
-          <Link href="/catalog">
-            <Button variant="outline" className="gap-2 border-border">
-              Весь каталог
-              <ArrowRight className="size-4" />
-            </Button>
-          </Link>
+
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
