@@ -1,4 +1,4 @@
-import { del, get } from "@vercel/blob";
+import { del } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
@@ -26,31 +26,34 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const result = await get(doc.file_url, {
-      access: "private",
-      ifNoneMatch: request.headers.get("if-none-match") ?? undefined,
+    // Fetch private blob using the token for authorization
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    if (!token) {
+      return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
+    }
+
+    const blobRes = await fetch(doc.file_url, {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!result) {
-      return new NextResponse("Not found", { status: 404 });
+    if (!blobRes.ok) {
+      console.error("[documents GET] blob fetch failed", blobRes.status, doc.file_url);
+      return NextResponse.json({ error: "File not found in storage" }, { status: 404 });
     }
 
-    if (result.statusCode === 304) {
-      return new NextResponse(null, {
-        status: 304,
-        headers: {
-          ETag: result.blob.etag,
-          "Cache-Control": "public, max-age=3600",
-        },
-      });
-    }
+    const contentType = blobRes.headers.get("content-type") ?? "application/octet-stream";
+    const ext = doc.file_name?.split(".").pop()?.toLowerCase() ?? "";
+    // Images and PDFs open inline, everything else downloads
+    const inline = ["jpg", "jpeg", "png", "gif", "webp", "pdf"].includes(ext);
+    const disposition = inline
+      ? `inline; filename="${doc.file_name}"`
+      : `attachment; filename="${doc.file_name}"`;
 
-    return new NextResponse(result.stream, {
+    return new NextResponse(blobRes.body, {
       headers: {
-        "Content-Type": result.blob.contentType,
-        "Content-Disposition": `inline; filename="${doc.file_name}"`,
-        ETag: result.blob.etag,
-        "Cache-Control": "public, max-age=3600",
+        "Content-Type": contentType,
+        "Content-Disposition": disposition,
+        "Cache-Control": "private, max-age=3600",
       },
     });
   } catch (err) {

@@ -10,7 +10,7 @@ type Document = {
   id: string;
   title: string;
   description: string | null;
-  category: string;
+  document_type: string;
   file_url: string;
   file_name: string;
   file_size: number | null;
@@ -49,7 +49,7 @@ export default function DocumentsPage() {
 
   // Group by category
   const grouped = documents.reduce<Record<string, Document[]>>((acc, doc) => {
-    const cat = doc.category || "other";
+    const cat = doc.document_type || "other";
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(doc);
     return acc;
