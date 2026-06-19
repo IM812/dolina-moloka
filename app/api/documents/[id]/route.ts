@@ -1,6 +1,63 @@
-import { del } from "@vercel/blob";
+import { del, get } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
+
+// GET — serve a private blob file for public documents
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createClient();
+
+    const { data: doc, error } = await supabase
+      .from("documents")
+      .select("file_url, file_name, is_public")
+      .eq("id", id)
+      .single();
+
+    if (error || !doc) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    if (!doc.is_public) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const result = await get(doc.file_url, {
+      access: "private",
+      ifNoneMatch: request.headers.get("if-none-match") ?? undefined,
+    });
+
+    if (!result) {
+      return new NextResponse("Not found", { status: 404 });
+    }
+
+    if (result.statusCode === 304) {
+      return new NextResponse(null, {
+        status: 304,
+        headers: {
+          ETag: result.blob.etag,
+          "Cache-Control": "public, max-age=3600",
+        },
+      });
+    }
+
+    return new NextResponse(result.stream, {
+      headers: {
+        "Content-Type": result.blob.contentType,
+        "Content-Disposition": `inline; filename="${doc.file_name}"`,
+        ETag: result.blob.etag,
+        "Cache-Control": "public, max-age=3600",
+      },
+    });
+  } catch (err) {
+    console.error("[documents GET]", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
+}
 
 export async function DELETE(
   _request: NextRequest,
