@@ -912,6 +912,7 @@ function PromotionsTab() {
 
 const DOC_CATEGORY_OPTIONS = [
   { value: "certificate", label: "Сертификат", icon: <Award className="size-4 text-amber-600" /> },
+  { value: "declaration", label: "Декларация", icon: <FileCheck className="size-4 text-sky-600" /> },
   { value: "license", label: "Лицензия", icon: <Shield className="size-4 text-blue-600" /> },
   { value: "quality", label: "Качество", icon: <FileCheck className="size-4 text-emerald-600" /> },
   { value: "other", label: "Прочее", icon: <FileText className="size-4 text-muted-foreground" /> },

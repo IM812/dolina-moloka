@@ -19,6 +19,7 @@ type Document = {
 
 const CATEGORY_LABELS: Record<string, string> = {
   certificate: "Сертификаты",
+  declaration: "Декларации",
   license: "Лицензии",
   quality: "Качество",
   other: "Прочее",
@@ -26,6 +27,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   certificate: <Award className="size-5 text-amber-600" />,
+  declaration: <FileCheck className="size-5 text-sky-600" />,
   license: <Shield className="size-5 text-blue-600" />,
   quality: <FileCheck className="size-5 text-emerald-600" />,
   other: <FileText className="size-5 text-muted-foreground" />,
