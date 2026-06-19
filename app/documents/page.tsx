@@ -100,15 +100,17 @@ export default function DocumentsPage() {
                   <Badge variant="secondary" className="ml-1">{docs.length}</Badge>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {docs.map((doc) => (
+                  {docs.map((doc) => {
+                    const serveUrl = `/api/documents/${doc.id}`;
+                    return (
                     <Card key={doc.id} className="border-border hover:border-primary/40 transition-colors group overflow-hidden">
                       {isImage(doc.file_name) ? (
                         /* Image document — full-width photo + meta below */
                         <div>
-                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
+                          <a href={serveUrl} target="_blank" rel="noopener noreferrer">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                              src={doc.file_url}
+                              src={serveUrl}
                               alt={doc.title}
                               className="w-full max-h-72 object-contain bg-secondary border-b border-border"
                             />
@@ -130,7 +132,7 @@ export default function DocumentsPage() {
                                 </div>
                               </div>
                               <a
-                                href={doc.file_url}
+                                href={serveUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 download={doc.file_name}
@@ -164,7 +166,7 @@ export default function DocumentsPage() {
                               </div>
                             </div>
                             <a
-                              href={doc.file_url}
+                              href={serveUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                               download={doc.file_name}
@@ -177,7 +179,8 @@ export default function DocumentsPage() {
                         </CardContent>
                       )}
                     </Card>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             ))}
