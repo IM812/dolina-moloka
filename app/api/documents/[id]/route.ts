@@ -26,36 +26,36 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Fetch private blob using the token for authorization
+    // For public documents — fetch via server using blob token if available,
+    // otherwise redirect directly to the blob URL (works on any host)
     const token = process.env.BLOB_READ_WRITE_TOKEN;
-    if (!token) {
-      return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
+
+    if (token) {
+      const blobRes = await fetch(doc.file_url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (blobRes.ok) {
+        const contentType = blobRes.headers.get("content-type") ?? "application/octet-stream";
+        const ext = doc.file_name?.split(".").pop()?.toLowerCase() ?? "";
+        const inline = ["jpg", "jpeg", "png", "gif", "webp", "pdf"].includes(ext);
+        const encodedName = encodeURIComponent(doc.file_name ?? "file");
+        const disposition = inline
+          ? `inline; filename*=UTF-8''${encodedName}`
+          : `attachment; filename*=UTF-8''${encodedName}`;
+
+        return new NextResponse(blobRes.body, {
+          headers: {
+            "Content-Type": contentType,
+            "Content-Disposition": disposition,
+            "Cache-Control": "private, max-age=3600",
+          },
+        });
+      }
     }
 
-    const blobRes = await fetch(doc.file_url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!blobRes.ok) {
-      console.error("[documents GET] blob fetch failed", blobRes.status, doc.file_url);
-      return NextResponse.json({ error: "File not found in storage" }, { status: 404 });
-    }
-
-    const contentType = blobRes.headers.get("content-type") ?? "application/octet-stream";
-    const ext = doc.file_name?.split(".").pop()?.toLowerCase() ?? "";
-    // Images and PDFs open inline, everything else downloads
-    const inline = ["jpg", "jpeg", "png", "gif", "webp", "pdf"].includes(ext);
-    const disposition = inline
-      ? `inline; filename="${doc.file_name}"`
-      : `attachment; filename="${doc.file_name}"`;
-
-    return new NextResponse(blobRes.body, {
-      headers: {
-        "Content-Type": contentType,
-        "Content-Disposition": disposition,
-        "Cache-Control": "private, max-age=3600",
-      },
-    });
+    // Fallback: redirect directly to the blob URL
+    return NextResponse.redirect(doc.file_url);
   } catch (err) {
     console.error("[documents GET]", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
