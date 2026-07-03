@@ -112,6 +112,11 @@ export function buildPsbForm(params: PsbPaymentParams): PsbFormData {
   fields.MERCH_GMT = "+3";
   fields.LANG = "RU";
   fields.ADDINFO = params.orderId;
+  // PTYPE — разрешённые методы оплаты:
+  // C = карта, B = приложение банка (Mir Pay / SberPay и др.), S = СБП
+  fields.PTYPE = "C B S";
+  // Удаляем дубликат TRTYPE — он уже в signed fields выше
+  delete fields.TRTYPE;
   fields.TRTYPE = "1";
 
   fields.P_SIGN = buildPSign(fields);
