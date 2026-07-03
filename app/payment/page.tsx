@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart";
 import { motion } from "framer-motion";
@@ -30,23 +30,15 @@ interface PendingOrder {
   totalAmount: number;
 }
 
-interface PsbFormData {
-  fields: Record<string, string>;
-  url: string;
-}
-
 function PaymentContent() {
   const router = useRouter();
   const clearCart = useCartStore((s) => s.clearCart);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [paying, setPaying] = useState(false);
-  const [psbForm, setPsbForm] = useState<PsbFormData | null>(null);
-  // Храним уже созданный orderId чтобы не создавать заказ повторно
-  const [createdOrderData, setCreatedOrderData] = useState<{ orderId: string; orderNumber: string; psbForm: PsbFormData } | null>(null);
+  const [createdOrderData, setCreatedOrderData] = useState<{ orderId: string; orderNumber: string; invoiceUrl: string } | null>(null);
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   // Загружаем pendingOrder из sessionStorage
   useEffect(() => {
@@ -57,7 +49,7 @@ function PaymentContent() {
     setLoaded(true);
   }, []);
 
-  // Создаём заказ ОДИН РАЗ при загрузке страницы с pendingOrder
+  // Создаём заказ ОДИН РАЗ при загрузке страницы
   useEffect(() => {
     if (!pendingOrder || createdOrderData || orderLoading) return;
 
@@ -79,20 +71,13 @@ function PaymentContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingOrder]);
 
-  // Auto-submit PSB form once fields are populated
-  useEffect(() => {
-    if (psbForm && formRef.current) {
-      clearCart();
-      sessionStorage.removeItem("pendingOrder");
-      formRef.current.submit();
-    }
-  }, [psbForm, clearCart]);
-
   const handlePay = () => {
     if (!createdOrderData) return;
     setPaying(true);
-    // Заказ уже создан — просто запускаем форму ПСБ
-    setPsbForm(createdOrderData.psbForm);
+    clearCart();
+    sessionStorage.removeItem("pendingOrder");
+    // Редиректим на страницу оплаты PayKeeper
+    window.location.href = createdOrderData.invoiceUrl;
   };
 
   if (!loaded) {
@@ -123,15 +108,6 @@ function PaymentContent() {
   return (
     <div className="py-10">
       <div className="container mx-auto px-4 max-w-lg">
-        {/* Hidden PSB form — auto-submitted after fields are set */}
-        {psbForm && (
-          <form ref={formRef} method="POST" action={psbForm.url} style={{ display: "none" }}>
-            {Object.entries(psbForm.fields).map(([name, value]) => (
-              <input key={name} type="hidden" name={name} value={value} />
-            ))}
-          </form>
-        )}
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

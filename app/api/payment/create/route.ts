@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAnonClient } from "@supabase/supabase-js";
-import { buildPsbForm } from "@/lib/psb-payment";
+import { createPayKeeperInvoice } from "@/lib/paykeeper";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,16 +11,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const supabase = createAnonClient(supabaseUrl, supabaseKey);
+    const supabase = createAnonClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
-    // Generate order number
+    // Генерируем номер заказа
     const { count } = await supabase.from("orders").select("*", { count: "exact", head: true });
     const orderNum = (count ?? 0) + 1;
     const orderNumber = `DM-${String(orderNum).padStart(4, "0")}`;
 
-    // Normalize phone
+    // Нормализуем телефон
     const rawPhone: string = customer.phone ?? "";
     const phoneDigits = rawPhone.replace(/\D/g, "");
     const normalizedPhone =
@@ -28,17 +29,16 @@ export async function POST(req: NextRequest) {
         ? "7" + phoneDigits.slice(1)
         : phoneDigits;
 
-    // Sanitize items
+    // Проверяем UUID
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const sanitizedItems = items.map(
       (item: { productId?: string | null; productName: string; quantity: number; price: number }) => ({
         ...item,
-        productId:
-          item.productId && UUID_REGEX.test(item.productId) ? item.productId : null,
+        productId: item.productId && UUID_REGEX.test(item.productId) ? item.productId : null,
       })
     );
 
-    // Create order in DB with status "pending" — webhook will update to "paid"
+    // Создаём заказ в БД со статусом pending
     const { data: result, error: rpcError } = await supabase.rpc("create_order", {
       p_full_name: customer.fullName,
       p_phone: normalizedPhone,
@@ -52,23 +52,25 @@ export async function POST(req: NextRequest) {
     });
 
     if (rpcError) throw new Error(rpcError.message);
-
     const orderId: string = result.orderId;
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ?? `https://${req.headers.get("host")}`;
 
-    // Build PSB payment form fields
-    const formData = buildPsbForm({
-      amount: Math.round(totalAmount),
+    // Создаём счёт в PayKeeper
+    const { invoiceUrl } = await createPayKeeperInvoice({
+      amount: totalAmount,
       orderId,
       orderNumber,
-      description: `Zakaz ${orderNumber}`,
-      email: customer.email || "",
-      backref: `${baseUrl}/api/payment/webhook`,
-      returnUrl: `${baseUrl}/success?order=${orderNumber}`,
+      clientName: customer.fullName,
+      clientEmail: customer.email || "",
+      clientPhone: normalizedPhone,
+      items: items.map((item: { productName: string; price: number; quantity: number }) => ({
+        name: item.productName,
+        price: item.price,
+        quantity: item.quantity,
+        tax: "none",
+      })),
     });
 
-    return NextResponse.json({ orderId, orderNumber, psbForm: formData }, { status: 201 });
+    return NextResponse.json({ orderId, orderNumber, invoiceUrl }, { status: 201 });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error("[api/payment/create] error:", msg);
