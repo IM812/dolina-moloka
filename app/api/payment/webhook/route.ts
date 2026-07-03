@@ -24,13 +24,11 @@ export async function POST(req: NextRequest) {
       return new NextResponse("FAIL", { status: 400 });
     }
 
-    // service_name содержит "DM-0001|uuid"
-    const serviceName: string = data.service_name ?? "";
-    const parts = serviceName.split("|");
-    const orderId = parts[1] ?? "";
+    // orderid содержит номер заказа "DM-0003"
+    const orderNumber: string = data.orderid ?? "";
 
-    if (!orderId) {
-      console.error("[paykeeper/webhook] cannot extract orderId from service_name:", serviceName);
+    if (!orderNumber) {
+      console.error("[paykeeper/webhook] no orderid in payload");
       return new NextResponse("FAIL", { status: 400 });
     }
 
@@ -39,7 +37,7 @@ export async function POST(req: NextRequest) {
     const { data: order, error } = await supabase
       .from("orders")
       .update({ payment_status: "paid" })
-      .eq("id", orderId)
+      .eq("order_number", orderNumber)
       .select("*, customers(*), order_items(*)")
       .single();
 

@@ -69,8 +69,10 @@ export async function createPayKeeperInvoice(
   formData.append("client_phone", params.clientPhone);
   formData.append("cart", JSON.stringify(cart));
   formData.append("token", securityToken);
-  // Передаём наш UUID чтобы в webhook найти заказ
-  formData.append("service_name", `${params.orderNumber}|${params.orderId}`);
+  // service_name — видимое название услуги (только номер заказа)
+  formData.append("service_name", `Заказ ${params.orderNumber}`);
+  // Передаём UUID через clientid скрытно не получится, используем orderid для webhook
+  // Наш UUID хранится в orderid поля ответа webhook через поле orderid=orderNumber
 
   const previewRes = await fetch(`${server}/change/invoice/preview/`, {
     method: "POST",
