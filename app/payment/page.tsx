@@ -42,8 +42,13 @@ function PaymentContent() {
   const [loaded, setLoaded] = useState(false);
   const [paying, setPaying] = useState(false);
   const [psbForm, setPsbForm] = useState<PsbFormData | null>(null);
+  // Храним уже созданный orderId чтобы не создавать заказ повторно
+  const [createdOrderData, setCreatedOrderData] = useState<{ orderId: string; orderNumber: string; psbForm: PsbFormData } | null>(null);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
+  // Загружаем pendingOrder из sessionStorage
   useEffect(() => {
     const raw = sessionStorage.getItem("pendingOrder");
     if (raw) {
@@ -51,6 +56,28 @@ function PaymentContent() {
     }
     setLoaded(true);
   }, []);
+
+  // Создаём заказ ОДИН РАЗ при загрузке страницы с pendingOrder
+  useEffect(() => {
+    if (!pendingOrder || createdOrderData || orderLoading) return;
+
+    setOrderLoading(true);
+    fetch("/api/payment/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pendingOrder),
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.error ?? "Ошибка создания заказа");
+        setCreatedOrderData(data);
+      })
+      .catch((err) => {
+        setOrderError(err instanceof Error ? err.message : "Ошибка создания заказа");
+      })
+      .finally(() => setOrderLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingOrder]);
 
   // Auto-submit PSB form once fields are populated
   useEffect(() => {
@@ -61,26 +88,11 @@ function PaymentContent() {
     }
   }, [psbForm, clearCart]);
 
-  const handlePay = async () => {
-    if (!pendingOrder) return;
+  const handlePay = () => {
+    if (!createdOrderData) return;
     setPaying(true);
-
-    try {
-      const res = await fetch("/api/payment/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pendingOrder),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Ошибка создания платежа");
-
-      // Set PSB form data — useEffect will submit it
-      setPsbForm(data.psbForm);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Ошибка при обработке оплаты. Попробуйте ещё раз.");
-      setPaying(false);
-    }
+    // Заказ уже создан — просто запускаем форму ПСБ
+    setPsbForm(createdOrderData.psbForm);
   };
 
   if (!loaded) {
@@ -197,19 +209,29 @@ function PaymentContent() {
             </p>
           </div>
 
+          {/* Ошибка создания заказа */}
+          {orderError && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 flex items-center gap-3">
+              <AlertCircle className="size-5 text-destructive flex-shrink-0" />
+              <p className="text-xs text-destructive">{orderError}</p>
+            </div>
+          )}
+
           {/* Pay button */}
           <Button
             onClick={handlePay}
-            disabled={paying}
+            disabled={paying || orderLoading || !createdOrderData || !!orderError}
             size="lg"
             className="w-full gap-2"
           >
-            {paying ? (
+            {(paying || orderLoading) ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               <Lock className="size-4" />
             )}
-            {paying
+            {orderLoading
+              ? "Подготовка заказа..."
+              : paying
               ? "Переход к оплате..."
               : `Оплатить ${pendingOrder.totalAmount.toLocaleString("ru-RU")} ₽`}
           </Button>
