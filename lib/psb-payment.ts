@@ -67,7 +67,7 @@ export function generateOrderId(): string {
 }
 
 export interface PsbPaymentParams {
-  amount: number;       // в рублях (целое число)
+  amount: number;       // в рублях (число, например 930 → отправится как "930.00")
   orderId: string;      // внутренний ID заказа в БД
   orderNumber: string;  // номер заказа DM-XXXX
   description: string;
@@ -83,7 +83,8 @@ export interface PsbFormData {
 
 export function buildPsbForm(params: PsbPaymentParams): PsbFormData {
   const psbOrder = generateOrderId();
-  const amount = String(params.amount * 100).padStart(12, "0"); // в копейках, 12 символов
+  // ПСБ ожидает AMOUNT в формате "930.00" (рубли.копейки)
+  const amount = params.amount.toFixed(2);
   const timestamp = generateTimestamp();
   const nonce = generateNonce();
 
