@@ -14,6 +14,7 @@ const navLinks = [
   { href: "/", label: "Главная" },
   { href: "/catalog", label: "Каталог" },
   { href: "/delivery", label: "Доставка" },
+  { href: "/oplata", label: "Оплата" },
   { href: "/orders", label: "Заказы" },
   { href: "/documents", label: "Документы" },
   { href: "/contacts", label: "Контакты" },

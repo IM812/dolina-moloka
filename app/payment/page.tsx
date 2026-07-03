@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Suspense } from "react";
 import { useCartStore } from "@/store/cart";
 import { motion } from "framer-motion";
 import { Loader2, CreditCard, ShieldCheck, Lock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PendingOrderItem {
   productId: string;
@@ -37,54 +36,48 @@ function PaymentContent() {
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [createdOrderData, setCreatedOrderData] = useState<{ orderId: string; orderNumber: string; invoiceUrl: string } | null>(null);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
 
+  // Загружаем pendingOrder из sessionStorage
   useEffect(() => {
     const raw = sessionStorage.getItem("pendingOrder");
     if (raw) {
-      try {
-        setPendingOrder(JSON.parse(raw));
-      } catch {
-        setPendingOrder(null);
-      }
+      try { setPendingOrder(JSON.parse(raw)); } catch { /* ignore */ }
     }
     setLoaded(true);
   }, []);
 
-  const handlePay = async () => {
-    if (!pendingOrder) return;
+  // Создаём заказ ОДИН РАЗ при загрузке страницы
+  useEffect(() => {
+    if (!pendingOrder || createdOrderData || orderLoading) return;
+
+    setOrderLoading(true);
+    fetch("/api/payment/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pendingOrder),
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.error ?? "Ошибка создания заказа");
+        setCreatedOrderData(data);
+      })
+      .catch((err) => {
+        setOrderError(err instanceof Error ? err.message : "Ошибка создания заказа");
+      })
+      .finally(() => setOrderLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingOrder]);
+
+  const handlePay = () => {
+    if (!createdOrderData) return;
     setPaying(true);
-
-    try {
-      // Step 1: process payment
-      const payRes = await fetch("/api/payment/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: pendingOrder.totalAmount }),
-      });
-
-      if (!payRes.ok) throw new Error("Ошибка платёжного сервиса");
-      const payData = await payRes.json();
-      if (!payData.success) throw new Error(payData.error ?? "Оплата отклонена");
-
-      // Step 2: payment succeeded — save order to DB
-      const orderRes = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pendingOrder),
-      });
-
-      const orderBody = await orderRes.json();
-      if (!orderRes.ok) throw new Error(orderBody?.error ?? "Ошибка сохранения заказа");
-
-      sessionStorage.removeItem("pendingOrder");
-      clearCart();
-      toast.success("Оплата прошла успешно!");
-      router.push(`/success?order=${orderBody.order.orderNumber}`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Ошибка при обработке оплаты. Попробуйте ещё раз.");
-    } finally {
-      setPaying(false);
-    }
+    clearCart();
+    sessionStorage.removeItem("pendingOrder");
+    // Редиректим на страницу оплаты PayKeeper
+    window.location.href = createdOrderData.invoiceUrl;
   };
 
   if (!loaded) {
@@ -105,7 +98,7 @@ function PaymentContent() {
           <h1 className="text-2xl font-bold text-foreground">Заказ не найден</h1>
           <p className="text-muted-foreground">Вернитесь в корзину и оформите заказ заново</p>
           <Link href="/cart">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Вернуться в корзину</Button>
+            <Button>Вернуться в корзину</Button>
           </Link>
         </div>
       </div>
@@ -126,10 +119,12 @@ function PaymentContent() {
               <CreditCard className="size-7 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">Оплата заказа</h1>
-            <p className="text-muted-foreground text-sm">Заказ будет сохранён после успешной оплаты</p>
+            <p className="text-muted-foreground text-sm">
+              После нажатия кнопки вы будете перенаправлены на защищённую страницу банка
+            </p>
           </div>
 
-          <Separator className="bg-border" />
+          <Separator />
 
           {/* Customer info */}
           <div className="flex flex-col gap-3">
@@ -149,7 +144,7 @@ function PaymentContent() {
             )}
           </div>
 
-          <Separator className="bg-border" />
+          <Separator />
 
           {/* Items */}
           <div className="flex flex-col gap-2.5">
@@ -166,7 +161,7 @@ function PaymentContent() {
             ))}
           </div>
 
-          <Separator className="bg-border" />
+          <Separator />
 
           <div className="flex items-center justify-between">
             <span className="font-bold text-foreground text-lg">К оплате</span>
@@ -175,32 +170,60 @@ function PaymentContent() {
             </span>
           </div>
 
+          {/* Payment logos — обязательное требование PayKeeper */}
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <a href="https://paykeeper.ru" target="_blank" rel="noopener noreferrer">
+              <Image
+                src="https://dolinamoloka.server.paykeeper.ru/img/paykeeper-logo.png"
+                alt="Secured by PayKeeper"
+                width={120}
+                height={28}
+                className="h-7 w-auto object-contain"
+                onError={(e) => {
+                  // Fallback: показываем текстовый badge если картинка не загрузилась
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            </a>
+            <Image src="/payment/logos.png" alt="Visa, Mastercard, Мир" width={160} height={28} className="h-7 w-auto object-contain" />
+            <Image src="/payment/sbp.svg" alt="СБП" width={36} height={28} className="h-7 w-auto object-contain" />
+          </div>
+
           {/* Security note */}
           <div className="bg-secondary border border-border rounded-xl p-3 flex items-center gap-3">
             <ShieldCheck className="size-5 text-[#22C55E] flex-shrink-0" />
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Нажимая кнопку, вы подтверждаете оплату. Заказ будет передан в обработку сразу после списания средств.
+              Оплата производится через защищённую страницу ПАО «Промсвязьбанк». Данные карты не передаются продавцу.
+              Транзакция защищена по технологии 3-D Secure.
             </p>
           </div>
+
+          {/* Ошибка создания заказа */}
+          {orderError && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 flex items-center gap-3">
+              <AlertCircle className="size-5 text-destructive flex-shrink-0" />
+              <p className="text-xs text-destructive">{orderError}</p>
+            </div>
+          )}
 
           {/* Pay button */}
           <Button
             onClick={handlePay}
-            disabled={paying}
+            disabled={paying || orderLoading || !createdOrderData || !!orderError}
             size="lg"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+            className="w-full gap-2"
           >
-            {paying ? (
-              <Loader2 className="size-4 animate-spin" data-icon="inline-start" />
+            {(paying || orderLoading) ? (
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Lock className="size-4" data-icon="inline-start" />
+              <Lock className="size-4" />
             )}
-            {paying ? "Обработка..." : `Оплатить ${pendingOrder.totalAmount.toLocaleString("ru-RU")} ₽`}
+            {orderLoading
+              ? "Подготовка заказа..."
+              : paying
+              ? "Переход к оплате..."
+              : `Оплатить ${pendingOrder.totalAmount.toLocaleString("ru-RU")} ₽`}
           </Button>
-
-          <Badge variant="secondary" className="text-center text-xs text-muted-foreground justify-center">
-            Это демо-оплата. Реальные деньги не списываются.
-          </Badge>
         </motion.div>
       </div>
     </div>
@@ -209,11 +232,13 @@ function PaymentContent() {
 
 export default function PaymentPage() {
   return (
-    <Suspense fallback={
-      <div className="py-20 flex items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="py-20 flex items-center justify-center">
+          <Loader2 className="size-8 animate-spin text-primary" />
+        </div>
+      }
+    >
       <PaymentContent />
     </Suspense>
   );
