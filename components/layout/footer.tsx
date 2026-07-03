@@ -24,6 +24,8 @@ export function Footer() {
               {[
                 { href: "/", label: "Главная" },
                 { href: "/catalog", label: "Каталог" },
+                { href: "/delivery", label: "Доставка" },
+                { href: "/oplata", label: "Оплата" },
                 { href: "/cart", label: "Корзина" },
                 { href: "/orders", label: "Мои заказы" },
               ].map((link) => (
