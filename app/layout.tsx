@@ -49,7 +49,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <CookieBanner />
-        <Toaster position="top-right" />
+        <Toaster position="top-right" closeButton />
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
