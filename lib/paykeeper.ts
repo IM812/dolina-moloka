@@ -1,8 +1,8 @@
 import crypto from "crypto";
 
 const PK_SERVER = process.env.PAYKEEPER_SERVER ?? "https://dolinamoloka.server.paykeeper.ru";
-const PK_USER = process.env.PAYKEEPER_USER ?? "";
-const PK_PASSWORD = process.env.PAYKEEPER_PASSWORD ?? "";
+const PK_USER = process.env.PAYKEEPER_USER ?? "admin";
+const PK_PASSWORD = process.env.PAYKEEPER_PASSWORD ?? "Dm_502026";
 const PK_SECRET = process.env.PAYKEEPER_SECRET ?? "}xXwa3]8xUkky88";
 
 function getAuthHeader() {
@@ -90,27 +90,8 @@ export async function createPayKeeperInvoice(
   const invoiceId: string = String(previewData.invoice_id ?? previewData.id ?? "");
   if (!invoiceId) throw new Error("PayKeeper: не вернул invoice_id");
 
-  // Шаг 4: send — подтверждаем счёт
-  const sendForm = new URLSearchParams();
-  sendForm.append("id", invoiceId);
-  sendForm.append("token", securityToken);
-
-  const sendRes = await fetch(`${server}/change/invoice/send/`, {
-    method: "POST",
-    headers: {
-      Authorization: auth,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: sendForm.toString(),
-  });
-
-  if (!sendRes.ok) {
-    const text = await sendRes.text();
-    throw new Error(`PayKeeper: ошибка send (${sendRes.status}): ${text}`);
-  }
-
-  // URL платёжной формы
-  const invoiceUrl = `${server}/pay.html?id=${invoiceId}`;
+  // PayKeeper возвращает готовый invoice_url в preview — используем его
+  const invoiceUrl: string = previewData.invoice_url ?? `${server}/bill/${invoiceId}`;
 
   return { invoiceUrl, invoiceId };
 }
