@@ -98,14 +98,20 @@ export function buildPsbForm(params: PsbPaymentParams): PsbFormData {
     TIMESTAMP: timestamp,
     NONCE: nonce,
     BACKREF: params.backref,
-    // Extra fields (not signed)
-    MERCH_URL: "https://xn--80aakqldchhhfb.xn--p1ai",
-    MERCH_GMT: "+3",
-    LANG: "RU",
-    ADDINFO: params.orderId, // передаём наш DB ID заказа
   };
 
+  // Extra fields not included in P_SIGN
+  fields.MERCH_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://xn--80aakqldchhhfb.xn--p1ai";
+  fields.MERCH_GMT = "+3";
+  fields.LANG = "RU";
+  fields.ADDINFO = params.orderId;
+  fields.TRTYPE = "1";
+
   fields.P_SIGN = buildPSign(fields);
+
+  // Success/fail redirect URLs (not signed, added after P_SIGN)
+  fields.URL = params.returnUrl;
+  fields.FAILURL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://xn--80aakqldchhhfb.xn--p1ai") + "/fail";
 
   return { fields, url: PSB_URL };
 }
