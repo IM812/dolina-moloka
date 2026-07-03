@@ -3,6 +3,7 @@ import crypto from "crypto";
 const PK_SERVER = process.env.PAYKEEPER_SERVER ?? "https://dolinamoloka.server.paykeeper.ru";
 const PK_USER = process.env.PAYKEEPER_USER ?? "";
 const PK_PASSWORD = process.env.PAYKEEPER_PASSWORD ?? "";
+const PK_SECRET = process.env.PAYKEEPER_SECRET ?? "}xXwa3]8xUkky88";
 
 function getAuthHeader() {
   const token = Buffer.from(`${PK_USER}:${PK_PASSWORD}`).toString("base64");
@@ -119,10 +120,9 @@ export async function createPayKeeperInvoice(
  * key = MD5(id + sum + clientid + orderid + SECRET_SEED)
  */
 export function verifyPayKeeperNotification(data: Record<string, string>): boolean {
-  const secret = process.env.PAYKEEPER_SECRET ?? "";
   const expected = crypto
     .createHash("md5")
-    .update(`${data.id}${data.sum}${data.clientid}${data.orderid}${secret}`)
+    .update(`${data.id}${data.sum}${data.clientid}${data.orderid}${PK_SECRET}`)
     .digest("hex");
   return data.key === expected;
 }
@@ -131,10 +131,9 @@ export function verifyPayKeeperNotification(data: Record<string, string>): boole
  * Формирует ответ PayKeeper: "OK md5(id + SECRET_SEED)"
  */
 export function buildPayKeeperResponse(id: string): string {
-  const secret = process.env.PAYKEEPER_SECRET ?? "";
   const hash = crypto
     .createHash("md5")
-    .update(`${id}${secret}`)
+    .update(`${id}${PK_SECRET}`)
     .digest("hex");
   return `OK ${hash}`;
 }
