@@ -13,8 +13,14 @@ function macValue(v: string | number | undefined | null): string {
   return s.trim() === "" ? "-" : s.trim();
 }
 
+const PSB_KEY_DEFAULT = "1BB6E24A8EF87FEEC30D95C6F98338C5";
+const PSB_TERMINAL_DEFAULT = "30702337";
+const PSB_MERCHANT_DEFAULT = "000545130702337";
+const PSB_MERCH_NAME_DEFAULT = "DOLINA MOLOKA";
+const SITE_URL_DEFAULT = "https://xn--80aakqldchhhfb.xn--p1ai";
+
 export function buildPSign(fields: Record<string, string>): string {
-  const key = process.env.PSB_KEY ?? "";
+  const key = process.env.PSB_KEY ?? PSB_KEY_DEFAULT;
   if (!key) throw new Error("PSB_KEY env var is not set");
 
   const order = [
@@ -81,9 +87,9 @@ export function buildPsbForm(params: PsbPaymentParams): PsbFormData {
   const timestamp = generateTimestamp();
   const nonce = generateNonce();
 
-  const terminal = process.env.PSB_TERMINAL ?? "30702337";
-  const merchant = process.env.PSB_MERCHANT ?? "000545130702337";
-  const merchName = process.env.PSB_MERCH_NAME ?? "DOLINA MOLOKA";
+  const terminal = process.env.PSB_TERMINAL ?? PSB_TERMINAL_DEFAULT;
+  const merchant = process.env.PSB_MERCHANT ?? PSB_MERCHANT_DEFAULT;
+  const merchName = process.env.PSB_MERCH_NAME ?? PSB_MERCH_NAME_DEFAULT;
 
   const fields: Record<string, string> = {
     AMOUNT: amount,
@@ -101,7 +107,7 @@ export function buildPsbForm(params: PsbPaymentParams): PsbFormData {
   };
 
   // Extra fields not included in P_SIGN
-  fields.MERCH_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://xn--80aakqldchhhfb.xn--p1ai";
+  fields.MERCH_URL = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_URL_DEFAULT;
   fields.MERCH_GMT = "+3";
   fields.LANG = "RU";
   fields.ADDINFO = params.orderId;
@@ -111,7 +117,7 @@ export function buildPsbForm(params: PsbPaymentParams): PsbFormData {
 
   // Success/fail redirect URLs (not signed, added after P_SIGN)
   fields.URL = params.returnUrl;
-  fields.FAILURL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://xn--80aakqldchhhfb.xn--p1ai") + "/fail";
+  fields.FAILURL = (process.env.NEXT_PUBLIC_SITE_URL ?? SITE_URL_DEFAULT) + "/fail";
 
   return { fields, url: PSB_URL };
 }
