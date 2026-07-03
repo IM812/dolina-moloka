@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const PK_SERVER = process.env.PAYKEEPER_SERVER ?? "";
+const PK_SERVER = process.env.PAYKEEPER_SERVER ?? "https://dolinamoloka.server.paykeeper.ru";
 const PK_USER = process.env.PAYKEEPER_USER ?? "";
 const PK_PASSWORD = process.env.PAYKEEPER_PASSWORD ?? "";
 

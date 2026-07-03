@@ -170,10 +170,23 @@ function PaymentContent() {
             </span>
           </div>
 
-          {/* Payment logos */}
-          <div className="flex items-center justify-center gap-3">
-            <Image src="/payment/logos.png" alt="Visa, Mastercard, Мир" width={180} height={32} className="h-7 w-auto object-contain" />
-            <Image src="/payment/sbp.svg" alt="СБП" width={40} height={32} className="h-7 w-auto object-contain" />
+          {/* Payment logos — обязательное требование PayKeeper */}
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <a href="https://paykeeper.ru" target="_blank" rel="noopener noreferrer">
+              <Image
+                src="https://dolinamoloka.server.paykeeper.ru/img/paykeeper-logo.png"
+                alt="Secured by PayKeeper"
+                width={120}
+                height={28}
+                className="h-7 w-auto object-contain"
+                onError={(e) => {
+                  // Fallback: показываем текстовый badge если картинка не загрузилась
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            </a>
+            <Image src="/payment/logos.png" alt="Visa, Mastercard, Мир" width={160} height={28} className="h-7 w-auto object-contain" />
+            <Image src="/payment/sbp.svg" alt="СБП" width={36} height={28} className="h-7 w-auto object-contain" />
           </div>
 
           {/* Security note */}
