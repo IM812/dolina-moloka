@@ -187,7 +187,7 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
   const innerPayload: Record<string, unknown> = {
     kassaid: settings.kassaId,
     kassatoken: settings.kassaToken,
-    cms: "api",
+    cms: "wordpress",
     check_send_type: "email",
     products_arr: productsArr,
     oplata_arr: {
