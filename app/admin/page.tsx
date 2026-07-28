@@ -634,6 +634,95 @@ const PAYMENT_METHOD_OPTIONS = [
   { value: "7", label: "Полный расчёт" },
 ];
 
+function ShopTab() {
+  const [minOrder, setMinOrder] = useState("500");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok && data.settings?.min_order_amount) {
+          setMinOrder(data.settings.min_order_amount);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setResult(null);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ min_order_amount: minOrder }),
+      });
+      const data = await res.json();
+      setResult(data.ok
+        ? { ok: true, msg: "Минимальная сумма заказа сохранена." }
+        : { ok: false, msg: `Ошибка: ${data.error}` }
+      );
+    } catch {
+      setResult({ ok: false, msg: "Ошибка соединения" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-lg flex flex-col gap-6">
+      <Card className="border-border">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShoppingCart className="size-4 text-primary" />Настройки магазина
+          </CardTitle>
+          <CardDescription>
+            Минимальная сумма заказа — покупатель не сможет оформить заказ на меньшую сумму.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {loading ? (
+            <Skeleton className="h-9 w-48" />
+          ) : (
+            <>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Минимальная сумма заказа (₽)</label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="50"
+                    placeholder="500"
+                    value={minOrder}
+                    onChange={(e) => setMinOrder(e.target.value)}
+                    className="border-border w-36"
+                  />
+                  <span className="text-sm text-muted-foreground">₽</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Установите 0 чтобы отключить ограничение.
+                </p>
+              </div>
+              <Button onClick={handleSave} disabled={saving} className="self-start gap-2">
+                {saving ? <RefreshCw className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
+                {saving ? "Сохраняем..." : "Сохранить"}
+              </Button>
+              {result && (
+                <p className={`text-sm px-3 py-2 rounded-lg border ${result.ok ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
+                  {result.msg}
+                </p>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 function KassaTab() {
   const [cfg, setCfg] = useState({
     nanokassa_enabled: "false",
@@ -644,7 +733,6 @@ function KassaTab() {
     nanokassa_vat: "6",
     nanokassa_payment_subject: "1",
     nanokassa_payment_method: "4",
-    min_order_amount: "500",
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -665,7 +753,6 @@ function KassaTab() {
             nanokassa_vat: s.nanokassa_vat ?? prev.nanokassa_vat,
             nanokassa_payment_subject: s.nanokassa_payment_subject ?? prev.nanokassa_payment_subject,
             nanokassa_payment_method: s.nanokassa_payment_method ?? prev.nanokassa_payment_method,
-            min_order_amount: s.min_order_amount ?? prev.min_order_amount,
           }));
         }
       })
@@ -699,50 +786,6 @@ function KassaTab() {
 
   return (
     <div className="max-w-lg flex flex-col gap-6">
-
-      {/* ── Минимальная сумма заказа ── */}
-      <Card className="border-border">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <ShoppingCart className="size-4 text-primary" />Настройки магазина
-          </CardTitle>
-          <CardDescription>
-            Минимальная сумма заказа — меньше этой суммы оформить заказ будет нельзя.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {loadingSettings ? (
-            <Skeleton className="h-9 w-full" />
-          ) : (
-            <>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Минимальная сумма заказа (₽)</label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="50"
-                  placeholder="500"
-                  value={cfg.min_order_amount}
-                  onChange={(e) => setCfg((p) => ({ ...p, min_order_amount: e.target.value }))}
-                  className="border-border w-48"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Текущее значение: <strong>{Number(cfg.min_order_amount) || 0} ₽</strong>. Установите 0 чтобы отключить ограничение.
-                </p>
-              </div>
-              <Button onClick={handleSave} disabled={saving} className="self-start gap-2">
-                {saving ? <RefreshCw className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
-                {saving ? "Сохраняем..." : "Сохранить"}
-              </Button>
-              {result && (
-                <p className={`text-sm px-3 py-2 rounded-lg border ${result.ok ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
-                  {result.msg}
-                </p>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
 
       {/* ── Онлайн-касса ── */}
       <Card className="border-border">
@@ -972,7 +1015,7 @@ function EmailTab() {
             <Mail className="size-4 text-primary" />SMTP настройки
           </CardTitle>
           <CardDescription>
-            Настройки хранятся в базе данных. Нажмите "Отправить тест" — если всё верно, письмо уйдёт и настройки сохранятся автоматически.
+            Настройки хранятся в базе данных. Нажмите "О��править тест" — если всё верно, письмо уйдёт и настройки сохранятся автоматически.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -1553,6 +1596,7 @@ export default function AdminPage() {
             <TabsTrigger value="customers" className="gap-2"><Users className="size-4" />Клиенты</TabsTrigger>
             <TabsTrigger value="products" className="gap-2"><Package className="size-4" />Товары</TabsTrigger>
             <TabsTrigger value="documents" className="gap-2"><FileText className="size-4" />Документы</TabsTrigger>
+            <TabsTrigger value="shop" className="gap-2"><ShoppingCart className="size-4" />Магазин</TabsTrigger>
             <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
             <TabsTrigger value="kassa" className="gap-2"><Printer className="size-4" />Касса</TabsTrigger>
           </TabsList>
@@ -1568,6 +1612,7 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="products"><ProductsTab /></TabsContent>
           <TabsContent value="documents"><DocumentsTab /></TabsContent>
+          <TabsContent value="shop"><ShopTab /></TabsContent>
           <TabsContent value="email"><EmailTab /></TabsContent>
           <TabsContent value="kassa"><KassaTab /></TabsContent>
         </Tabs>
