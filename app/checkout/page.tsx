@@ -11,6 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart";
 import { toast } from "sonner";
 import { Loader2, ArrowRight, ShoppingCart, MapPin } from "lucide-react";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 import Link from "next/link";
 import Image from "next/image";
 
@@ -42,7 +45,8 @@ export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore();
   const total = getTotal();
 
-  const MIN_ORDER = 600;
+  const { data: settingsData } = useSWR("/api/admin/settings", fetcher);
+  const MIN_ORDER = Number(settingsData?.settings?.min_order_amount ?? 500);
   const belowMin = total < MIN_ORDER;
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
