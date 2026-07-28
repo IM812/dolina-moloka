@@ -91,6 +91,11 @@ export interface NanokassaSettings {
   paymentSubject: string;     // "1" = товар
   paymentMethod: string;      // "4" = полная оплата
   enabled: boolean;
+  // Вендинг (обязательно для касс типа "Вендинг")
+  vendingEnabled?: boolean;   // true = добавлять поля вендинга
+  vendAddress?: string;       // адрес установки (тег 1009)
+  vendPlace?: string;         // место расчёта (тег 1187)
+  vendNumber?: string;        // номер автомата (тег 1036)
 }
 
 // ─── Request shape ───
@@ -179,7 +184,7 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
 
   const rid = `${new Date().getFullYear()}_${orderId.replace(/[^a-zA-Z0-9]/g, "")}_${crypto.randomBytes(8).toString("hex")}`;
 
-  const innerPayload = {
+  const innerPayload: Record<string, unknown> = {
     kassaid: settings.kassaId,
     kassatoken: settings.kassaToken,
     cms: "dolina-moloka-nextjs",
@@ -202,6 +207,13 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
       itog_cheka: totalKopecks,
     },
   };
+
+  // ── Вендинг: обязательные поля для касс типа "Вендинг" ──
+  if (settings.vendingEnabled) {
+    innerPayload.check_vend_address = settings.vendAddress || "";
+    innerPayload.check_vend_mesto = settings.vendPlace || "";
+    innerPayload.check_vend_num_avtovat = settings.vendNumber || "";
+  }
 
   // ── First encryption ──
   const { de: dePacket, pw: pw1 } = aesEncryptWithHmac(JSON.stringify(innerPayload), HMAC_KEY_1_B64);

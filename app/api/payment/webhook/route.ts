@@ -109,6 +109,10 @@ async function fiscalizeOrder(order: any, supabase: any) {
         "nanokassa_vat",
         "nanokassa_payment_subject",
         "nanokassa_payment_method",
+        "nanokassa_vending_enabled",
+        "nanokassa_vend_address",
+        "nanokassa_vend_place",
+        "nanokassa_vend_number",
       ]);
 
     if (settingsErr) {
@@ -139,6 +143,10 @@ async function fiscalizeOrder(order: any, supabase: any) {
       paymentSubject: s.nanokassa_payment_subject ?? "1",
       paymentMethod: s.nanokassa_payment_method ?? "4",
       enabled: true,
+      vendingEnabled: s.nanokassa_vending_enabled === "true",
+      vendAddress: s.nanokassa_vend_address ?? "",
+      vendPlace: s.nanokassa_vend_place ?? "",
+      vendNumber: s.nanokassa_vend_number ?? "",
     };
 
     // Обновляем статус: идёт фискализация
