@@ -188,7 +188,7 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
     kassaid: settings.kassaId,
     kassatoken: settings.kassaToken,
     cms: "wordpress",
-    check_send_type: "email",
+    check_send_type: settings.vendingEnabled ? "none" : "email",
     products_arr: productsArr,
     oplata_arr: {
       rezhim_nalog: settings.taxSystem,
