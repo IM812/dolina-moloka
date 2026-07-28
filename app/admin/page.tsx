@@ -738,6 +738,12 @@ function KassaTab() {
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
+  // Тестовый чек
+  const [testEmail, setTestEmail] = useState("");
+  const [testPhone, setTestPhone] = useState("");
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; msg: string; raw?: string } | null>(null);
+
   useEffect(() => {
     fetch("/api/admin/settings")
       .then((r) => r.json())
@@ -778,6 +784,36 @@ function KassaTab() {
       setResult({ ok: false, msg: "Ошибка соединения" });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const sendTestReceipt = async () => {
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const res = await fetch("/api/admin/test-receipt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: testEmail, phone: testPhone }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setTestResult({
+          ok: true,
+          msg: `Чек принят Nanokassa! ${data.nuid ? `nuid: ${data.nuid}` : ""}. Проверьте раздел «История чеков» в ЛК nanokassa.ru и почту.`,
+          raw: JSON.stringify(data.raw ?? data, null, 2),
+        });
+      } else {
+        setTestResult({
+          ok: false,
+          msg: data.error || "Nanokassa отклонила чек",
+          raw: JSON.stringify(data.raw ?? data, null, 2),
+        });
+      }
+    } catch (e) {
+      setTestResult({ ok: false, msg: "Ошибка соединения с сервером" });
+    } finally {
+      setTestSending(false);
     }
   };
 
@@ -955,6 +991,67 @@ function KassaTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* ── Проверка кассы (тестовый чек без оплаты) ── */}
+      <Card className="border-border">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <CheckCircle2 className="size-4 text-primary" />Проверка кассы
+          </CardTitle>
+          <CardDescription>
+            Отправить тестовый чек на 10 ₽ напрямую в Nanokassa — без реальной оплаты. Так можно убедиться что касса подключена правильно.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Email для чека</label>
+            <Input
+              type="email"
+              placeholder="test@example.com"
+              value={testEmail}
+              onChange={(e) => setTestEmail(e.target.value)}
+              className="border-border"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Телефон (необязательно)</label>
+            <Input
+              type="tel"
+              placeholder="79001234567"
+              value={testPhone}
+              onChange={(e) => setTestPhone(e.target.value)}
+              className="border-border"
+            />
+          </div>
+          <Button
+            onClick={sendTestReceipt}
+            disabled={testSending || (!testEmail && !testPhone)}
+            className="self-start gap-2"
+            variant="secondary"
+          >
+            {testSending ? <RefreshCw className="size-4 animate-spin" /> : <Printer className="size-4" />}
+            {testSending ? "Отправляем..." : "Отправить тестовый чек"}
+          </Button>
+
+          {testResult && (
+            <div className="flex flex-col gap-2">
+              <p className={`text-sm px-3 py-2 rounded-lg border ${testResult.ok ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
+                {testResult.msg}
+              </p>
+              {testResult.raw && (
+                <details className="text-xs">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    Показать ответ Nanokassa (для отладки)
+                  </summary>
+                  <pre className="mt-2 p-3 rounded-lg bg-secondary/50 border border-border overflow-x-auto whitespace-pre-wrap break-all text-[11px]">
+                    {testResult.raw}
+                  </pre>
+                </details>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -1049,7 +1146,7 @@ function EmailTab() {
                 </p>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Получатель уве��омлений о заказах</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Получатель уве��ом��ений о заказах</label>
                 <Input placeholder="inevolin228@mail.ru" value={smtp.to} onChange={(e) => setSmtp({ ...smtp, to: e.target.value })} className="border-border" />
               </div>
               <Separator className="bg-border" />
