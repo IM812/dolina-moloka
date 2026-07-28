@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse("FAIL", { status: 400 });
     }
 
-    const supabase = await createServiceClient();
+    const supabase = createServiceClient();
 
     const { data: order, error } = await supabase
       .from("orders")
