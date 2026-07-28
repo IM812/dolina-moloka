@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// env updated: production supabase bxowzklgseywyhugobci
 const nextConfig = {
   async headers() {
     return [

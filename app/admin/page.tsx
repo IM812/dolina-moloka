@@ -21,6 +21,7 @@ import {
   Search, TrendingUp, Package, User, ChevronDown, ChevronUp,
   Plus, Pencil, Trash2, Eye, EyeOff, Calendar,
   FileText, Upload, Download, Award, Shield, FileCheck, X, ImageIcon, ToggleLeft, ToggleRight,
+  Printer, CheckCircle2, AlertCircle, Info,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -37,10 +38,20 @@ type DbOrder = {
   order_items: { id: string; product_name: string; quantity: number; price: number }[];
 };
 
-const PAYMENT_LABELS: Record<string, string> = { pending: "Ожидает", paid: "Оплачен", cancelled: "Отменён" };
+const PAYMENT_LABELS: Record<string, string> = {
+  pending: "Ожидает",
+  paid: "Оплачен",
+  fiscalization_pending: "Фискализация...",
+  fiscalized: "Чек отправлен",
+  fiscalization_failed: "Ошибка чека",
+  cancelled: "Отменён",
+};
 const PAYMENT_COLORS: Record<string, string> = {
   pending: "bg-amber-50 text-amber-700 border-amber-200",
   paid: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  fiscalization_pending: "bg-blue-50 text-blue-700 border-blue-200",
+  fiscalized: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  fiscalization_failed: "bg-red-50 text-red-700 border-red-200",
   cancelled: "bg-red-50 text-red-700 border-red-200",
 };
 const DELIVERY_LABELS: Record<string, string> = { new: "Новый", processing: "Готовится", completed: "Выполнен", cancelled: "Отменён" };
@@ -308,7 +319,7 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
                       <TableCell className="text-right"><span className="font-bold text-foreground text-sm whitespace-nowrap">{order.total_amount.toLocaleString("ru-RU")} ₽</span></TableCell>
                       <TableCell>
                         <Select value={order.payment_status} onValueChange={(v) => onStatusChange(order.order_number, "paymentStatus", v)}>
-                          <SelectTrigger className={`w-32 h-7 text-xs border rounded-full px-2 ${PAYMENT_COLORS[order.payment_status]}`}><SelectValue /></SelectTrigger>
+                          <SelectTrigger className={`w-36 h-7 text-xs border rounded-full px-2 ${PAYMENT_COLORS[order.payment_status] ?? "bg-secondary text-muted-foreground border-border"}`}><SelectValue /></SelectTrigger>
                           <SelectContent>{Object.entries(PAYMENT_LABELS).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
                         </Select>
                       </TableCell>
@@ -591,6 +602,268 @@ function ProductsTab() {
       )}
 
       <p className="text-xs text-muted-foreground">Всего товаров: {products.length}</p>
+    </div>
+  );
+}
+
+const TAX_SYSTEMS_OPTIONS = [
+  { value: "1", label: "ОСН (общая)" },
+  { value: "2", label: "УСН доход" },
+  { value: "3", label: "УСН доход-расход" },
+  { value: "4", label: "ЕСХН" },
+  { value: "5", label: "ЕНВД" },
+  { value: "6", label: "ПСН" },
+];
+const VAT_RATE_OPTIONS = [
+  { value: "6", label: "Без НДС" },
+  { value: "0", label: "НДС 0%" },
+  { value: "5", label: "НДС 10%" },
+  { value: "2", label: "НДС 20%" },
+  { value: "7", label: "НДС 10/110" },
+  { value: "3", label: "НДС 20/120" },
+];
+const PAYMENT_SUBJECT_OPTIONS = [
+  { value: "1", label: "Товар" },
+  { value: "4", label: "Услуга" },
+  { value: "5", label: "Работа" },
+];
+const PAYMENT_METHOD_OPTIONS = [
+  { value: "4", label: "Полная оплата" },
+  { value: "1", label: "Предоплата 100%" },
+  { value: "3", label: "Аванс" },
+  { value: "7", label: "Полный расчёт" },
+];
+
+function KassaTab() {
+  const [cfg, setCfg] = useState({
+    nanokassa_enabled: "false",
+    nanokassa_id: "",
+    nanokassa_token: "",
+    nanokassa_test: "true",
+    nanokassa_tax_system: "2",
+    nanokassa_vat: "6",
+    nanokassa_payment_subject: "1",
+    nanokassa_payment_method: "4",
+  });
+  const [loadingSettings, setLoadingSettings] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok && data.settings) {
+          const s = data.settings;
+          setCfg((prev) => ({
+            nanokassa_enabled: s.nanokassa_enabled ?? prev.nanokassa_enabled,
+            nanokassa_id: s.nanokassa_id ?? prev.nanokassa_id,
+            nanokassa_token: s.nanokassa_token ?? prev.nanokassa_token,
+            nanokassa_test: s.nanokassa_test ?? prev.nanokassa_test,
+            nanokassa_tax_system: s.nanokassa_tax_system ?? prev.nanokassa_tax_system,
+            nanokassa_vat: s.nanokassa_vat ?? prev.nanokassa_vat,
+            nanokassa_payment_subject: s.nanokassa_payment_subject ?? prev.nanokassa_payment_subject,
+            nanokassa_payment_method: s.nanokassa_payment_method ?? prev.nanokassa_payment_method,
+          }));
+        }
+      })
+      .finally(() => setLoadingSettings(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setResult(null);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cfg),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setResult({ ok: true, msg: "Настройки кассы сохранены." });
+      } else {
+        setResult({ ok: false, msg: `Ошибка: ${data.error}` });
+      }
+    } catch {
+      setResult({ ok: false, msg: "Ошибка соединения" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const enabled = cfg.nanokassa_enabled === "true";
+  const testMode = cfg.nanokassa_test === "true";
+
+  return (
+    <div className="max-w-lg flex flex-col gap-6">
+      <Card className="border-border">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Printer className="size-4 text-primary" />Онлайн-касса Nanokassa
+          </CardTitle>
+          <CardDescription>
+            Настройки для автоматической фискализации через сервис nanokassa.ru. После оплаты заказа покупатель получит кассовый чек.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {loadingSettings ? (
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+            </div>
+          ) : (
+            <>
+              {/* Enable toggle */}
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/30">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Включить фискализацию</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">При выключении чеки не отправляются</p>
+                </div>
+                <button
+                  onClick={() => setCfg((p) => ({ ...p, nanokassa_enabled: p.nanokassa_enabled === "true" ? "false" : "true" }))}
+                  className="focus:outline-none"
+                >
+                  {enabled
+                    ? <ToggleRight className="size-8 text-primary" />
+                    : <ToggleLeft className="size-8 text-muted-foreground" />}
+                </button>
+              </div>
+
+              <Separator className="bg-border" />
+
+              {/* Credentials */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">ID кассы (kassaid)</label>
+                <Input
+                  placeholder="123456"
+                  value={cfg.nanokassa_id}
+                  onChange={(e) => setCfg((p) => ({ ...p, nanokassa_id: e.target.value }))}
+                  className="border-border"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Найдите в личном кабинете nanokassa.ru → Кассы</p>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Токен кассы (kassatoken)</label>
+                <Input
+                  type="password"
+                  placeholder="••••••••••••••••••••••••••••••••"
+                  value={cfg.nanokassa_token}
+                  onChange={(e) => setCfg((p) => ({ ...p, nanokassa_token: e.target.value }))}
+                  className="border-border"
+                />
+              </div>
+
+              <Separator className="bg-border" />
+
+              {/* Test mode */}
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/30">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Тестовый режим</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {testMode ? "Чеки видны в ЛК, но не проходят через кассу" : "Боевой режим — реальная фискализация"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setCfg((p) => ({ ...p, nanokassa_test: p.nanokassa_test === "true" ? "false" : "true" }))}
+                  className="focus:outline-none"
+                >
+                  {testMode
+                    ? <ToggleRight className="size-8 text-amber-500" />
+                    : <ToggleLeft className="size-8 text-muted-foreground" />}
+                </button>
+              </div>
+              {!testMode && (
+                <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-xs">
+                  <AlertCircle className="size-4 mt-0.5 shrink-0" />
+                  <span>Боевой режим включён. Каждый чек будет реально зафиксирован через ОФД. Убедитесь, что касса зарегистрирована в ФНС.</span>
+                </div>
+              )}
+
+              <Separator className="bg-border" />
+
+              {/* Fiscal settings */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Система налогообложения</label>
+                <Select value={cfg.nanokassa_tax_system} onValueChange={(v) => v && setCfg((p) => ({ ...p, nanokassa_tax_system: v }))}>
+                  <SelectTrigger className="border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TAX_SYSTEMS_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Ставка НДС</label>
+                <Select value={cfg.nanokassa_vat} onValueChange={(v) => v && setCfg((p) => ({ ...p, nanokassa_vat: v }))}>
+                  <SelectTrigger className="border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VAT_RATE_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Признак предмета расчёта</label>
+                <Select value={cfg.nanokassa_payment_subject} onValueChange={(v) => v && setCfg((p) => ({ ...p, nanokassa_payment_subject: v }))}>
+                  <SelectTrigger className="border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_SUBJECT_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Признак способа расчёта</label>
+                <Select value={cfg.nanokassa_payment_method} onValueChange={(v) => v && setCfg((p) => ({ ...p, nanokassa_payment_method: v }))}>
+                  <SelectTrigger className="border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_METHOD_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-start gap-2 p-3 rounded-lg border border-border bg-secondary/30 text-xs text-muted-foreground">
+                <Info className="size-4 mt-0.5 shrink-0 text-primary" />
+                <span>
+                  Для молочной продукции без НДС обычно выбирают: <strong>УСН доход</strong>, <strong>Без НДС</strong>, <strong>Товар</strong>, <strong>Полная оплата</strong>. Уточните у бухгалтера.
+                </span>
+              </div>
+
+              <Separator className="bg-border" />
+
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="self-start gap-2"
+              >
+                {saving ? <RefreshCw className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
+                {saving ? "Сохраняем..." : "Сохранить настройки"}
+              </Button>
+
+              {result && (
+                <p className={`text-sm px-3 py-2 rounded-lg border ${result.ok ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
+                  {result.msg}
+                </p>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -1182,7 +1455,7 @@ export default function AdminPage() {
     { label: "Заказов", value: loading ? "—" : orders.length, icon: <ShoppingCart className="size-5 text-primary" />, bg: "bg-primary/10" },
     { label: "Оплачено", value: loading ? "—" : orders.filter((o) => o.payment_status === "paid").length, icon: <PackageCheck className="size-5 text-emerald-600" />, bg: "bg-emerald-100" },
     { label: "Ожидают", value: loading ? "—" : pendingCount, icon: <Banknote className="size-5 text-amber-600" />, bg: "bg-amber-100" },
-    { label: "Выручка", value: loading ? "—" : `${totalRevenue.toLocaleString("ru-RU")} ₽`, icon: <TrendingUp className="size-5 text-blue-600" />, bg: "bg-blue-100" },
+    { label: "Выручка", value: loading ? "��" : `${totalRevenue.toLocaleString("ru-RU")} ₽`, icon: <TrendingUp className="size-5 text-blue-600" />, bg: "bg-blue-100" },
     { label: "Клиентов", value: loading ? "—" : uniqueCustomers, icon: <Users className="size-5 text-violet-600" />, bg: "bg-violet-100" },
   ];
 
@@ -1233,6 +1506,7 @@ export default function AdminPage() {
             <TabsTrigger value="products" className="gap-2"><Package className="size-4" />Товары</TabsTrigger>
             <TabsTrigger value="documents" className="gap-2"><FileText className="size-4" />Документы</TabsTrigger>
             <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
+            <TabsTrigger value="kassa" className="gap-2"><Printer className="size-4" />Касса</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -1247,6 +1521,7 @@ export default function AdminPage() {
           <TabsContent value="products"><ProductsTab /></TabsContent>
           <TabsContent value="documents"><DocumentsTab /></TabsContent>
           <TabsContent value="email"><EmailTab /></TabsContent>
+          <TabsContent value="kassa"><KassaTab /></TabsContent>
         </Tabs>
       </div>
     </main>
