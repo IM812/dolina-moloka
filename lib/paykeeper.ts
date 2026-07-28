@@ -4,6 +4,7 @@ const PK_SERVER = process.env.PAYKEEPER_SERVER ?? "https://dolinamoloka.server.p
 const PK_USER = process.env.PAYKEEPER_USER ?? "admin";
 const PK_PASSWORD = process.env.PAYKEEPER_PASSWORD ?? "Dm_502026";
 const PK_SECRET = process.env.PAYKEEPER_SECRET ?? "}xXwa3]8xUkky88";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://xn--80aakqldchhhfb.xn--p1ai";
 
 function getAuthHeader() {
   const token = Buffer.from(`${PK_USER}:${PK_PASSWORD}`).toString("base64");
@@ -71,8 +72,12 @@ export async function createPayKeeperInvoice(
   formData.append("token", securityToken);
   // service_name — видимое название услуги (только номер заказа)
   formData.append("service_name", `Заказ ${params.orderNumber}`);
-  // Передаём UUID через clientid скрытно не получится, используем orderid для webhook
-  // Наш UUID хранится в orderid поля ответа webhook через поле orderid=orderNumber
+  // URL для получения уведомления об оплате (webhook)
+  formData.append("result_url", `${SITE_URL}/api/payment/webhook`);
+  // URL для редиректа после успешной оплаты
+  formData.append("success_url", `${SITE_URL}/order-success`);
+  // URL для редиректа при ошибке/отмене
+  formData.append("fail_url", `${SITE_URL}/cart`);
 
   const previewRes = await fetch(`${server}/change/invoice/preview/`, {
     method: "POST",
