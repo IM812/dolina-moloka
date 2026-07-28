@@ -733,6 +733,10 @@ function KassaTab() {
     nanokassa_vat: "6",
     nanokassa_payment_subject: "1",
     nanokassa_payment_method: "4",
+    nanokassa_vending_enabled: "false",
+    nanokassa_vend_address: "",
+    nanokassa_vend_place: "",
+    nanokassa_vend_number: "",
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -759,6 +763,10 @@ function KassaTab() {
             nanokassa_vat: s.nanokassa_vat ?? prev.nanokassa_vat,
             nanokassa_payment_subject: s.nanokassa_payment_subject ?? prev.nanokassa_payment_subject,
             nanokassa_payment_method: s.nanokassa_payment_method ?? prev.nanokassa_payment_method,
+            nanokassa_vending_enabled: s.nanokassa_vending_enabled ?? prev.nanokassa_vending_enabled,
+            nanokassa_vend_address: s.nanokassa_vend_address ?? prev.nanokassa_vend_address,
+            nanokassa_vend_place: s.nanokassa_vend_place ?? prev.nanokassa_vend_place,
+            nanokassa_vend_number: s.nanokassa_vend_number ?? prev.nanokassa_vend_number,
           }));
         }
       })
@@ -970,6 +978,62 @@ function KassaTab() {
                   Для молочной продукции без НДС обычно выбирают: <strong>УСН доход</strong>, <strong>Без НДС</strong>, <strong>Товар</strong>, <strong>Полная оплата</strong>. Уточните у бухгалтера.
                 </span>
               </div>
+
+              <Separator className="bg-border" />
+
+              {/* Вендинг */}
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-secondary/30">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Вендинговая касса</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Включите, если касса зарегистрирована как «Вендинг» (тип В)</p>
+                </div>
+                <button
+                  onClick={() => setCfg((p) => ({ ...p, nanokassa_vending_enabled: p.nanokassa_vending_enabled === "true" ? "false" : "true" }))}
+                  className="focus:outline-none"
+                >
+                  {cfg.nanokassa_vending_enabled === "true"
+                    ? <ToggleRight className="size-8 text-primary" />
+                    : <ToggleLeft className="size-8 text-muted-foreground" />}
+                </button>
+              </div>
+
+              {cfg.nanokassa_vending_enabled === "true" && (
+                <div className="flex flex-col gap-4 pl-1">
+                  <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-200 bg-amber-50 text-xs text-amber-700">
+                    <Info className="size-4 mt-0.5 shrink-0" />
+                    <span>
+                      Для вендинговой кассы эти поля обязательны. Номер автомата возьмите из ЛК Nanokassa (раздел ККТ). Без них Nanokassa вернёт ошибку 107.
+                    </span>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Номер автомата (обязательно)</label>
+                    <Input
+                      placeholder="Например: 550101009055"
+                      value={cfg.nanokassa_vend_number}
+                      onChange={(e) => setCfg((p) => ({ ...p, nanokassa_vend_number: e.target.value }))}
+                      className="border-border"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Адрес установки</label>
+                    <Input
+                      placeholder="Например: г. Москва, ул. Ленина, 1"
+                      value={cfg.nanokassa_vend_address}
+                      onChange={(e) => setCfg((p) => ({ ...p, nanokassa_vend_address: e.target.value }))}
+                      className="border-border"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Место расчётов</label>
+                    <Input
+                      placeholder="Например: сайт долинамолока.рф"
+                      value={cfg.nanokassa_vend_place}
+                      onChange={(e) => setCfg((p) => ({ ...p, nanokassa_vend_place: e.target.value }))}
+                      className="border-border"
+                    />
+                  </div>
+                </div>
+              )}
 
               <Separator className="bg-border" />
 
@@ -1515,7 +1579,7 @@ function DocumentsTab() {
           ) : documents.length === 0 ? (
             <div className="py-16 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
               <FileText className="size-8 opacity-30" />
-              Д��кументы не загружены. Нажмите "Загрузить файл".
+              Д����кументы не загружены. Нажмите "Загрузить файл".
             </div>
           ) : (
             <Table>
