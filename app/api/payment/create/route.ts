@@ -16,9 +16,17 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Генерируем номер заказа
-    const { count } = await supabase.from("orders").select("*", { count: "exact", head: true });
-    const orderNum = (count ?? 0) + 1;
+    // Генерируем номер заказа атомарно через MAX чтобы избежать дублей
+    const { data: maxRow } = await supabase
+      .from("orders")
+      .select("order_number")
+      .order("order_number", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const lastNum = maxRow?.order_number
+      ? parseInt(maxRow.order_number.replace("DM-", ""), 10)
+      : 0;
+    const orderNum = (isNaN(lastNum) ? 0 : lastNum) + 1;
     const orderNumber = `DM-${String(orderNum).padStart(4, "0")}`;
 
     // Нормализуем телефон
