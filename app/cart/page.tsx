@@ -8,11 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart";
 import { toast } from "sonner";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, getTotal } = useCartStore();
   const total = getTotal();
-  const MIN_ORDER = 600;
+  const { data: settingsData } = useSWR("/api/admin/settings", fetcher);
+  const MIN_ORDER = Number(settingsData?.settings?.min_order_amount ?? 500);
   const belowMin = total < MIN_ORDER;
 
   const handleRemove = (name: string, id: string) => {
@@ -186,7 +190,7 @@ export default function CartPage() {
 
               {belowMin && (
                 <div className="bg-destructive/10 border border-destructive/25 rounded-xl px-4 py-3 text-sm text-destructive leading-snug mb-4">
-                  Минимальный заказ — <span className="font-bold">600 ₽</span>. Добавьте ещё товаров на{" "}
+                  Минимальный заказ — <span className="font-bold">{MIN_ORDER} ₽</span>. Добавьте ещё товаров на{" "}
                   <span className="font-bold">{MIN_ORDER - total} ₽</span>.
                 </div>
               )}
