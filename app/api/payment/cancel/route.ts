@@ -12,9 +12,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Некорректный orderId" }, { status: 400 });
     }
 
+    // Нужен service role — anon key не имеет прав на DELETE из-за RLS
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
     // Удаляем заказ полностью — только если он ещё pending (не оплачен)
