@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart";
 import { motion } from "framer-motion";
-import { Loader2, CreditCard, ShieldCheck, Lock, AlertCircle } from "lucide-react";
+import { Loader2, CreditCard, ShieldCheck, Lock, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
@@ -70,6 +70,11 @@ function PaymentContent() {
       .finally(() => setOrderLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingOrder]);
+
+  const handleCancel = () => {
+    // Не удаляем pendingOrder — пользователь вернётся на чекаут с заполненными данными
+    router.push("/checkout");
+  };
 
   const handlePay = () => {
     if (!createdOrderData) return;
@@ -200,9 +205,17 @@ function PaymentContent() {
 
           {/* Ошибка создания заказа */}
           {orderError && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 flex items-center gap-3">
-              <AlertCircle className="size-5 text-destructive flex-shrink-0" />
-              <p className="text-xs text-destructive">{orderError}</p>
+            <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 flex items-start gap-3">
+              <AlertCircle className="size-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-2">
+                <p className="text-xs text-destructive">{orderError}</p>
+                <button
+                  onClick={handleCancel}
+                  className="text-xs text-destructive underline underline-offset-2 text-left"
+                >
+                  Вернуться и исправить данные
+                </button>
+              </div>
             </div>
           )}
 
@@ -224,6 +237,16 @@ function PaymentContent() {
               ? "Переход к оплате..."
               : `Оплатить ${pendingOrder.totalAmount.toLocaleString("ru-RU")} ₽`}
           </Button>
+
+          {/* Отмена — ссылка под кнопкой */}
+          <button
+            onClick={handleCancel}
+            disabled={paying}
+            className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto disabled:opacity-40"
+          >
+            <ArrowLeft className="size-3.5" />
+            Отменить и вернуться к оформлению
+          </button>
         </motion.div>
       </div>
     </div>
