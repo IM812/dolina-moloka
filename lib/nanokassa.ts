@@ -56,15 +56,22 @@ export const TAX_SYSTEMS: Record<string, string> = {
   "6": "ПСН",
 };
 
-// ─── VAT rate codes ───
+// ─── VAT rate codes (stavka_nds) ───
+// Официальный перечень Nanokassa: 1—20%, 2—10%, 3—20/120, 4—10/110,
+// 5—0%, 6—без НДС, 7—5%, 8—7%, 9—5/105, 10—7/107, 11—22%, 12—22/122
 export const VAT_RATES: Record<string, string> = {
+  "2": "НДС 10%",
+  "1": "НДС 20%",
+  "5": "НДС 0%",
   "6": "Без НДС",
-  "0": "НДС 0%",
-  "5": "НДС 10%",
-  "2": "НДС 20%",
-  "7": "НДС 10/110",
+  "4": "НДС 10/110",
   "3": "НДС 20/120",
+  "7": "НДС 5%",
+  "8": "НДС 7%",
 };
+
+/** Ставка НДС по умолчанию — 10% (молочная продукция) */
+export const DEFAULT_VAT_RATE = "2";
 
 // ─── Payment subject (priznak_predmeta_rascheta) ───
 export const PAYMENT_SUBJECTS: Record<string, string> = {
@@ -87,7 +94,7 @@ export interface NanokassaSettings {
   kassaToken: string;
   testMode: boolean;          // true = тест, false = боевой
   taxSystem: string;          // "2" = УСН доход и т.д.
-  vatRate: string;            // "6" = без НДС, "2" = 20% и т.д.
+  vatRate: string;            // "2" = НДС 10%, "1" = НДС 20%, "6" = без НДС
   paymentSubject: string;     // "1" = товар
   paymentMethod: string;      // "4" = полная оплата
   enabled: boolean;
@@ -168,7 +175,11 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
     kolvo: item.quantity,
     price_piece: item.price,
     summa: item.sum,
-    stavka_nds: parseInt(settings.vatRate, 10),
+    // Валидируем код ставки: неизвестное значение → НДС 10% по умолчанию
+    stavka_nds: parseInt(
+      VAT_RATES[settings.vatRate] ? settings.vatRate : DEFAULT_VAT_RATE,
+      10
+    ),
     priznak_sposoba_rascheta: parseInt(settings.paymentMethod, 10),
     priznak_predmeta_rascheta: parseInt(settings.paymentSubject, 10),
     priznak_agenta: "none",

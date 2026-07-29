@@ -109,11 +109,17 @@ export async function createPayKeeperInvoice(
  * key = MD5(id + sum + clientid + orderid + SECRET_SEED)
  */
 export function verifyPayKeeperNotification(data: Record<string, string>): boolean {
+  const received = typeof data.key === "string" ? data.key.trim().toLowerCase() : "";
   const expected = crypto
     .createHash("md5")
     .update(`${data.id}${data.sum}${data.clientid}${data.orderid}${PK_SECRET}`)
     .digest("hex");
-  return data.key === expected;
+
+  // Длины должны совпадать, иначе timingSafeEqual бросит исключение
+  if (received.length !== expected.length) return false;
+
+  // Сравнение за постоянное время — защита от timing-атак на подпись
+  return crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
 }
 
 /**

@@ -1,5 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
@@ -32,6 +32,14 @@ export const metadata: Metadata = {
     url: "https://xn--e1afmapc4aix.xn--p1ai",
     siteName: "Долина молока",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#f9f7f3",
 };
 
 export default function RootLayout({

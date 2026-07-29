@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { sendNanokassaReceipt, type NanokassaSettings } from "@/lib/nanokassa";
+import { sendNanokassaReceipt, DEFAULT_VAT_RATE, type NanokassaSettings } from "@/lib/nanokassa";
 
 // POST /api/admin/test-receipt
 // Отправляет тестовый чек напрямую в Nanokassa и возвращает СЫРОЙ ответ.
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       kassaToken: s.nanokassa_token,
       testMode: s.nanokassa_test !== "false", // по умолчанию тест
       taxSystem: s.nanokassa_tax_system ?? "2",
-      vatRate: s.nanokassa_vat ?? "6",
+      vatRate: s.nanokassa_vat ?? DEFAULT_VAT_RATE,
       paymentSubject: s.nanokassa_payment_subject ?? "1",
       paymentMethod: s.nanokassa_payment_method ?? "4",
       enabled: true,

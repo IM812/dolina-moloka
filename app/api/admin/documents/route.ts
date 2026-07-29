@@ -14,6 +14,6 @@ export async function GET() {
     return NextResponse.json({ documents: data ?? [] });
   } catch (err) {
     console.error("[admin/documents GET]", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

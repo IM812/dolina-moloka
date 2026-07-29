@@ -15,7 +15,7 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, getTotal } = useCartStore();
   const total = getTotal();
-  const { data: settingsData } = useSWR("/api/admin/settings", fetcher);
+  const { data: settingsData } = useSWR("/api/settings/public", fetcher);
   const MIN_ORDER = Number(settingsData?.settings?.min_order_amount ?? 500);
   const belowMin = total < MIN_ORDER;
 

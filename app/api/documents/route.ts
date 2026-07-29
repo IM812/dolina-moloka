@@ -21,23 +21,56 @@ export async function GET() {
   }
 }
 
-// POST — upload file to Blob + save metadata (service role bypasses RLS)
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 МБ
+const ALLOWED_MIME_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+/** Только авторизованный администратор может загружать документы */
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return user ?? null;
+}
+
+// POST — upload file to Blob + save metadata (admin only)
 export async function POST(request: NextRequest) {
   try {
+    if (!(await requireAdmin())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await request.formData();
 
     const file = formData.get("file") as File | null;
-    const title = (formData.get("title") as string) ?? "";
-    const description = (formData.get("description") as string) || null;
-    const category = (formData.get("category") as string) ?? "other";
+    const title = String(formData.get("title") ?? "").trim().slice(0, 200);
+    const rawDescription = String(formData.get("description") ?? "").trim();
+    const description = rawDescription ? rawDescription.slice(0, 1000) : null;
+    const category = String(formData.get("category") ?? "other").slice(0, 50);
     const is_public = formData.get("is_public") !== "false";
 
     if (!file || !title) {
       return NextResponse.json({ error: "file and title are required" }, { status: 400 });
     }
 
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "Файл больше 10 МБ" }, { status: 413 });
+    }
+
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: "Недопустимый тип файла" }, { status: 415 });
+    }
+
+    // Санитизируем имя файла — исключаем path traversal и спецсимволы
+    const safeName = file.name.replace(/[^\w.\-]/g, "_").slice(-100);
+
     // Upload to Vercel Blob
-    const blob = await put(`documents/${Date.now()}-${file.name}`, file, {
+    const blob = await put(`documents/${Date.now()}-${safeName}`, file, {
       access: "private",
     });
 
@@ -65,6 +98,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ document: data });
   } catch (err) {
     console.error("[documents POST]", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: "Не удалось загрузить документ" }, { status: 500 });
   }
 }

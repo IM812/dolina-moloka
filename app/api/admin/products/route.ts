@@ -9,7 +9,7 @@ export async function GET() {
     .order("category", { ascending: true })
     .order("name", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ products: data });
 }
 
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ product: data }, { status: 201 });
 }
 
@@ -47,7 +47,7 @@ export async function PUT(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ product: data });
 }
 
@@ -58,6 +58,6 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   const { error } = await supabase.from("products").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
