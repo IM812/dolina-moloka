@@ -58,8 +58,15 @@ export async function GET(
     return NextResponse.redirect(doc.file_url);
   } catch (err) {
     console.error("[documents GET]", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
+}
+
+/** Только авторизованный администратор может изменять/удалять документы */
+async function requireAdmin() {
+  const authClient = await createClient();
+  const { data: { user } } = await authClient.auth.getUser();
+  return user ?? null;
 }
 
 export async function DELETE(
@@ -67,6 +74,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!(await requireAdmin())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const supabase = createServiceClient();
 
@@ -93,7 +104,7 @@ export async function DELETE(
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[documents DELETE]", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }
 
@@ -102,16 +113,29 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!(await requireAdmin())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const supabase = createServiceClient();
 
-    const { error } = await supabase.from("documents").update(body).eq("id", id);
+    // Разрешаем обновлять только безопасные поля
+    const allowed: Record<string, unknown> = {};
+    for (const key of ["title", "description", "category", "is_public"]) {
+      if (key in body) allowed[key] = body[key];
+    }
+    if (Object.keys(allowed).length === 0) {
+      return NextResponse.json({ error: "Нет полей для обновления" }, { status: 400 });
+    }
+
+    const { error } = await supabase.from("documents").update(allowed).eq("id", id);
     if (error) throw error;
 
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[documents PATCH]", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

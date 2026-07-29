@@ -9,7 +9,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json();
   const { data, error } = await supabase.from("promotions").update(body).eq("id", id).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ promotion: data });
 }
 
@@ -20,6 +20,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const { id } = await params;
   const { error } = await supabase.from("promotions").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

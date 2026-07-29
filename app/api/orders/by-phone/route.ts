@@ -33,11 +33,16 @@ export async function POST(req: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Ищем клиента точным совпадением по номеру, а не выгружаем всю таблицу
+    // Ищем клиента точным совпадением по номеру, а не выгружаем всю таблицу.
+    // Перечисляем распространённые форматы хранения: 7XXX, +7XXX, 8XXX.
+    const phoneVariants = Array.from(
+      new Set([digits, `+${digits}`, `8${digits.slice(1)}`, `+8${digits.slice(1)}`])
+    );
+
     const { data: customers, error: custError } = await supabase
       .from("customers")
       .select("id, phone")
-      .or(`phone.eq.${digits},phone.eq.+${digits},phone.eq.8${digits.slice(1)}`);
+      .in("phone", phoneVariants);
 
     if (custError) throw custError;
 
@@ -85,8 +90,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ orders: mapped });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[api/orders/by-phone] error:", msg);
+    console.error("[api/orders/by-phone] error:", JSON.stringify(err, Object.getOwnPropertyNames(err ?? {})));
     return NextResponse.json({ error: "Не удалось загрузить заказы" }, { status: 500 });
   }
 }

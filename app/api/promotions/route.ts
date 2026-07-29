@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (homepageOnly) query = query.eq("show_on_homepage", true);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ promotions: data ?? [] });
 }
 
@@ -31,6 +31,6 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const { data, error } = await supabase.from("promotions").insert(body).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   return NextResponse.json({ promotion: data }, { status: 201 });
 }

@@ -45,7 +45,7 @@ export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore();
   const total = getTotal();
 
-  const { data: settingsData } = useSWR("/api/admin/settings", fetcher);
+  const { data: settingsData } = useSWR("/api/settings/public", fetcher);
   const MIN_ORDER = Number(settingsData?.settings?.min_order_amount ?? 500);
   const belowMin = total < MIN_ORDER;
   const [loading, setLoading] = useState(false);
@@ -288,7 +288,7 @@ export default function CheckoutPage() {
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  Нажимая кнопку, вы соглашаетесь с{" "}
+                  Нажимая кнопку, в�� соглашаетесь с{" "}
                   <Link href="/offer" className="text-primary hover:underline">публичной офертой</Link>{" "}
                   и{" "}
                   <Link href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</Link>
