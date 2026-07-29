@@ -75,10 +75,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Фискализация через Nanokassa ──
-    // Запускаем асинхронно, не блокируем ответ PayKeeper
-    fiscalizeOrder(order, supabase).catch((err) => {
-      console.error("[paykeeper/webhook] fiscalization background error:", err);
-    });
+    // Выполняем ДО ответа PayKeeper — фоновые задачи на VPS убиваются сразу после response
+    try {
+      await fiscalizeOrder(order, supabase);
+    } catch (err) {
+      console.error("[paykeeper/webhook] fiscalization error:", err);
+    }
 
     console.log("[paykeeper/webhook] order paid:", order.order_number);
 
