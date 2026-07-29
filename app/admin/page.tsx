@@ -753,8 +753,9 @@ function KassaTab() {
     fetch("/api/admin/settings")
       .then((r) => r.json())
       .then((data) => {
-        if (data.ok && data.settings) {
-          const s = data.settings;
+        // Поддерживаем оба формата: { ok, settings: {...} } и прямой { key: value }
+        const s = data.settings ?? (data.ok === undefined ? data : null);
+        if (s && typeof s === "object") {
           setCfg((prev) => ({
             nanokassa_enabled: s.nanokassa_enabled ?? prev.nanokassa_enabled,
             nanokassa_id: s.nanokassa_id ?? prev.nanokassa_id,
@@ -771,6 +772,7 @@ function KassaTab() {
           }));
         }
       })
+      .catch(() => { /* настройки не загрузились — остаётся дефолт */ })
       .finally(() => setLoadingSettings(false));
   }, []);
 
