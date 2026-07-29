@@ -4,6 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // В dev-окружении без Supabase не блокируем
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    return NextResponse.next();
+  }
+
   // Защищаем /api/admin/* и /admin (кроме /admin/login)
   const isAdminApi = pathname.startsWith("/api/admin/");
   const isAdminPage = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
