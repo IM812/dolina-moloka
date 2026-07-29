@@ -103,7 +103,7 @@ export default function CheckoutPage() {
 
     try {
       const orderItems = items.map((item) => ({
-        productId: item.product.supabaseId ?? null, // UUID from Supabase, not mock numeric id
+        productId: item.product.id, // UUID из Supabase
         productName: item.product.name,
         quantity: item.quantity,
         price: item.product.price,
