@@ -268,7 +268,7 @@ export default function CheckoutPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">В т.ч. НДС 10%</span>
                   <span className="text-xs text-muted-foreground">
-                    {(total / 11).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
+                    {(total * 10 / 110).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
                   </span>
                 </div>
 
@@ -294,7 +294,7 @@ export default function CheckoutPage() {
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  Нажимая кнопку, в�� соглашаетесь с{" "}
+                  Нажимая кнопку, вы соглашаетесь с{" "}
                   <Link href="/offer" className="text-primary hover:underline">публичной офертой</Link>{" "}
                   и{" "}
                   <Link href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</Link>
