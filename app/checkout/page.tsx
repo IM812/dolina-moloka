@@ -265,6 +265,12 @@ export default function CheckoutPage() {
                     {total.toLocaleString("ru-RU")} ₽
                   </span>
                 </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">В т.ч. НДС 10%</span>
+                  <span className="text-xs text-muted-foreground">
+                    {(total / 11).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
+                  </span>
+                </div>
 
                 {belowMin && (
                   <div className="bg-destructive/10 border border-destructive/25 rounded-xl px-4 py-3 text-sm text-destructive leading-snug">

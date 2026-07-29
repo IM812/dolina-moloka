@@ -181,10 +181,18 @@ export default function CartPage() {
 
               <Separator className="bg-border mb-4" />
 
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-foreground text-lg">Сумма</span>
                 <span className="font-bold text-foreground text-xl">
                   {total.toLocaleString("ru-RU")} ₽
+                </span>
+              </div>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-xs text-muted-foreground">
+                  В т.ч. НДС 10%
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {(total / 11 * 1).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
                 </span>
               </div>
 
