@@ -4,7 +4,7 @@ const PK_SERVER = process.env.PAYKEEPER_SERVER ?? "https://dolinamoloka.server.p
 const PK_USER = process.env.PAYKEEPER_USER ?? "admin";
 const PK_PASSWORD = process.env.PAYKEEPER_PASSWORD ?? "Dm_502026";
 const PK_SECRET = process.env.PAYKEEPER_SECRET ?? "}xXwa3]8xUkky88";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://xn--80aakqldchhhfb.xn--p1ai";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://долинамолока.рф";
 
 function getAuthHeader() {
   const token = Buffer.from(`${PK_USER}:${PK_PASSWORD}`).toString("base64");
