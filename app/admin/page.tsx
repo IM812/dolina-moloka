@@ -27,16 +27,36 @@ import Image from "next/image";
 
 type DbOrder = {
   id: string;
-  order_number: string;
+  order_number: string | null;
   total_amount: number;
   payment_status: string;
   delivery_status: string;
   comment: string | null;
   created_at: string;
+  payment_expires_at: string | null;
   customer_id: string | null;
   customers: { id: string; full_name: string; phone: string; email: string | null; pickup_address: string | null } | null;
   order_items: { id: string; product_name: string; quantity: number; price: number }[];
 };
+
+// Таймер обратного отсчёта для заказов ожидающих оплаты
+function PaymentCountdown({ expiresAt }: { expiresAt: string }) {
+  const [ms, setMs] = useState(() => Math.max(0, new Date(expiresAt).getTime() - Date.now()));
+  useEffect(() => {
+    if (ms <= 0) return;
+    const t = setTimeout(() => setMs((m) => Math.max(0, m - 1000)), 1000);
+    return () => clearTimeout(t);
+  }, [ms]);
+  if (ms <= 0) return <span className="text-[10px] text-destructive font-medium">Истёк</span>;
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  const color = ms > 180000 ? "text-emerald-600" : ms > 60000 ? "text-amber-600" : "text-destructive";
+  return (
+    <span className={`font-mono text-[10px] tabular-nums ${color}`}>
+      {m}:{String(s).padStart(2, "0")}
+    </span>
+  );
+}
 
 const PAYMENT_LABELS: Record<string, string> = {
   pending: "Ожидает",
@@ -301,7 +321,18 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
                 <TableBody>
                   {filtered.map((order) => (
                     <TableRow key={order.id} className="border-border hover:bg-secondary/40 transition-colors">
-                      <TableCell><span className="font-mono text-xs font-semibold text-foreground bg-secondary px-2 py-1 rounded-lg">{order.order_number}</span></TableCell>
+                      <TableCell>
+                        {order.order_number ? (
+                          <span className="font-mono text-xs font-semibold text-foreground bg-secondary px-2 py-1 rounded-lg">{order.order_number}</span>
+                        ) : order.payment_status === "pending" && order.payment_expires_at ? (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[10px] text-amber-600 font-medium">Ожидает оплаты</span>
+                            <PaymentCountdown expiresAt={order.payment_expires_at} />
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground italic">Без номера</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="font-medium text-sm text-foreground">{order.customers?.full_name}</div>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5"><Phone className="size-3" />{order.customers?.phone}</div>
@@ -1709,7 +1740,12 @@ export default function AdminPage() {
 
   const totalRevenue = orders.filter((o) => o.payment_status === "paid" || o.payment_status === "fiscalized").reduce((s, o) => s + o.total_amount, 0);
   const uniqueCustomers = new Set(orders.map((o) => o.customers?.phone)).size;
-  const pendingCount = orders.filter((o) => o.payment_status === "pending").length;
+  // Только реально ожидающие оплаты (с действующим таймером, не просроченные)
+  const pendingCount = orders.filter((o) =>
+    o.payment_status === "pending" &&
+    o.payment_expires_at &&
+    new Date(o.payment_expires_at).getTime() > Date.now()
+  ).length;
 
   const stats = [
     { label: "Заказов", value: loading ? "—" : orders.length, icon: <ShoppingCart className="size-5 text-primary" />, bg: "bg-primary/10" },

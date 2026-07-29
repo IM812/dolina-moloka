@@ -143,40 +143,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Генерируем номер заказа атомарно через MAX чтобы избежать дублей
-    const { data: maxRow } = await supabase
-      .from("orders")
-      .select("order_number")
-      .order("order_number", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const lastNum = maxRow?.order_number
-      ? parseInt(maxRow.order_number.replace("DM-", ""), 10)
-      : 0;
-    const orderNum = (isNaN(lastNum) ? 0 : lastNum) + 1;
-    const orderNumber = `DM-${String(orderNum).padStart(4, "0")}`;
+    // DM-номер НЕ присваиваем здесь — только после подтверждения оплаты.
+    // expires_at = +10 минут, после чего заказ автоматически отменяется.
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-    // Создаём заказ в БД со статусом pending
+    // Создаём заказ в БД со статусом pending, без номера
     const { data: result, error: rpcError } = await supabase.rpc("create_order", {
       p_full_name: fullName,
       p_phone: normalizedPhone,
       p_email: email,
       p_pickup_address: pickupAddress,
       p_comment: comment,
-      p_order_number: orderNumber,
       p_total_amount: totalAmount,
       p_payment_status: "pending",
+      p_order_number: null,
       p_items: sanitizedItems,
+      p_expires_at: expiresAt,
     });
 
     if (rpcError) throw new Error(rpcError.message);
     const orderId: string = result.orderId;
 
-    // Создаём счёт в PayKeeper. НДС 10% — молочная продукция
+    // Создаём счёт в PayKeeper.
+    // orderid = UUID заказа — webhook по нему найдёт заказ и присвоит DM-номер.
     const { invoiceUrl } = await createPayKeeperInvoice({
       amount: totalAmount,
       orderId,
-      orderNumber,
+      orderNumber: orderId, // используется только для service_name внутри lib
       clientName: fullName,
       clientEmail: email,
       clientPhone: normalizedPhone,
@@ -189,7 +182,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { orderId, orderNumber, totalAmount, invoiceUrl },
+      { orderId, totalAmount, invoiceUrl, expiresAt },
       { status: 201 }
     );
   } catch (error) {
