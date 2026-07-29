@@ -316,7 +316,12 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
                           {order.order_items.map((item) => <span key={item.id} className="text-xs text-muted-foreground">{item.product_name} <span className="font-medium text-foreground">× {item.quantity}</span></span>)}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right"><span className="font-bold text-foreground text-sm whitespace-nowrap">{order.total_amount.toLocaleString("ru-RU")} ₽</span></TableCell>
+                      <TableCell className="text-right">
+                        <span className="font-bold text-foreground text-sm whitespace-nowrap">{order.total_amount.toLocaleString("ru-RU")} ₽</span>
+                        <span className="block text-[10px] text-muted-foreground whitespace-nowrap">
+                          В т.ч. НДС 10%: {(order.total_amount * 10 / 110).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <Select value={order.payment_status} onValueChange={(v) => onStatusChange(order.order_number, "paymentStatus", v)}>
                           <SelectTrigger className={`w-36 h-7 text-xs border rounded-full px-2 ${PAYMENT_COLORS[order.payment_status] ?? "bg-secondary text-muted-foreground border-border"}`}><SelectValue /></SelectTrigger>
@@ -886,7 +891,7 @@ function KassaTab() {
                 <label className="text-xs text-muted-foreground mb-1 block">Токен кассы (kassatoken)</label>
                 <Input
                   type="password"
-                  placeholder="••••••••••••••••••••••••••••••••"
+                  placeholder="���•••••••••••••••••••••••••••••••"
                   value={cfg.nanokassa_token}
                   onChange={(e) => setCfg((p) => ({ ...p, nanokassa_token: e.target.value }))}
                   className="border-border"
@@ -1027,7 +1032,7 @@ function KassaTab() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Место расчётов</label>
+                    <label className="text-xs text-muted-foreground mb-1 block">Ме��то расчётов</label>
                     <Input
                       placeholder="Например: сайт долинамолока.рф"
                       value={cfg.nanokassa_vend_place}
@@ -1744,6 +1749,11 @@ export default function AdminPage() {
                 <div>
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
                   <p className="text-xl font-bold text-foreground mt-0.5">{stat.value}</p>
+                  {stat.label === "Выручка" && totalRevenue > 0 && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      В т.ч. НДС 10%: {(totalRevenue * 10 / 110).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

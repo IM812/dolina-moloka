@@ -192,7 +192,7 @@ export default function CartPage() {
                   В т.ч. НДС 10%
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {(total / 11 * 1).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
+                  {(total * 10 / 110).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
                 </span>
               </div>
 
