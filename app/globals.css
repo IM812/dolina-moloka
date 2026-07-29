@@ -134,13 +134,30 @@
     @apply bg-background text-foreground;
     /* Prevent layout shift when scrollbar appears/disappears */
     scrollbar-gutter: stable;
-    overflow-x: hidden;
+    /* Фиксация по горизонтали. НЕ используем overflow-x здесь:
+       любой overflow на html/body ломает position: sticky у хедера. */
+    width: 100%;
+    max-width: 100%;
   }
   html {
     @apply font-sans;
     /* Reserve scrollbar gutter at html level too */
     scrollbar-gutter: stable;
-    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    /* Отключаем горизонтальный «резиновый» отскок в iOS Safari */
+    overscroll-behavior-x: none;
+    /* iOS Safari не должен сам увеличивать шрифты в ландшафте */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  /* Медиа и таблицы не должны вылезать за пределы экрана */
+  img, video, canvas, svg, iframe {
+    max-width: 100%;
+  }
+  /* Длинные слова и ссылки переносим, а не растягиваем страницу */
+  h1, h2, h3, h4, p, a, span, li {
+    overflow-wrap: break-word;
   }
   input, textarea, select {
     @apply text-foreground;
