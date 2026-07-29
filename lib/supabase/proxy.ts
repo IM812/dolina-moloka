@@ -34,10 +34,16 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isAdminLogin = request.nextUrl.pathname === '/admin/login'
+  const { pathname } = request.nextUrl
+  const isAdminLogin = pathname === '/admin/login'
+
+  // Protect /api/admin/* — respond with 401 JSON instead of redirect
+  if (pathname.startsWith('/api/admin/') && !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   // Protect /admin routes (but not the login page itself)
-  if (request.nextUrl.pathname.startsWith('/admin') && !isAdminLogin && !user) {
+  if (pathname.startsWith('/admin') && !isAdminLogin && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin/login'
     return NextResponse.redirect(url)

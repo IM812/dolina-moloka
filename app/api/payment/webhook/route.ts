@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { verifyPayKeeperNotification, buildPayKeeperResponse } from "@/lib/paykeeper";
 import { sendOrderNotification } from "@/lib/email";
-import { sendNanokassaReceipt, type NanokassaSettings } from "@/lib/nanokassa";
+import { sendNanokassaReceipt, DEFAULT_VAT_RATE, type NanokassaSettings } from "@/lib/nanokassa";
 
 // PayKeeper отправляет POST (application/x-www-form-urlencoded) на result_url после оплаты.
 // После подтверждения — инициируем фискализацию через Nanokassa.
@@ -164,7 +164,7 @@ async function fiscalizeOrder(order: any, supabase: any) {
       kassaToken: s.nanokassa_token,
       testMode: s.nanokassa_test !== "false",
       taxSystem: s.nanokassa_tax_system ?? "2",
-      vatRate: s.nanokassa_vat ?? "6",
+      vatRate: s.nanokassa_vat ?? DEFAULT_VAT_RATE,
       paymentSubject: s.nanokassa_payment_subject ?? "1",
       paymentMethod: s.nanokassa_payment_method ?? "4",
       enabled: true,
