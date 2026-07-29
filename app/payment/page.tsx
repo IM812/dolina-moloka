@@ -113,16 +113,20 @@ function PaymentContent() {
     sessionStorage.removeItem("pendingOrder");
   }, [expired, createdOrderData]);
 
-  const handleCancel = useCallback(() => {
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleCancel = useCallback(async () => {
+    setCancelling(true);
     if (createdOrderData) {
-      fetch("/api/payment/cancel", {
+      await fetch("/api/payment/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: createdOrderData.orderId }),
       }).catch(() => { /* best-effort */ });
     }
     sessionStorage.removeItem("pendingOrder");
-    router.push("/checkout");
+    // Заказ удалён — возвращаем в корзину, не на чекаут
+    router.push("/cart");
   }, [createdOrderData, router]);
 
   const handlePay = () => {
@@ -304,7 +308,7 @@ function PaymentContent() {
           {/* Pay button */}
           <Button
             onClick={handlePay}
-            disabled={paying || orderLoading || !createdOrderData || !!orderError}
+            disabled={paying || cancelling || orderLoading || !createdOrderData || !!orderError}
             size="lg"
             className="w-full gap-2"
           >
@@ -321,14 +325,16 @@ function PaymentContent() {
           </Button>
 
           {/* Отмена */}
-          <button
+          <Button
+            variant="outline"
             onClick={handleCancel}
-            disabled={paying}
-            className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto disabled:opacity-40"
+            disabled={paying || cancelling}
+            size="lg"
+            className="w-full gap-2 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
           >
-            <ArrowLeft className="size-3.5" />
-            Отменить и вернуться к оформлению
-          </button>
+            {cancelling ? <Loader2 className="size-4 animate-spin" /> : <ArrowLeft className="size-4" />}
+            {cancelling ? "Отмена заказа..." : "Отменить заказ"}
+          </Button>
         </motion.div>
       </div>
     </div>

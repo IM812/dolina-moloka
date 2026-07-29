@@ -17,27 +17,42 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Отменяем только если заказ ещё в статусе pending (не оплачен)
-    const { data, error } = await supabase
+    // Удаляем заказ полностью — только если он ещё pending (не оплачен)
+    // Сначала проверяем статус
+    const { data: existing } = await supabase
       .from("orders")
-      .update({ payment_status: "cancelled" })
+      .select("id, payment_status, customer_id")
       .eq("id", orderId)
-      .eq("payment_status", "pending")
-      .select("id, order_number")
       .maybeSingle();
 
-    if (error) {
-      console.error("[payment/cancel] DB error:", error.message);
-      return NextResponse.json({ error: "Ошибка отмены заказа" }, { status: 500 });
-    }
-
-    if (!data) {
-      // Заказ уже оплачен или не существует — не ошибка, просто игнорируем
+    if (!existing || existing.payment_status !== "pending") {
+      // Уже оплачен или не существует — не трогаем
       return NextResponse.json({ ok: true, alreadyProcessed: true });
     }
 
-    console.log("[payment/cancel] cancelled order:", data.id);
-    return NextResponse.json({ ok: true, orderId: data.id });
+    // Удаляем order_items
+    await supabase.from("order_items").delete().eq("order_id", orderId);
+
+    // Удаляем сам заказ
+    const { error } = await supabase.from("orders").delete().eq("id", orderId);
+    if (error) {
+      console.error("[payment/cancel] delete error:", error.message);
+      return NextResponse.json({ error: "Ошибка отмены заказа" }, { status: 500 });
+    }
+
+    // Удаляем покупателя если у него нет других заказов
+    if (existing.customer_id) {
+      const { count } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("customer_id", existing.customer_id);
+      if (count === 0) {
+        await supabase.from("customers").delete().eq("id", existing.customer_id);
+      }
+    }
+
+    console.log("[payment/cancel] deleted order:", orderId);
+    return NextResponse.json({ ok: true, orderId });
   } catch (err) {
     console.error("[payment/cancel] error:", err);
     return NextResponse.json({ error: "Внутренняя ошибка" }, { status: 500 });
