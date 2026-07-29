@@ -1215,7 +1215,7 @@ function EmailTab() {
             <Mail className="size-4 text-primary" />SMTP настройки
           </CardTitle>
           <CardDescription>
-            Настройки хранятся в базе данных. Нажмите "О��править тест" — если всё верно, письмо уйдёт и настройки сохранятся автоматически.
+            Настройки хра��ятся в базе данных. Нажмите "О��править тест" — если всё верно, письмо уйдёт и настройки сохранятся автоматически.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -1708,6 +1708,8 @@ export default function AdminPage() {
   const loadOrders = useCallback(async () => {
     setRefreshing(true);
     try {
+      // Сначала отменяем все просроченные pending-заказы, потом читаем актуальное состояние
+      await fetch("/api/payment/cleanup", { method: "POST" }).catch(() => {});
       const supabase = createClient();
       const { data } = await supabase.from("orders").select("*, customers(*), order_items(*)").order("created_at", { ascending: false });
       setOrders((data as DbOrder[]) ?? []);
