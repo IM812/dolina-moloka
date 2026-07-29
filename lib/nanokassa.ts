@@ -200,7 +200,7 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
     kassatoken: settings.kassaToken,
     cms: "wordpress",
     // Интернет-магазин всегда отправляет чек на email покупателя.
-    // Вендинг-поля (адрес, место, номер автомата) прикрепляем отдельно если нужны,
+    // Вендинг-поля (адр��с, место, номер автомата) прикрепляем отдельно если нужны,
     // но тип отправки остаётся "email" — иначе Nanokassa вообще не шлёт чек.
     check_send_type: "email",
     products_arr: productsArr,
@@ -222,12 +222,12 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
     },
   };
 
-  // ── Вендинг: обязательные поля для касс типа "Вендинг" ──
-  if (settings.vendingEnabled) {
-    innerPayload.check_vend_address = settings.vendAddress || "";
-    innerPayload.check_vend_mesto = settings.vendPlace || "";
-    innerPayload.check_vend_num_avtovat = settings.vendNumber || "";
-  }
+  // ── Вендинг: поля обязательны для касс типа "ИМ+В" (интернет-магазин + вендинг).
+  // Nanokassa возвращает ошибку 107 если их не передать.
+  // Для интернет-магазина используем адрес сайта и номер заказа как идентификатор.
+  innerPayload.check_vend_address = settings.vendAddress || "https://долинамолока.рф";
+  innerPayload.check_vend_mesto = settings.vendPlace || "Интернет-магазин";
+  innerPayload.check_vend_num_avtovat = settings.vendNumber || orderId.slice(0, 20);
 
   // ── First encryption ──
   const { de: dePacket, pw: pw1 } = aesEncryptWithHmac(JSON.stringify(innerPayload), HMAC_KEY_1_B64);
