@@ -614,12 +614,13 @@ const TAX_SYSTEMS_OPTIONS = [
   { value: "5", label: "ЕНВД" },
   { value: "6", label: "ПСН" },
 ];
+// Коды ставок НДС Nanokassa (stavka_nds): 1—20%, 2—10%, 3—20/120, 4—10/110, 5—0%, 6—без НДС
 const VAT_RATE_OPTIONS = [
+  { value: "2", label: "НДС 10%" },
+  { value: "1", label: "НДС 20%" },
+  { value: "5", label: "НДС 0%" },
   { value: "6", label: "Без НДС" },
-  { value: "0", label: "НДС 0%" },
-  { value: "5", label: "НДС 10%" },
-  { value: "2", label: "НДС 20%" },
-  { value: "7", label: "НДС 10/110" },
+  { value: "4", label: "НДС 10/110" },
   { value: "3", label: "НДС 20/120" },
 ];
 const PAYMENT_SUBJECT_OPTIONS = [
@@ -730,7 +731,7 @@ function KassaTab() {
     nanokassa_token: "",
     nanokassa_test: "true",
     nanokassa_tax_system: "2",
-    nanokassa_vat: "6",
+    nanokassa_vat: "2",
     nanokassa_payment_subject: "1",
     nanokassa_payment_method: "4",
     nanokassa_vending_enabled: "false",

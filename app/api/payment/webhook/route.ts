@@ -17,14 +17,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log("[paykeeper/webhook] received:", JSON.stringify(data));
+    // Не логируем весь payload — там персональные данные плательщика
+    console.log("[paykeeper/webhook] received id:", data.id, "orderid:", data.orderid);
 
-    // Проверяем подпись
+    // Подпись обязательна: без неё любой мог бы отметить заказ оплаченным
     const signOk = verifyPayKeeperNotification(data);
-    console.log("[paykeeper/webhook] signature valid:", signOk, "key:", data.key, "id:", data.id, "sum:", data.sum, "orderid:", data.orderid);
     if (!signOk) {
-      console.error("[paykeeper/webhook] invalid signature — accepting anyway in test mode");
-      // В тестовом режиме PayKeeper может слать другую подпись — продолжаем
+      console.error("[paykeeper/webhook] invalid signature, rejected. orderid:", data.orderid);
+      return new NextResponse("FAIL", { status: 403 });
     }
 
     // orderid содержит номер заказа "DM-0003"
@@ -47,6 +47,25 @@ export async function POST(req: NextRequest) {
     if (fetchError || !existingOrder) {
       console.error("[paykeeper/webhook] order not found:", orderNumber);
       return new NextResponse("FAIL", { status: 404 });
+    }
+
+    // Сверяем оплаченную сумму с суммой заказа — защита от подмены суммы
+    const paidSum = Number(data.sum);
+    const expectedSum = Number(existingOrder.total_amount);
+    if (
+      !Number.isFinite(paidSum) ||
+      !Number.isFinite(expectedSum) ||
+      Math.abs(paidSum - expectedSum) > 0.01
+    ) {
+      console.error(
+        "[paykeeper/webhook] amount mismatch for",
+        orderNumber,
+        "expected:",
+        expectedSum,
+        "received:",
+        paidSum
+      );
+      return new NextResponse("FAIL", { status: 400 });
     }
 
     // Идемпотентность — если уже fiscalized, просто отвечаем OK без повторной обработки
