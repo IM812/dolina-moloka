@@ -27,25 +27,26 @@ export async function POST(req: NextRequest) {
       return new NextResponse("FAIL", { status: 403 });
     }
 
-    // orderid содержит номер заказа "DM-0003"
-    const orderNumber: string = data.orderid ?? "";
+    // orderid теперь содержит UUID заказа (не DM-номер).
+    // DM-номер присваивается только здесь, после подтверждения оплаты.
+    const orderId: string = data.orderid ?? "";
 
-    if (!orderNumber) {
+    if (!orderId) {
       console.error("[paykeeper/webhook] no orderid in payload");
       return new NextResponse("FAIL", { status: 400 });
     }
 
     const supabase = createServiceClient();
 
-    // Сначала читаем заказ чтобы проверить текущий статус
+    // Читаем заказ по UUID
     const { data: existingOrder, error: fetchError } = await supabase
       .from("orders")
       .select("*, customers(*), order_items(*)")
-      .eq("order_number", orderNumber)
+      .eq("id", orderId)
       .single();
 
     if (fetchError || !existingOrder) {
-      console.error("[paykeeper/webhook] order not found:", orderNumber);
+      console.error("[paykeeper/webhook] order not found by id:", orderId);
       return new NextResponse("FAIL", { status: 404 });
     }
 
@@ -70,18 +71,28 @@ export async function POST(req: NextRequest) {
 
     // Идемпотентность — если уже fiscalized, просто отвечаем OK без повторной обработки
     if (existingOrder.payment_status === "fiscalized" || existingOrder.payment_status === "fiscalization_pending") {
-      console.log("[paykeeper/webhook] order already processed:", orderNumber, existingOrder.payment_status);
+      console.log("[paykeeper/webhook] order already processed:", existingOrder.order_number, existingOrder.payment_status);
       return new NextResponse(buildPayKeeperResponse(data.id), {
         status: 200,
         headers: { "Content-Type": "text/plain" },
       });
     }
 
+    // Присваиваем DM-номер атомарно (только сейчас, после подтверждения оплаты)
+    const { data: assignedNumber, error: assignError } = await supabase
+      .rpc("assign_order_number", { p_order_id: orderId });
+    if (assignError) {
+      console.error("[paykeeper/webhook] failed to assign order number:", assignError.message);
+      return new NextResponse("FAIL", { status: 500 });
+    }
+    const orderNumber: string = assignedNumber;
+    console.log("[paykeeper/webhook] assigned order number:", orderNumber, "for id:", orderId);
+
     // Обновляем статус на paid
     const { data: order, error } = await supabase
       .from("orders")
       .update({ payment_status: "paid" })
-      .eq("order_number", orderNumber)
+      .eq("id", orderId)
       .eq("payment_status", "pending") // только если pending — защита от race conditions
       .select("*, customers(*), order_items(*)")
       .single();

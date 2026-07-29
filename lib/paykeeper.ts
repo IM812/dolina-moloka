@@ -66,13 +66,15 @@ export async function createPayKeeperInvoice(
   const formData = new URLSearchParams();
   formData.append("pay_amount", params.amount.toFixed(2));
   formData.append("clientid", params.clientName);
-  formData.append("orderid", params.orderNumber);
+  // Используем UUID заказа как orderid — DM-номер присваивается только после оплаты.
+  // Webhook ищет заказ по этому UUID, а не по order_number.
+  formData.append("orderid", params.orderId);
   formData.append("client_email", params.clientEmail);
   formData.append("client_phone", params.clientPhone);
   formData.append("cart", JSON.stringify(cart));
   formData.append("token", securityToken);
   // service_name — видимое название услуги (только номер заказа)
-  formData.append("service_name", `Заказ ${params.orderNumber}`);
+  formData.append("service_name", "Заказ Долина Молока");
   // URL для получения уведомления об оплате (webhook)
   formData.append("result_url", `${SITE_URL}/api/payment/webhook`);
   // URL для редиректа после успешной оплаты
