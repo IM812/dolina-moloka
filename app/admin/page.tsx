@@ -63,7 +63,7 @@ const DELIVERY_COLORS: Record<string, string> = {
 };
 
 function RevenueChart({ orders }: { orders: DbOrder[] }) {
-  const paid = orders.filter((o) => o.payment_status === "paid");
+  const paid = orders.filter((o) => o.payment_status === "paid" || o.payment_status === "fiscalized");
   const days: Record<string, { revenue: number; count: number }> = {};
   for (let i = 13; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
@@ -196,7 +196,7 @@ function CustomersTab({ orders, onRefresh }: { orders: DbOrder[]; onRefresh: () 
               {customers.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="text-center py-16 text-muted-foreground">Клиенты не найдены</TableCell></TableRow>
               ) : customers.flatMap((c) => {
-                const spent = c.orders.filter((o) => o.payment_status === "paid").reduce((s, o) => s + o.total_amount, 0);
+                const spent = c.orders.filter((o) => o.payment_status === "paid" || o.payment_status === "fiscalized").reduce((s, o) => s + o.total_amount, 0);
                 const open = expanded === c.phone;
                 return [
                   <TableRow key={c.phone} className="border-border hover:bg-secondary/40 cursor-pointer" onClick={() => setExpanded(open ? null : c.phone)}>
@@ -1522,7 +1522,7 @@ function DocumentsTab() {
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{documents.length} файлов загружено</p>
         <Button size="sm" onClick={() => setShowForm((v) => !v)} className="gap-2">
-          <Upload className="size-4" />Загрузить файл
+          <Upload className="size-4" />Загруз��ть файл
         </Button>
       </div>
 
@@ -1699,13 +1699,13 @@ export default function AdminPage() {
     </div>
   );
 
-  const totalRevenue = orders.filter((o) => o.payment_status === "paid").reduce((s, o) => s + o.total_amount, 0);
+  const totalRevenue = orders.filter((o) => o.payment_status === "paid" || o.payment_status === "fiscalized").reduce((s, o) => s + o.total_amount, 0);
   const uniqueCustomers = new Set(orders.map((o) => o.customers?.phone)).size;
   const pendingCount = orders.filter((o) => o.payment_status === "pending").length;
 
   const stats = [
     { label: "Заказов", value: loading ? "—" : orders.length, icon: <ShoppingCart className="size-5 text-primary" />, bg: "bg-primary/10" },
-    { label: "Оплачено", value: loading ? "—" : orders.filter((o) => o.payment_status === "paid").length, icon: <PackageCheck className="size-5 text-emerald-600" />, bg: "bg-emerald-100" },
+    { label: "Оплачено", value: loading ? "—" : orders.filter((o) => o.payment_status === "paid" || o.payment_status === "fiscalized").length, icon: <PackageCheck className="size-5 text-emerald-600" />, bg: "bg-emerald-100" },
     { label: "Ожидают", value: loading ? "—" : pendingCount, icon: <Banknote className="size-5 text-amber-600" />, bg: "bg-amber-100" },
     { label: "Выручка", value: loading ? "��" : `${totalRevenue.toLocaleString("ru-RU")} ₽`, icon: <TrendingUp className="size-5 text-blue-600" />, bg: "bg-blue-100" },
     { label: "Клиентов", value: loading ? "—" : uniqueCustomers, icon: <Users className="size-5 text-violet-600" />, bg: "bg-violet-100" },

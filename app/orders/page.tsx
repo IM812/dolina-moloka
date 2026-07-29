@@ -74,7 +74,7 @@ function DeliveryProgress({ status }: { status: string }) {
 
 function OrderCard({ order }: { order: Order }) {
   const [expanded, setExpanded] = useState(false);
-  const isPaid = order.paymentStatus === "paid";
+  const isPaid = order.paymentStatus === "paid" || order.paymentStatus === "fiscalized";
   const date = new Date(order.createdAt).toLocaleDateString("ru-RU", {
     day: "numeric", month: "long", year: "numeric",
   });
