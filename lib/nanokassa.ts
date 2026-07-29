@@ -199,7 +199,10 @@ export async function sendNanokassaReceipt(params: NanokassaReceiptParams): Prom
     kassaid: settings.kassaId,
     kassatoken: settings.kassaToken,
     cms: "wordpress",
-    check_send_type: settings.vendingEnabled ? "none" : "email",
+    // Интернет-магазин всегда отправляет чек на email покупателя.
+    // Вендинг-поля (адрес, место, номер автомата) прикрепляем отдельно если нужны,
+    // но тип отправки остаётся "email" — иначе Nanokassa вообще не шлёт чек.
+    check_send_type: "email",
     products_arr: productsArr,
     oplata_arr: {
       rezhim_nalog: settings.taxSystem,
