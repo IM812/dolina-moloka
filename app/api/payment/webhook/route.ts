@@ -37,15 +37,38 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServiceClient();
 
+    // Сначала читаем заказ чтобы проверить текущий статус
+    const { data: existingOrder, error: fetchError } = await supabase
+      .from("orders")
+      .select("*, customers(*), order_items(*)")
+      .eq("order_number", orderNumber)
+      .single();
+
+    if (fetchError || !existingOrder) {
+      console.error("[paykeeper/webhook] order not found:", orderNumber);
+      return new NextResponse("FAIL", { status: 404 });
+    }
+
+    // Идемпотентность — если уже fiscalized, просто отвечаем OK без повторной обработки
+    if (existingOrder.payment_status === "fiscalized" || existingOrder.payment_status === "fiscalization_pending") {
+      console.log("[paykeeper/webhook] order already processed:", orderNumber, existingOrder.payment_status);
+      return new NextResponse(buildPayKeeperResponse(data.id), {
+        status: 200,
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
+
+    // Обновляем статус на paid
     const { data: order, error } = await supabase
       .from("orders")
       .update({ payment_status: "paid" })
       .eq("order_number", orderNumber)
+      .eq("payment_status", "pending") // только если pending — защита от race conditions
       .select("*, customers(*), order_items(*)")
       .single();
 
-    if (error) {
-      console.error("[paykeeper/webhook] DB error:", error.message);
+    if (error || !order) {
+      console.error("[paykeeper/webhook] DB update error:", error?.message);
       return new NextResponse("FAIL", { status: 500 });
     }
 
