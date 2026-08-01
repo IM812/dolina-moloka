@@ -27,28 +27,30 @@ export async function POST(req: NextRequest) {
       return new NextResponse("FAIL", { status: 403 });
     }
 
-    // orderid теперь содержит UUID заказа (не DM-номер).
-    // DM-номер присваивается только здесь, после подтверждения оплаты.
-    const orderId: string = data.orderid ?? "";
+    // orderid содержит короткий ref вида "ORD-64AF880D".
+    // Ищем заказ по paykeeper_ref — DM-номер присваивается здесь после оплаты.
+    const paykeeperRef: string = data.orderid ?? "";
 
-    if (!orderId) {
+    if (!paykeeperRef) {
       console.error("[paykeeper/webhook] no orderid in payload");
       return new NextResponse("FAIL", { status: 400 });
     }
 
     const supabase = createServiceClient();
 
-    // Читаем заказ по UUID
+    // Ищем по paykeeper_ref (новые заказы) или по order_number (старые DM-XXXX заказы)
     const { data: existingOrder, error: fetchError } = await supabase
       .from("orders")
       .select("*, customers(*), order_items(*)")
-      .eq("id", orderId)
-      .single();
+      .or(`paykeeper_ref.eq.${paykeeperRef},order_number.eq.${paykeeperRef}`)
+      .maybeSingle();
 
     if (fetchError || !existingOrder) {
-      console.error("[paykeeper/webhook] order not found by id:", orderId);
+      console.error("[paykeeper/webhook] order not found by ref:", paykeeperRef);
       return new NextResponse("FAIL", { status: 404 });
     }
+
+    const orderId: string = existingOrder.id;
 
     // Сверяем оплаченную сумму с суммой заказа — защита от подмены суммы
     const paidSum = Number(data.sum);
