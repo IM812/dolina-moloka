@@ -147,6 +147,8 @@ export async function POST(req: NextRequest) {
     // expires_at = +10 минут, после чего заказ автоматически отменяется.
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
+    // paykeeperRef вычисляем заранее — UUID ещё не существует, поэтому
+    // сначала создаём заказ без него, потом используем вернувшийся orderId.
     // Создаём заказ в БД со статусом pending, без номера
     const { data: result, error: rpcError } = await supabase.rpc("create_order", {
       p_full_name: fullName,
@@ -159,17 +161,23 @@ export async function POST(req: NextRequest) {
       p_order_number: null,
       p_items: sanitizedItems,
       p_expires_at: expiresAt,
+      p_paykeeper_ref: null, // заполним ниже после получения orderId
     });
 
     if (rpcError) throw new Error(rpcError.message);
     const orderId: string = result.orderId;
 
-    // Генерируем короткий ref для PayKeeper и сохраняем в заказе
+    // Сохраняем paykeeperRef через service role — anon key не может делать UPDATE из-за RLS
     const paykeeperRef = `ORD-${orderId.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
-    await supabase.from("orders").update({ paykeeper_ref: paykeeperRef }).eq("id", orderId);
+    const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+    const serviceSupabase = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    await serviceSupabase.from("orders").update({ paykeeper_ref: paykeeperRef }).eq("id", orderId);
 
     // Создаём счёт в PayKeeper.
-    // orderid = paykeeperRef (читаемый ORD-XXXXXXXX) — webhook найдёт заказ по нему.
+    // orderid = paykeeperRef (ORD-XXXXXXXX) — webhook найдёт заказ по этому полю.
     const { invoiceUrl } = await createPayKeeperInvoice({
       amount: totalAmount,
       orderId,
