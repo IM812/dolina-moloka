@@ -70,10 +70,14 @@ export async function createPayKeeperInvoice(
   formData.append("orderid", params.orderNumber);
   formData.append("client_email", params.clientEmail);
   formData.append("client_phone", params.clientPhone);
-  formData.append("cart", JSON.stringify(cart));
   formData.append("token", securityToken);
-  // service_name — видимое название услуги (только номер заказа)
-  formData.append("service_name", "Заказ Долина Молока");
+  // ВАЖНО: PayKeeper не принимает отдельный параметр "cart".
+  // Состав корзины передаётся ВНУТРИ service_name, обёрнутый в маркеры ;PKC|...|
+  // Формат: "<видимое название>;PKC|<JSON-массив позиций>|"
+  // Без этого PayKeeper подставляет свой шаблон («Оплата заказа для ...»)
+  // одной строкой, и в письме/чеке не видно реальных товаров.
+  const serviceName = `Заказ ${params.orderNumber};PKC|${JSON.stringify(cart)}|`;
+  formData.append("service_name", serviceName.slice(0, 10240));
   // URL для получения уведомления об оплате (webhook)
   formData.append("result_url", `${SITE_URL}/api/payment/webhook`);
   // URL для редиректа после успешной оплаты
