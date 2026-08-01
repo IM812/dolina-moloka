@@ -164,8 +164,12 @@ export async function POST(req: NextRequest) {
     if (rpcError) throw new Error(rpcError.message);
     const orderId: string = result.orderId;
 
+    // Генерируем короткий ref для PayKeeper и сохраняем в заказе
+    const paykeeperRef = `ORD-${orderId.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+    await supabase.from("orders").update({ paykeeper_ref: paykeeperRef }).eq("id", orderId);
+
     // Создаём счёт в PayKeeper.
-    // orderid = UUID заказа — webhook по нему найдёт заказ и присвоит DM-номер.
+    // orderid = paykeeperRef (читаемый ORD-XXXXXXXX) — webhook найдёт заказ по нему.
     const { invoiceUrl } = await createPayKeeperInvoice({
       amount: totalAmount,
       orderId,
