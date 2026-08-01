@@ -143,13 +143,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // DM-номер НЕ присваиваем здесь — только после подтверждения оплаты.
     // expires_at = +10 минут, после чего заказ автоматически отменяется.
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-    // paykeeperRef вычисляем заранее — UUID ещё не существует, поэтому
-    // сначала создаём заказ без него, потом используем вернувшийся orderId.
-    // Создаём заказ в БД со статусом pending, без номера
+    // Получаем следующий DM-номер через service role (нужны права на чтение orders)
+    const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+    const serviceSupabase = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data: lastRow } = await serviceSupabase
+      .from("orders")
+      .select("order_number")
+      .like("order_number", "DM-%")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const lastNum = lastRow?.order_number
+      ? parseInt(lastRow.order_number.replace("DM-", ""), 10)
+      : 0;
+    const orderNumber = `DM-${String((isNaN(lastNum) ? 0 : lastNum) + 1).padStart(4, "0")}`;
+
+    // Создаём заказ в БД со статусом pending, с DM-номером
     const { data: result, error: rpcError } = await supabase.rpc("create_order", {
       p_full_name: fullName,
       p_phone: normalizedPhone,
@@ -158,30 +173,20 @@ export async function POST(req: NextRequest) {
       p_comment: comment,
       p_total_amount: totalAmount,
       p_payment_status: "pending",
-      p_order_number: null,
+      p_order_number: orderNumber,
       p_items: sanitizedItems,
       p_expires_at: expiresAt,
-      p_paykeeper_ref: null, // заполним ниже после получения orderId
+      p_paykeeper_ref: null,
     });
 
     if (rpcError) throw new Error(rpcError.message);
     const orderId: string = result.orderId;
 
-    // Сохраняем paykeeperRef через service role — anon key не может делать UPDATE из-за RLS
-    const paykeeperRef = `ORD-${orderId.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
-    const { createClient: createServiceClient } = await import("@supabase/supabase-js");
-    const serviceSupabase = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    await serviceSupabase.from("orders").update({ paykeeper_ref: paykeeperRef }).eq("id", orderId);
-
-    // Создаём счёт в PayKeeper.
-    // orderid = paykeeperRef (ORD-XXXXXXXX) — webhook найдёт заказ по этому полю.
+    // Создаём счёт в PayKeeper — передаём DM-номер как orderid
     const { invoiceUrl } = await createPayKeeperInvoice({
       amount: totalAmount,
       orderId,
-      orderNumber: orderId, // используется только для service_name внутри lib
+      orderNumber,
       clientName: fullName,
       clientEmail: email,
       clientPhone: normalizedPhone,

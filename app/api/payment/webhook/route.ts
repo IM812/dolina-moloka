@@ -27,26 +27,25 @@ export async function POST(req: NextRequest) {
       return new NextResponse("FAIL", { status: 403 });
     }
 
-    // orderid содержит короткий ref вида "ORD-64AF880D".
-    // Ищем заказ по paykeeper_ref — DM-номер присваивается здесь после оплаты.
-    const paykeeperRef: string = data.orderid ?? "";
+    // orderid = DM-номер заказа (например "DM-0020")
+    const orderNumber: string = data.orderid ?? "";
 
-    if (!paykeeperRef) {
+    if (!orderNumber) {
       console.error("[paykeeper/webhook] no orderid in payload");
       return new NextResponse("FAIL", { status: 400 });
     }
 
     const supabase = createServiceClient();
 
-    // Ищем по paykeeper_ref (новые заказы) или по order_number (старые DM-XXXX заказы)
+    // Ищем заказ по DM-номеру
     const { data: existingOrder, error: fetchError } = await supabase
       .from("orders")
       .select("*, customers(*), order_items(*)")
-      .or(`paykeeper_ref.eq.${paykeeperRef},order_number.eq.${paykeeperRef}`)
+      .eq("order_number", orderNumber)
       .maybeSingle();
 
     if (fetchError || !existingOrder) {
-      console.error("[paykeeper/webhook] order not found by ref:", paykeeperRef);
+      console.error("[paykeeper/webhook] order not found:", orderNumber);
       return new NextResponse("FAIL", { status: 404 });
     }
 
@@ -62,7 +61,7 @@ export async function POST(req: NextRequest) {
     ) {
       console.error(
         "[paykeeper/webhook] amount mismatch for",
-        orderNumber,
+        existingOrder.order_number,
         "expected:",
         expectedSum,
         "received:",
@@ -79,16 +78,6 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "text/plain" },
       });
     }
-
-    // Присваиваем DM-номер атомарно (только сейчас, после подтверждения оплаты)
-    const { data: assignedNumber, error: assignError } = await supabase
-      .rpc("assign_order_number", { p_order_id: orderId });
-    if (assignError) {
-      console.error("[paykeeper/webhook] failed to assign order number:", assignError.message);
-      return new NextResponse("FAIL", { status: 500 });
-    }
-    const orderNumber: string = assignedNumber;
-    console.log("[paykeeper/webhook] assigned order number:", orderNumber, "for id:", orderId);
 
     // Обновляем статус на paid
     const { data: order, error } = await supabase
