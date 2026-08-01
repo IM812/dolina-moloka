@@ -7,15 +7,61 @@ import { sendNanokassaReceipt, DEFAULT_VAT_RATE, type NanokassaSettings } from "
 // PayKeeper отправляет POST (application/x-www-form-urlencoded) на result_url после оплаты.
 // После подтверждения — инициируем фискализацию через Nanokassa.
 export async function POST(req: NextRequest) {
+  // Клиент для записи логов — создаём заранее, чтобы логировать даже при ранних ошибках
+  let logClient: ReturnType<typeof createServiceClient> | null = null;
+  try {
+    logClient = createServiceClient();
+  } catch {
+    logClient = null;
+  }
+
+  // Хелпер: пишет результат обращения к вебхуку в таблицу webhook_logs.
+  // Никогда не бросает исключение — логирование не должно ломать основную логику.
+  const logWebhook = async (fields: {
+    orderNumber?: string;
+    paykeeperId?: string;
+    amount?: string;
+    signatureValid?: boolean | null;
+    result: string;
+    statusCode: number;
+    rawPayload?: string;
+    headers?: Record<string, string>;
+  }) => {
+    if (!logClient) return;
+    try {
+      await logClient.from("webhook_logs").insert({
+        source: "paykeeper",
+        order_number: fields.orderNumber ?? null,
+        paykeeper_id: fields.paykeeperId ?? null,
+        amount: fields.amount ?? null,
+        signature_valid: fields.signatureValid ?? null,
+        result: fields.result,
+        status_code: fields.statusCode,
+        raw_payload: fields.rawPayload ?? null,
+        headers: fields.headers ?? null,
+      });
+    } catch (logErr) {
+      console.error("[paykeeper/webhook] failed to write webhook_log:", logErr);
+    }
+  };
+
+  // Собираем заголовки (без чувствительных данных — только диагностика)
+  const reqHeaders: Record<string, string> = {
+    "user-agent": req.headers.get("user-agent") ?? "",
+    "x-forwarded-for": req.headers.get("x-forwarded-for") ?? "",
+    "content-type": req.headers.get("content-type") ?? "",
+  };
+
   try {
     const text = await req.text();
+    // ВАЖНО: PayKeeper шлёт тело как application/x-www-form-urlencoded, где пробел
+    // кодируется знаком "+". Раньше здесь использовался decodeURIComponent, который
+    // НЕ преобразует "+" в пробел — из-за этого значения с пробелами (например
+    // clientid = "Иван Иванов") искажались, и MD5-подпись не сходилась → 403 → заказ
+    // не оплачивался. URLSearchParams корректно декодирует и "+", и "%XX".
+    const params = new URLSearchParams(text);
     const data: Record<string, string> = {};
-    for (const pair of text.split("&")) {
-      const idx = pair.indexOf("=");
-      if (idx > -1) {
-        data[decodeURIComponent(pair.slice(0, idx))] = decodeURIComponent(pair.slice(idx + 1));
-      }
-    }
+    for (const [k, v] of params) data[k] = v;
 
     // Не логируем весь payload — там персональные данные плательщика
     console.log("[paykeeper/webhook] received id:", data.id, "orderid:", data.orderid);
@@ -24,6 +70,16 @@ export async function POST(req: NextRequest) {
     const signOk = verifyPayKeeperNotification(data);
     if (!signOk) {
       console.error("[paykeeper/webhook] invalid signature, rejected. orderid:", data.orderid);
+      await logWebhook({
+        orderNumber: data.orderid,
+        paykeeperId: data.id,
+        amount: data.sum,
+        signatureValid: false,
+        result: "invalid_signature",
+        statusCode: 403,
+        rawPayload: text,
+        headers: reqHeaders,
+      });
       return new NextResponse("FAIL", { status: 403 });
     }
 
@@ -32,6 +88,15 @@ export async function POST(req: NextRequest) {
 
     if (!orderNumber) {
       console.error("[paykeeper/webhook] no orderid in payload");
+      await logWebhook({
+        paykeeperId: data.id,
+        amount: data.sum,
+        signatureValid: true,
+        result: "no_orderid",
+        statusCode: 400,
+        rawPayload: text,
+        headers: reqHeaders,
+      });
       return new NextResponse("FAIL", { status: 400 });
     }
 
@@ -46,6 +111,16 @@ export async function POST(req: NextRequest) {
 
     if (fetchError || !existingOrder) {
       console.error("[paykeeper/webhook] order not found:", orderNumber);
+      await logWebhook({
+        orderNumber,
+        paykeeperId: data.id,
+        amount: data.sum,
+        signatureValid: true,
+        result: "order_not_found",
+        statusCode: 404,
+        rawPayload: text,
+        headers: reqHeaders,
+      });
       return new NextResponse("FAIL", { status: 404 });
     }
 
@@ -67,12 +142,32 @@ export async function POST(req: NextRequest) {
         "received:",
         paidSum
       );
+      await logWebhook({
+        orderNumber,
+        paykeeperId: data.id,
+        amount: data.sum,
+        signatureValid: true,
+        result: `amount_mismatch (expected ${expectedSum}, got ${paidSum})`,
+        statusCode: 400,
+        rawPayload: text,
+        headers: reqHeaders,
+      });
       return new NextResponse("FAIL", { status: 400 });
     }
 
     // Идемпотентность — если уже fiscalized, просто отвечаем OK без повторной обработки
     if (existingOrder.payment_status === "fiscalized" || existingOrder.payment_status === "fiscalization_pending") {
       console.log("[paykeeper/webhook] order already processed:", existingOrder.order_number, existingOrder.payment_status);
+      await logWebhook({
+        orderNumber,
+        paykeeperId: data.id,
+        amount: data.sum,
+        signatureValid: true,
+        result: `already_processed (${existingOrder.payment_status})`,
+        statusCode: 200,
+        rawPayload: text,
+        headers: reqHeaders,
+      });
       return new NextResponse(buildPayKeeperResponse(data.id), {
         status: 200,
         headers: { "Content-Type": "text/plain" },
@@ -90,6 +185,16 @@ export async function POST(req: NextRequest) {
 
     if (error || !order) {
       console.error("[paykeeper/webhook] DB update error:", error?.message);
+      await logWebhook({
+        orderNumber,
+        paykeeperId: data.id,
+        amount: data.sum,
+        signatureValid: true,
+        result: `db_update_error: ${error?.message ?? "no row updated"}`,
+        statusCode: 500,
+        rawPayload: text,
+        headers: reqHeaders,
+      });
       return new NextResponse("FAIL", { status: 500 });
     }
 
@@ -128,6 +233,17 @@ export async function POST(req: NextRequest) {
 
     console.log("[paykeeper/webhook] order paid:", order.order_number);
 
+    await logWebhook({
+      orderNumber,
+      paykeeperId: data.id,
+      amount: data.sum,
+      signatureValid: true,
+      result: "ok",
+      statusCode: 200,
+      rawPayload: text,
+      headers: reqHeaders,
+    });
+
     // PayKeeper требует "OK md5(id+secret)" в ответ
     return new NextResponse(buildPayKeeperResponse(data.id), {
       status: 200,
@@ -135,6 +251,11 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("[paykeeper/webhook] error:", err);
+    await logWebhook({
+      result: `unhandled_error: ${err instanceof Error ? err.message : String(err)}`,
+      statusCode: 500,
+      headers: reqHeaders,
+    });
     return new NextResponse("FAIL", { status: 500 });
   }
 }

@@ -1215,7 +1215,7 @@ function EmailTab() {
             <Mail className="size-4 text-primary" />SMTP настройки
           </CardTitle>
           <CardDescription>
-            Настройки хра��ятся в базе данных. Нажмите "О��править тест" — если всё верно, письмо уйдёт и настройки сохранятся автоматически.
+            Настройки хра����ятся в базе данных. Нажмите "О��править тест" — если всё верно, письмо уйдёт и настройки сохранятся автоматически.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -1691,6 +1691,151 @@ function DocumentsTab() {
   );
 }
 
+type WebhookLog = {
+  id: string;
+  source: string;
+  order_number: string | null;
+  paykeeper_id: string | null;
+  amount: string | null;
+  signature_valid: boolean | null;
+  result: string;
+  status_code: number | null;
+  created_at: string;
+};
+
+function WebhookLogsTab() {
+  const [logs, setLogs] = useState<WebhookLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hint, setHint] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setHint(null);
+    try {
+      const res = await fetch("/api/admin/webhook-logs", { cache: "no-store" });
+      const json = await res.json();
+      if (json.ok) {
+        setLogs(json.logs ?? []);
+      } else {
+        setError(json.error ?? "Не удалось загрузить логи");
+        setHint(json.hint ?? null);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Card className="bg-card border-border">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h3 className="text-foreground font-semibold flex items-center gap-2">
+                <Info className="size-4" />
+                Входящие вызовы вебхука PayKeeper
+              </h3>
+              <p className="text-muted-foreground text-sm mt-1 max-w-2xl text-pretty">
+                Здесь фиксируется каждое обращение PayKeeper на адрес оповещения после оплаты.
+                Если после реальной оплаты тут пусто — значит PayKeeper не отправляет уведомление
+                (проверьте адрес оповещения в личном кабинете PayKeeper). Если запись есть, но результат
+                не &laquo;ok&raquo; — смотрите причину в колонке &laquo;Результат&raquo;.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-2 shrink-0">
+              <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
+              Обновить
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {error && (
+        <Card className="bg-card border-destructive/40">
+          <CardContent className="p-4">
+            <p className="text-destructive text-sm flex items-center gap-2">
+              <AlertCircle className="size-4 shrink-0" />
+              {error}
+            </p>
+            {hint && <p className="text-muted-foreground text-xs mt-2">{hint}</p>}
+          </CardContent>
+        </Card>
+      )}
+
+      {loading ? (
+        <div className="flex flex-col gap-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+      ) : logs.length === 0 && !error ? (
+        <Card className="bg-card border-border">
+          <CardContent className="p-8 text-center">
+            <p className="text-muted-foreground text-sm">
+              Пока нет ни одного вызова вебхука. После следующей реальной оплаты здесь появится запись.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {logs.map((log) => {
+            const ok = log.result === "ok";
+            return (
+              <Card key={log.id} className="bg-card border-border">
+                <CardContent className="p-3 flex items-center gap-3 flex-wrap">
+                  {ok ? (
+                    <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
+                  ) : (
+                    <AlertCircle className="size-5 text-amber-500 shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-foreground font-medium text-sm">
+                        {log.order_number || "— без orderid —"}
+                      </span>
+                      <span
+                        className={`text-[11px] font-semibold rounded px-1.5 py-0.5 ${
+                          ok
+                            ? "bg-emerald-500/15 text-emerald-600"
+                            : "bg-amber-500/15 text-amber-600"
+                        }`}
+                      >
+                        {log.result}
+                      </span>
+                      {log.status_code != null && (
+                        <span className="text-[11px] text-muted-foreground">HTTP {log.status_code}</span>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3 flex-wrap">
+                      {log.amount && <span>Сумма: {log.amount} ₽</span>}
+                      {log.paykeeper_id && <span>PK id: {log.paykeeper_id}</span>}
+                      <span>
+                        Подпись:{" "}
+                        {log.signature_valid === true
+                          ? "верна"
+                          : log.signature_valid === false
+                          ? "неверна"
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {new Date(log.created_at).toLocaleString("ru-RU")}
+                  </span>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<DbOrder[]>([]);
@@ -1811,6 +1956,7 @@ export default function AdminPage() {
             <TabsTrigger value="shop" className="gap-2"><ShoppingCart className="size-4" />Магазин</TabsTrigger>
             <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
             <TabsTrigger value="kassa" className="gap-2"><Printer className="size-4" />Касса</TabsTrigger>
+            <TabsTrigger value="logs" className="gap-2"><Info className="size-4" />Логи оплат</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -1827,6 +1973,7 @@ export default function AdminPage() {
           <TabsContent value="shop"><ShopTab /></TabsContent>
           <TabsContent value="email"><EmailTab /></TabsContent>
           <TabsContent value="kassa"><KassaTab /></TabsContent>
+          <TabsContent value="logs"><WebhookLogsTab /></TabsContent>
         </Tabs>
       </div>
     </main>
