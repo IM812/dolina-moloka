@@ -183,7 +183,7 @@ async function fiscalizeOrder(order: any, supabase: any) {
     const settings: NanokassaSettings = {
       kassaId: s.nanokassa_id,
       kassaToken: s.nanokassa_token,
-      testMode: s.nanokassa_test !== "false",
+      testMode: s.nanokassa_test === "true",
       taxSystem: s.nanokassa_tax_system ?? "2",
       vatRate: s.nanokassa_vat ?? DEFAULT_VAT_RATE,
       paymentSubject: s.nanokassa_payment_subject ?? "1",

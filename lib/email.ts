@@ -27,6 +27,9 @@ async function loadSmtpConfig(): Promise<SmtpConfig | null> {
     return _cachedConfig;
   } catch (e) {
     console.error("[email] Failed to load SMTP config from DB:", e);
+    // Сбрасываем кэш, чтобы следующий вызов снова попробовал загрузить конфиг
+    _cachedConfig = null;
+    _cachedAt = 0;
     return null;
   }
 }
@@ -104,13 +107,12 @@ export async function sendOrderNotification(order: Order): Promise<void> {
     requireTLS: cfg.port === 587,
     auth: { user: cfg.user, pass: cfg.pass },
     tls: { rejectUnauthorized: false },
-    connectionTimeout: 15000,
-    socketTimeout: 15000,
+    connectionTimeout: 20000,
+    socketTimeout: 20000,
+    greetingTimeout: 10000,
   });
 
-  console.log(`[email] Verifying SMTP connection...`);
-  await transporter.verify();
-  console.log(`[email] SMTP verified OK. Sending order #${order.orderNumber} → ${cfg.to}`);
+  console.log(`[email] Sending order #${order.orderNumber} → ${cfg.to}`);
 
   const info = await transporter.sendMail({
     from: `"Долина молока" <${cfg.user}>`,
