@@ -66,11 +66,8 @@ export async function createPayKeeperInvoice(
   const formData = new URLSearchParams();
   formData.append("pay_amount", params.amount.toFixed(2));
   formData.append("clientid", params.clientName);
-  // В PayKeeper показываем короткий читаемый ID вида "ORD-64af880d".
-  // DM-номер присваивается только после подтверждения оплаты в webhook.
-  // Webhook ищет заказ по полному UUID через startsWith (первые 8 символов).
-  const shortRef = `ORD-${params.orderId.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
-  formData.append("orderid", shortRef);
+  // Передаём DM-номер как orderid — webhook ищет заказ по order_number.
+  formData.append("orderid", params.orderNumber);
   formData.append("client_email", params.clientEmail);
   formData.append("client_phone", params.clientPhone);
   formData.append("cart", JSON.stringify(cart));
