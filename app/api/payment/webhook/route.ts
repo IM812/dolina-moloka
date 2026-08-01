@@ -54,13 +54,14 @@ export async function POST(req: NextRequest) {
 
   try {
     const text = await req.text();
+    // ВАЖНО: PayKeeper шлёт тело как application/x-www-form-urlencoded, где пробел
+    // кодируется знаком "+". Раньше здесь использовался decodeURIComponent, который
+    // НЕ преобразует "+" в пробел — из-за этого значения с пробелами (например
+    // clientid = "Иван Иванов") искажались, и MD5-подпись не сходилась → 403 → заказ
+    // не оплачивался. URLSearchParams корректно декодирует и "+", и "%XX".
+    const params = new URLSearchParams(text);
     const data: Record<string, string> = {};
-    for (const pair of text.split("&")) {
-      const idx = pair.indexOf("=");
-      if (idx > -1) {
-        data[decodeURIComponent(pair.slice(0, idx))] = decodeURIComponent(pair.slice(idx + 1));
-      }
-    }
+    for (const [k, v] of params) data[k] = v;
 
     // Не логируем весь payload — там персональные данные плательщика
     console.log("[paykeeper/webhook] received id:", data.id, "orderid:", data.orderid);
