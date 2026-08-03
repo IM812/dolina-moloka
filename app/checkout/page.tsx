@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart";
 import { toast } from "sonner";
-import { Loader2, ArrowRight, ShoppingCart, MapPin } from "lucide-react";
+import { Loader2, ArrowRight, ShoppingCart, MapPin, Clock, Check } from "lucide-react";
 import useSWR from "swr";
+import { PICKUP_POINTS, formatPickupPoint } from "@/lib/pickup-points";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 import Link from "next/link";
@@ -53,10 +54,12 @@ export default function CheckoutPage() {
     fullName: "",
     phone: "",
     email: "",
-    address: "",
+    pickupPointId: "",
     comment: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const selectedPoint = PICKUP_POINTS.find((p) => p.id === form.pickupPointId);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -66,7 +69,7 @@ export default function CheckoutPage() {
     else if (digits.length < 10) e.phone = "Номер должен содержать не менее 10 цифр";
     else if (digits.length > 11) e.phone = "Проверьте номер телефона";
     if (!form.email.trim() || !form.email.includes("@")) e.email = "Введите корректный email";
-    if (!form.address.trim()) e.address = "Введите адрес доставки";
+    if (!form.pickupPointId) e.pickupPointId = "Выберите точку выдачи";
     return e;
   };
 
@@ -115,7 +118,7 @@ export default function CheckoutPage() {
           fullName: form.fullName,
           phone: form.phone,
           email: form.email,
-          pickupAddress: form.address,
+          pickupAddress: selectedPoint ? formatPickupPoint(selectedPoint) : "",
           comment: form.comment,
         },
         items: orderItems,
@@ -196,21 +199,68 @@ export default function CheckoutPage() {
 
               <Separator className="bg-border" />
 
-              <h2 className="font-semibold text-foreground text-lg">Адрес доставки</h2>
+              <div>
+                <h2 className="font-semibold text-foreground text-lg">Точка выдачи</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Выберите удобную точку — заказ можно забрать в указанное время
+                </p>
+              </div>
 
-              <FormField label="Улица, дом, квартира" name="address" error={errors.address}>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    id="address"
-                    placeholder="г. Дмитров, ул. Пушкина, д. 12, кв. 34"
-                    value={form.address}
-                    onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
-                    aria-invalid={!!errors.address}
-                    className="bg-secondary border-border pl-9 text-foreground"
-                  />
-                </div>
-              </FormField>
+              <fieldset
+                className="flex flex-col gap-2"
+                aria-invalid={!!errors.pickupPointId}
+                aria-describedby={errors.pickupPointId ? "pickup-error" : undefined}
+              >
+                <legend className="sr-only">Точка выдачи заказа</legend>
+                {PICKUP_POINTS.map((point) => {
+                  const active = form.pickupPointId === point.id;
+                  return (
+                    <label
+                      key={point.id}
+                      className={`flex items-center gap-3 rounded-xl border p-3 cursor-pointer transition-colors ${
+                        active
+                          ? "border-primary bg-primary/8"
+                          : "border-border bg-secondary hover:border-primary/40"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="pickupPoint"
+                        value={point.id}
+                        checked={active}
+                        onChange={() => setForm((prev) => ({ ...prev, pickupPointId: point.id }))}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`size-5 rounded-full border flex items-center justify-center shrink-0 ${
+                          active ? "border-primary bg-primary" : "border-border"
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {active && <Check className="size-3 text-primary-foreground" />}
+                      </span>
+                      <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                        <span className="text-sm font-medium text-foreground leading-snug">
+                          {point.address}
+                        </span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <MapPin className="size-3 shrink-0" />
+                          {point.city}
+                        </span>
+                      </span>
+                      <span className="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
+                        <Clock className="size-3.5 text-primary" />
+                        {point.timeFrom}–{point.timeTo}
+                      </span>
+                    </label>
+                  );
+                })}
+                {errors.pickupPointId && (
+                  <p id="pickup-error" className="text-xs text-destructive">
+                    {errors.pickupPointId}
+                  </p>
+                )}
+              </fieldset>
 
               <FormField label="Комментарий к заказу (необязательно)" name="comment">
                 <Textarea
