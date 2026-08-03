@@ -2,6 +2,7 @@ import { ArrowRight, Truck, Clock, MapPin, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
+import { PICKUP_POINTS, pickupMapUrl } from "@/lib/pickup-points";
 
 export const metadata: Metadata = {
   title: "Доставка — Долина Молока",
@@ -114,7 +115,70 @@ export default function DeliveryPage() {
           </div>
         </div>
 
+        {/* Точки выдачи */}
+        <section aria-labelledby="pickup-heading" className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+            <div>
+              <span className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 block">
+                Где забрать заказ
+              </span>
+              <h2
+                id="pickup-heading"
+                className="font-heading text-2xl sm:text-3xl font-bold text-foreground leading-tight text-balance"
+              >
+                Точки выдачи в Москве
+              </h2>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm text-pretty">
+              Курьер приезжает по расписанию — пожалуйста, подойдите в указанный интервал.
+              Точку можно выбрать при оформлении заказа.
+            </p>
+          </div>
 
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {PICKUP_POINTS.map((point, index) => (
+              <li
+                key={point.id}
+                className="flex flex-col gap-3 bg-secondary border border-border rounded-2xl px-5 py-5 transition-colors hover:border-primary/40"
+              >
+                <div className="flex items-start gap-3">
+                  <span
+                    className="size-8 shrink-0 rounded-full bg-primary/10 text-primary font-heading font-bold text-sm flex items-center justify-center tabular-nums"
+                    aria-hidden="true"
+                  >
+                    {index + 1}
+                  </span>
+                  <div className="flex-1 min-w-0 flex flex-col gap-1">
+                    <p className="text-sm sm:text-base font-semibold text-foreground leading-snug text-pretty">
+                      {point.address}
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
+                      {point.city}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-xs font-semibold text-foreground">
+                    <Clock className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+                    {point.timeFrom}&nbsp;—&nbsp;{point.timeTo}
+                  </span>
+                  <a
+                    href={pickupMapUrl(point)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+                  >
+                    Показать на карте
+                    <ArrowRight className="size-3.5 shrink-0" aria-hidden="true" />
+                    <span className="sr-only"> — {point.address}, откроется в новой вкладке</span>
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
 
       </div>
     </main>
