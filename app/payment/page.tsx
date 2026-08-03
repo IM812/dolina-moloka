@@ -24,6 +24,7 @@ interface PendingOrder {
     fullName: string;
     phone: string;
     email: string;
+    pickupPointId?: string;
     pickupAddress: string;
     comment: string;
   };

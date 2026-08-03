@@ -25,6 +25,14 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const itemsCount = useCartStore((s) => s.getItemsCount());
+  // Корзина хранится в localStorage, поэтому на сервере она всегда пуста.
+  // Показываем счётчик только после монтирования — иначе React ругается
+  // на несовпадение серверной и клиентской разметки и перерисовывает шапку.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -71,7 +79,7 @@ export function Header() {
             <Link href="/cart">
               <Button variant="outline" size="icon" className="relative size-10 border-border">
                 <ShoppingCart className="size-4" />
-                {itemsCount > 0 && (
+                {mounted && itemsCount > 0 && (
                   <Badge className="absolute -top-1.5 -right-1.5 size-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground border-0">
                     {itemsCount > 99 ? "99+" : itemsCount}
                   </Badge>
