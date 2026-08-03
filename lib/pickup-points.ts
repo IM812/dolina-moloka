@@ -22,6 +22,27 @@ export function formatPickupPoint(point: PickupPoint): string {
   return `${point.city}, ${point.address} (выдача с ${point.timeFrom} до ${point.timeTo})`;
 }
 
+/**
+ * Приводит точку выдачи к каноничному виду на сервере.
+ * Браузеру не доверяем: если пришёл id точки — берём адрес и время из списка выше,
+ * поэтому в заказ, письмо и чек всегда попадает один и тот же корректный текст,
+ * даже если у покупателя закеширована старая версия страницы.
+ * Возвращает пустую строку, если точка неизвестна.
+ */
+export function resolvePickupAddress(pointId?: unknown, fallbackText?: unknown): string {
+  if (typeof pointId === "string") {
+    const byId = PICKUP_POINTS.find((p) => p.id === pointId);
+    if (byId) return formatPickupPoint(byId);
+  }
+  if (typeof fallbackText === "string" && fallbackText.trim()) {
+    const text = fallbackText.trim();
+    // Совместимость со старыми заказами: ищем точку по адресу внутри строки
+    const byAddress = PICKUP_POINTS.find((p) => text.includes(p.address));
+    if (byAddress) return formatPickupPoint(byAddress);
+  }
+  return "";
+}
+
 /** Ссылка на Яндекс.Карты с поиском по адресу точки. */
 export function pickupMapUrl(point: PickupPoint): string {
   const query = encodeURIComponent(`${point.city}, ${point.address}`);

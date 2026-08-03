@@ -64,7 +64,7 @@ function formatOrderEmailHtml(order: Order): string {
           <tr><td style="color:#888;padding:4px 0;width:140px;">Имя</td><td style="font-weight:600;">${order.customer.fullName}</td></tr>
           <tr><td style="color:#888;padding:4px 0;">Телефон</td><td>${order.customer.phone}</td></tr>
           ${order.customer.email ? `<tr><td style="color:#888;padding:4px 0;">Email</td><td>${order.customer.email}</td></tr>` : ""}
-          <tr><td style="color:#888;padding:4px 0;">Адрес</td><td>${order.customer.pickupAddress}</td></tr>
+          <tr><td style="color:#888;padding:4px 0;">Точка выдачи</td><td>${order.customer.pickupAddress}</td></tr>
           ${order.customer.comment ? `<tr><td style="color:#888;padding:4px 0;">Комментарий</td><td>${order.customer.comment}</td></tr>` : ""}
         </table>
 

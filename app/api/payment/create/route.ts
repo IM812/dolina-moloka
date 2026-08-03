@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAnonClient } from "@supabase/supabase-js";
 import { createPayKeeperInvoice } from "@/lib/paykeeper";
+import { resolvePickupAddress } from "@/lib/pickup-points";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ITEMS = 50;
@@ -36,10 +37,21 @@ export async function POST(req: NextRequest) {
     const fullName = str(customer.fullName, 200);
     const email = str(customer.email, 200);
     const comment = str(customer.comment, 1000);
-    const pickupAddress = str(customer.pickupAddress, 300);
+    // Точку выдачи не берём из браузера как есть: восстанавливаем адрес и время
+    // из серверного списка по id, чтобы в БД, письме и чеке был один канон.
+    const pickupAddress = resolvePickupAddress(
+      customer.pickupPointId,
+      customer.pickupAddress
+    );
 
     if (fullName.length < 2) {
       return NextResponse.json({ error: "Укажите ФИО" }, { status: 400 });
+    }
+    if (!pickupAddress) {
+      return NextResponse.json(
+        { error: "Выберите точку выдачи из списка" },
+        { status: 400 }
+      );
     }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       return NextResponse.json({ error: "Некорректный email" }, { status: 400 });

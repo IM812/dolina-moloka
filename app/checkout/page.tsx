@@ -118,6 +118,8 @@ export default function CheckoutPage() {
           fullName: form.fullName,
           phone: form.phone,
           email: form.email,
+          // id нужен серверу, чтобы восстановить адрес и время из своего списка
+          pickupPointId: form.pickupPointId,
           pickupAddress: selectedPoint ? formatPickupPoint(selectedPoint) : "",
           comment: form.comment,
         },
