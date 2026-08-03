@@ -12,7 +12,7 @@ import { useCartStore } from "@/store/cart";
 import { toast } from "sonner";
 import { Loader2, ArrowRight, ShoppingCart, MapPin, Clock, Check } from "lucide-react";
 import useSWR from "swr";
-import { PICKUP_POINTS, formatPickupPoint } from "@/lib/pickup-points";
+import { PICKUP_POINTS, formatPickupPoint, pickupMapUrl } from "@/lib/pickup-points";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 import Link from "next/link";
@@ -199,60 +199,86 @@ export default function CheckoutPage() {
 
               <Separator className="bg-border" />
 
-              <div>
+              <div className="flex flex-col gap-1">
                 <h2 className="font-semibold text-foreground text-lg">Точка выдачи</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Выберите удобную точку — заказ можно забрать в указанное время
+                <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
+                  Выберите удобную точку — заказ будет ждать вас в указанное время
                 </p>
               </div>
 
               <fieldset
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-2.5"
                 aria-invalid={!!errors.pickupPointId}
                 aria-describedby={errors.pickupPointId ? "pickup-error" : undefined}
               >
                 <legend className="sr-only">Точка выдачи заказа</legend>
-                {PICKUP_POINTS.map((point) => {
+                {PICKUP_POINTS.map((point, index) => {
                   const active = form.pickupPointId === point.id;
                   return (
-                    <label
+                    <div
                       key={point.id}
-                      className={`flex items-center gap-3 rounded-xl border p-3 cursor-pointer transition-colors ${
+                      className={`rounded-xl border overflow-hidden transition-all ${
                         active
-                          ? "border-primary bg-primary/8"
+                          ? "border-primary bg-primary/8 ring-1 ring-primary/30"
                           : "border-border bg-secondary hover:border-primary/40"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="pickupPoint"
-                        value={point.id}
-                        checked={active}
-                        onChange={() => setForm((prev) => ({ ...prev, pickupPointId: point.id }))}
-                        className="sr-only"
-                      />
-                      <span
-                        className={`size-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          active ? "border-primary bg-primary" : "border-border"
-                        }`}
-                        aria-hidden="true"
+                      <label className="flex items-start gap-3 p-3.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="pickupPoint"
+                          value={point.id}
+                          checked={active}
+                          onChange={() => setForm((prev) => ({ ...prev, pickupPointId: point.id }))}
+                          className="sr-only"
+                        />
+                        <span
+                          className={`size-5 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                            active ? "border-primary bg-primary" : "border-muted-foreground/40"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {active && <Check className="size-3 text-primary-foreground" strokeWidth={3} />}
+                        </span>
+
+                        <span className="flex-1 min-w-0 flex flex-col gap-2">
+                          <span className="flex items-baseline gap-2">
+                            <span
+                              className={`text-xs font-bold tabular-nums shrink-0 ${
+                                active ? "text-primary" : "text-muted-foreground"
+                              }`}
+                            >
+                              {index + 1}.
+                            </span>
+                            <span className="text-sm font-medium text-foreground leading-snug text-pretty">
+                              {point.address}
+                            </span>
+                          </span>
+
+                          <span
+                            className={`inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-xs font-semibold ${
+                              active
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-background text-foreground"
+                            }`}
+                          >
+                            <Clock className="size-3.5 shrink-0" aria-hidden="true" />
+                            {point.timeFrom}&nbsp;—&nbsp;{point.timeTo}
+                          </span>
+                        </span>
+                      </label>
+
+                      <a
+                        href={pickupMapUrl(point)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-1.5 border-t border-border/60 px-3 py-2.5 text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
                       >
-                        {active && <Check className="size-3 text-primary-foreground" />}
-                      </span>
-                      <span className="flex-1 min-w-0 flex flex-col gap-0.5">
-                        <span className="text-sm font-medium text-foreground leading-snug">
-                          {point.address}
-                        </span>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                          <MapPin className="size-3 shrink-0" />
-                          {point.city}
-                        </span>
-                      </span>
-                      <span className="text-xs font-semibold text-foreground flex items-center gap-1.5 shrink-0">
-                        <Clock className="size-3.5 text-primary" />
-                        {point.timeFrom}–{point.timeTo}
-                      </span>
-                    </label>
+                        <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
+                        Показать на карте
+                        <span className="sr-only"> — {point.address}, откроется в новой вкладке</span>
+                      </a>
+                    </div>
                   );
                 })}
                 {errors.pickupPointId && (

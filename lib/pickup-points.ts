@@ -21,3 +21,9 @@ export const PICKUP_POINTS: PickupPoint[] = [
 export function formatPickupPoint(point: PickupPoint): string {
   return `${point.city}, ${point.address} (выдача с ${point.timeFrom} до ${point.timeTo})`;
 }
+
+/** Ссылка на Яндекс.Карты с поиском по адресу точки. */
+export function pickupMapUrl(point: PickupPoint): string {
+  const query = encodeURIComponent(`${point.city}, ${point.address}`);
+  return `https://yandex.ru/maps/?text=${query}`;
+}
