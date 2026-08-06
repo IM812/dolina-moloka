@@ -59,18 +59,18 @@ function FailContent() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full">
-            <Link href="/cart" className="flex-1">
-              <Button variant="outline" className="w-full gap-2">
-                <ArrowLeft className="size-4" />
-                В корзину
-              </Button>
-            </Link>
-            <Link href="/checkout" className="flex-1">
-              <Button className="w-full gap-2">
-                <RotateCcw className="size-4" />
-                Попробовать снова
-              </Button>
-            </Link>
+            <Button
+              render={<Link href="/cart" />}
+              variant="outline"
+              className="flex-1 gap-2"
+            >
+              <ArrowLeft className="size-4" />
+              В корзину
+            </Button>
+            <Button render={<Link href="/checkout" />} className="flex-1 gap-2">
+              <RotateCcw className="size-4" />
+              Попробовать снова
+            </Button>
           </div>
         </motion.div>
       </div>

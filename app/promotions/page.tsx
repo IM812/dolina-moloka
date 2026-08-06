@@ -89,12 +89,15 @@ function PromotionCard({ promo }: { promo: Promotion }) {
               <span className="text-emerald-600 font-medium">Бессрочная</span>
             )}
           </div>
-          <Link href="/catalog">
-            <Button size="sm" variant="outline" className="gap-1.5 border-border text-xs h-8">
-              В каталог
-              <ArrowRight className="size-3" />
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/catalog" />}
+            size="sm"
+            variant="outline"
+            className="gap-1.5 border-border text-xs h-8"
+          >
+            В каталог
+            <ArrowRight className="size-3" />
+          </Button>
         </div>
       </div>
     </div>
@@ -159,9 +162,9 @@ export default function PromotionsPage() {
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-2">Акций пока нет</h2>
               <p className="text-muted-foreground">Следите за обновлениями — скоро появятся выгодные предложения</p>
-              <Link href="/catalog" className="mt-6 inline-block">
-                <Button className="gap-2 mt-4">Перейти в каталог <ArrowRight className="size-4" /></Button>
-              </Link>
+              <Button render={<Link href="/catalog" />} className="gap-2 mt-6">
+                Перейти в каталог <ArrowRight className="size-4" />
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -292,11 +292,13 @@ export default function OrdersPage() {
               Проверьте номер телефона или оформите новый заказ
             </p>
           </div>
-          <Link href="/catalog">
-            <Button variant="outline" className="gap-2 border-border">
-              В каталог <ArrowRight className="size-4" />
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/catalog" />}
+            variant="outline"
+            className="gap-2 border-border"
+          >
+            В каталог <ArrowRight className="size-4" />
+          </Button>
         </div>
       )}
 

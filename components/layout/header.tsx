@@ -76,21 +76,28 @@ export function Header() {
 
           {/* Cart + Burger */}
           <div className="flex items-center gap-2">
-            <Link href="/cart">
-              <Button variant="outline" size="icon" className="relative size-10 border-border">
-                <ShoppingCart className="size-4" />
-                {mounted && itemsCount > 0 && (
-                  <Badge className="absolute -top-1.5 -right-1.5 size-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground border-0">
-                    {itemsCount > 99 ? "99+" : itemsCount}
-                  </Badge>
-                )}
-              </Button>
-            </Link>
+            {/* Кнопка-ссылка рендерится как <a>: <button> внутри <a> — невалидная
+                вложенность, и Safari на iOS не открывает такую ссылку по тапу. */}
+            <Button
+              render={<Link href="/cart" aria-label="Корзина" />}
+              variant="outline"
+              size="icon"
+              className="relative size-10 border-border"
+            >
+              <ShoppingCart className="size-4" />
+              {mounted && itemsCount > 0 && (
+                <Badge className="absolute -top-1.5 -right-1.5 size-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground border-0">
+                  {itemsCount > 99 ? "99+" : itemsCount}
+                </Badge>
+              )}
+            </Button>
 
             <button
+              type="button"
               className="md:hidden size-10 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               onClick={() => setMobileOpen((v) => !v)}
               aria-label="Меню"
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
@@ -101,8 +108,13 @@ export function Header() {
       {/* Mobile menu */}
       <div
         className={cn(
-          "md:hidden border-b border-border bg-background overflow-hidden transition-all duration-200",
-          mobileOpen ? "max-h-96 border-t" : "max-h-0 border-t-0"
+          // max-h-96 обрезал последний пункт («Корзина») на узких экранах, а
+          // overflow-hidden не давал до него доскроллить. Теперь высота считается
+          // от вьюпорта (dvh учитывает адресную строку Safari), а список скроллится.
+          "md:hidden border-b border-border bg-background transition-all duration-200",
+          mobileOpen
+            ? "max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t"
+            : "max-h-0 overflow-hidden border-t-0"
         )}
       >
         <nav className="container mx-auto px-4 py-3 flex flex-col gap-1 max-w-7xl">
@@ -123,7 +135,9 @@ export function Header() {
           <Link href="/cart" className="px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-2">
             <ShoppingCart className="size-4" />
             Корзина
-            {itemsCount > 0 && (
+            {/* mounted — иначе разметка сервера и клиента расходится и React
+                перемонтирует шапку, теряя обработчик кнопки меню */}
+            {mounted && itemsCount > 0 && (
               <Badge className="bg-primary text-primary-foreground border-0 text-xs">{itemsCount}</Badge>
             )}
           </Link>

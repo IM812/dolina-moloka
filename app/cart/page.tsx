@@ -35,12 +35,13 @@ export default function CartPage() {
             <h1 className="text-2xl font-bold text-foreground mb-2">Корзина пуста</h1>
             <p className="text-muted-foreground">Добавьте продукты из каталога</p>
           </div>
-          <Link href="/catalog">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
-              <ArrowRight className="size-4" data-icon="inline-start" />
-              Перейти в каталог
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/catalog" />}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+          >
+            <ArrowRight className="size-4" data-icon="inline-start" />
+            Перейти в каталог
+          </Button>
         </div>
       </div>
     );
@@ -203,22 +204,37 @@ export default function CartPage() {
                 </div>
               )}
 
-              <Link href={belowMin ? "#" : "/checkout"} className="block" aria-disabled={belowMin} tabIndex={belowMin ? -1 : 0}>
+              {/* Ниже минимальной суммы — настоящая disabled-кнопка, а не ссылка
+                  на "#": у <a> нет disabled, и на iOS такой переход всё равно
+                  срабатывал. Выше минимума — ссылка <a>, без вложенной <button>. */}
+              {belowMin ? (
                 <Button
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                  className="w-full bg-primary text-primary-foreground gap-2"
                   size="lg"
-                  disabled={belowMin}
+                  disabled
                 >
                   Оформить заказ
                   <ArrowRight className="size-4" data-icon="inline-end" />
                 </Button>
-              </Link>
-
-              <Link href="/catalog" className="block mt-3">
-                <Button variant="outline" className="w-full border-border" size="sm">
-                  Продолжить покупки
+              ) : (
+                <Button
+                  render={<Link href="/checkout" />}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+                  size="lg"
+                >
+                  Оформить заказ
+                  <ArrowRight className="size-4" data-icon="inline-end" />
                 </Button>
-              </Link>
+              )}
+
+              <Button
+                render={<Link href="/catalog" />}
+                variant="outline"
+                className="w-full border-border mt-3"
+                size="sm"
+              >
+                Продолжить покупки
+              </Button>
             </motion.div>
           </div>
         </div>

@@ -155,7 +155,7 @@ function PaymentContent() {
           </div>
           <h1 className="text-2xl font-bold text-foreground">Заказ не найден</h1>
           <p className="text-muted-foreground">Вернитесь в корзину и оформите заказ заново</p>
-          <Link href="/cart"><Button>Вернуться в корзину</Button></Link>
+          <Button render={<Link href="/cart" />}>Вернуться в корзину</Button>
         </div>
       </div>
     );
@@ -173,7 +173,7 @@ function PaymentContent() {
           <p className="text-muted-foreground">
             На оплату отводится 10 минут. Заказ отменён — оформите новый.
           </p>
-          <Link href="/cart"><Button>Вернуться в корзину</Button></Link>
+          <Button render={<Link href="/cart" />}>Вернуться в корзину</Button>
         </div>
       </div>
     );
