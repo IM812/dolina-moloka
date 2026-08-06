@@ -32,16 +32,19 @@ export function ProductDetailClient({ product, related }: Props) {
       <div className="container mx-auto px-4 sm:px-5 max-w-7xl">
         {/* Back button + breadcrumb row */}
         <div className="flex items-center gap-3 sm:gap-5 mb-6 sm:mb-10">
-          <Link href="/catalog">
-            <motion.button
-              whileHover={{ x: -3 }}
-              transition={{ duration: 0.2 }}
+          {/* Раньше <motion.button> лежала внутри <Link>: <button> внутри <a> —
+              невалидная вложенность, и Safari на iOS не переходит по такой ссылке.
+              Теперь анимируется обёртка, а кликается сама ссылка. */}
+          <motion.div whileHover={{ x: -3 }} transition={{ duration: 0.2 }}>
+            <Link
+              href="/catalog"
               className="inline-flex items-center gap-2 h-9 sm:h-10 px-3 sm:px-4 rounded-xl bg-secondary border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
             >
               <ArrowLeft className="size-4" />
               <span className="hidden sm:inline">Назад</span>
-            </motion.button>
-          </Link>
+              <span className="sr-only sm:hidden">Назад в каталог</span>
+            </Link>
+          </motion.div>
           <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
             <Link href="/" className="hover:text-foreground transition-colors whitespace-nowrap">Главная</Link>
             <span>/</span>
@@ -144,12 +147,14 @@ export function ProductDetailClient({ product, related }: Props) {
                     <Plus className="size-4" />
                   </button>
                 </div>
-                <Link href="/cart" className="flex-1">
-                  <Button variant="outline" className="w-full border-border gap-2">
-                    <ShoppingCart className="size-4" data-icon="inline-start" />
-                    Перейти в корзину
-                  </Button>
-                </Link>
+                <Button
+                  render={<Link href="/cart" />}
+                  variant="outline"
+                  className="flex-1 border-border gap-2"
+                >
+                  <ShoppingCart className="size-4" data-icon="inline-start" />
+                  Перейти в корзину
+                </Button>
               </div>
             )}
 
@@ -174,12 +179,15 @@ export function ProductDetailClient({ product, related }: Props) {
           <section>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-foreground">Другие продукты</h2>
-              <Link href="/catalog">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-primary">
-                  <ArrowLeft className="size-4 rotate-180" data-icon="inline-start" />
-                  Весь каталог
-                </Button>
-              </Link>
+              <Button
+                render={<Link href="/catalog" />}
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-primary"
+              >
+                <ArrowLeft className="size-4 rotate-180" data-icon="inline-start" />
+                Весь каталог
+              </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {related.map((p) => (

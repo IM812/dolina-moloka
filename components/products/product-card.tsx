@@ -84,7 +84,9 @@ export function ProductCard({ product, className, priority }: ProductCardProps) 
             <span className="text-xs text-muted-foreground font-medium">Нет в наличии</span>
           ) : quantity === 0 ? (
             <button
+              type="button"
               onClick={handleAdd}
+              aria-label={`Добавить «${product.name}» в корзину`}
               className="flex items-center gap-1.5 bg-foreground text-background hover:bg-foreground/80 active:scale-95 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200"
             >
               <ShoppingCart className="size-3.5" />
@@ -94,6 +96,7 @@ export function ProductCard({ product, className, priority }: ProductCardProps) 
           ) : (
             <div className="flex items-center gap-1.5 bg-secondary rounded-xl p-1">
               <button
+                type="button"
                 onClick={() => quantity === 1 ? removeItem(product.id) : updateQuantity(product.id, quantity - 1)}
                 className="size-7 rounded-lg bg-card border border-border hover:border-primary/40 flex items-center justify-center transition-all active:scale-90"
                 aria-label="Уменьшить"
@@ -102,6 +105,7 @@ export function ProductCard({ product, className, priority }: ProductCardProps) 
               </button>
               <span className="w-6 text-center font-bold text-sm">{quantity}</span>
               <button
+                type="button"
                 onClick={() => updateQuantity(product.id, quantity + 1)}
                 className="size-7 rounded-lg bg-foreground text-background hover:bg-foreground/80 flex items-center justify-center transition-all active:scale-90"
                 aria-label="Увеличить"
