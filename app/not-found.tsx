@@ -26,19 +26,22 @@ export default function NotFound() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/">
-            <Button variant="outline" className="w-full sm:w-auto gap-2 border-border">
-              <Home className="size-4" />
-              На главную
-            </Button>
-          </Link>
-          <Link href="/catalog">
-            <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
-              <ShoppingBag className="size-4" />
-              В каталог
-              <ArrowRight className="size-4" />
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/" />}
+            variant="outline"
+            className="w-full sm:w-auto gap-2 border-border"
+          >
+            <Home className="size-4" />
+            На главную
+          </Button>
+          <Button
+            render={<Link href="/catalog" />}
+            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+          >
+            <ShoppingBag className="size-4" />
+            В каталог
+            <ArrowRight className="size-4" />
+          </Button>
         </div>
       </div>
     </div>

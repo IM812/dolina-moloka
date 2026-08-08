@@ -84,11 +84,12 @@ export default function CheckoutPage() {
             <h1 className="text-2xl font-bold text-foreground mb-2">Корзина пуста</h1>
             <p className="text-muted-foreground">Добавьте продукты перед оформлением</p>
           </div>
-          <Link href="/catalog">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              Перейти в каталог
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/catalog" />}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            Перейти в каталог
+          </Button>
         </div>
       </div>
     );
@@ -141,13 +142,16 @@ export default function CheckoutPage() {
     <div className="py-6 sm:py-10">
       <div className="container mx-auto px-4 sm:px-5 max-w-7xl">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4 mb-6 sm:mb-8">
-          <Link href="/cart">
-            <Button variant="outline" size="sm" className="gap-2 border-border">
-              <ArrowRight className="size-4 rotate-180" />
-              <span className="hidden sm:inline">Назад в корзину</span>
-              <span className="sm:hidden">Корзина</span>
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/cart" />}
+            variant="outline"
+            size="sm"
+            className="gap-2 border-border"
+          >
+            <ArrowRight className="size-4 rotate-180" />
+            <span className="hidden sm:inline">Назад в корзину</span>
+            <span className="sm:hidden">Корзина</span>
+          </Button>
           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-foreground">Оформление заказа</h1>
         </motion.div>
 

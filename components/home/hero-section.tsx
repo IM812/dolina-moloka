@@ -60,23 +60,21 @@ export function HeroSection() {
 
           {/* Bottom: CTAs */}
           <div className="hero-anim hero-anim-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 max-w-xs sm:max-w-none">
-            <Link href="/catalog" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                className="w-full bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base rounded-full shadow-lg active:scale-95 transition-transform"
-              >
-                Смотреть продукцию
-                <ArrowRight className="size-4" />
-              </Button>
-            </Link>
-            <Link href="/checkout" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                className="w-full bg-white/15 text-white hover:bg-white/25 border border-white/40 font-semibold px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base rounded-full active:scale-95 transition-transform"
-              >
-                Оформить заказ
-              </Button>
-            </Link>
+            <Button
+              render={<Link href="/catalog" />}
+              size="lg"
+              className="w-full sm:w-auto bg-white text-foreground hover:bg-white/90 font-semibold gap-2 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base rounded-full shadow-lg active:scale-95 transition-transform"
+            >
+              Смотреть продукцию
+              <ArrowRight className="size-4" />
+            </Button>
+            <Button
+              render={<Link href="/checkout" />}
+              size="lg"
+              className="w-full sm:w-auto bg-white/15 text-white hover:bg-white/25 border border-white/40 font-semibold px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base rounded-full active:scale-95 transition-transform"
+            >
+              Оформить заказ
+            </Button>
           </div>
         </div>
 

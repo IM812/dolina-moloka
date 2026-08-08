@@ -38,12 +38,14 @@ export function DeliverySection() {
             </h2>
           </div>
           <div className="shrink-0">
-            <Link href="/catalog">
-              <Button variant="outline" className="gap-2 rounded-full h-11 px-6 border-foreground/20">
-                Перейти к заказу
-                <ArrowRight className="size-4" />
-              </Button>
-            </Link>
+            <Button
+              render={<Link href="/catalog" />}
+              variant="outline"
+              className="gap-2 rounded-full h-11 px-6 border-foreground/20"
+            >
+              Перейти к заказу
+              <ArrowRight className="size-4" />
+            </Button>
           </div>
         </div>
 

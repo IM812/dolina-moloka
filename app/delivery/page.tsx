@@ -46,12 +46,13 @@ export default function DeliveryPage() {
             <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight text-balance">
               От фермы — к вашей двери
             </h1>
-            <Link href="/catalog" className="shrink-0">
-              <Button className="gap-2 rounded-full h-11 px-6 bg-primary text-primary-foreground">
-                Перейти к заказу
-                <ArrowRight className="size-4" />
-              </Button>
-            </Link>
+            <Button
+              render={<Link href="/catalog" />}
+              className="shrink-0 gap-2 rounded-full h-11 px-6 bg-primary text-primary-foreground"
+            >
+              Перейти к заказу
+              <ArrowRight className="size-4" />
+            </Button>
           </div>
         </div>
 

@@ -44,13 +44,25 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  render,
+  nativeButton,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  // При render={<Link/>} на выходе <a>, а не <button>. Base UI по умолчанию
+  // ждёт нативную кнопку, поэтому здесь сами выключаем nativeButton —
+  // иначе получаем предупреждение и неверную семантику.
+  const isCustomRender = render !== undefined
+
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
+      render={render}
+      nativeButton={nativeButton ?? !isCustomRender}
+      // Ссылка должна озвучиваться как ссылка, иначе VoiceOver называет её
+      // кнопкой и теряется «Открыть в новой вкладке».
+      role={isCustomRender ? undefined : props.role}
     />
   )
 }

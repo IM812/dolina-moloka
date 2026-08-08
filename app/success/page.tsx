@@ -182,18 +182,21 @@ function SuccessContent() {
           transition={{ delay: 0.65 }}
           className="flex flex-col sm:flex-row gap-3 w-full"
         >
-          <Link href="/orders" className="flex-1">
-            <Button variant="outline" className="w-full gap-2 h-12 text-base">
-              <Package className="size-5" />
-              Мои заказы
-            </Button>
-          </Link>
-          <Link href="/catalog" className="flex-1">
-            <Button className="w-full gap-2 h-12 text-base">
-              Продолжить покупки
-              <ArrowRight className="size-5" />
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/orders" />}
+            variant="outline"
+            className="flex-1 gap-2 h-12 text-base"
+          >
+            <Package className="size-5" />
+            Мои заказы
+          </Button>
+          <Button
+            render={<Link href="/catalog" />}
+            className="flex-1 gap-2 h-12 text-base"
+          >
+            Продолжить покупки
+            <ArrowRight className="size-5" />
+          </Button>
         </motion.div>
       </div>
     </div>
