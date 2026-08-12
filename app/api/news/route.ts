@@ -6,20 +6,22 @@ import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const homepageOnly = searchParams.get("homepage") === "1";
+  const category = searchParams.get("category");
 
   const supabase = createAnonClient(getSupabaseUrl(), getSupabaseAnonKey());
 
   let query = supabase
-    .from("promotions")
+    .from("news")
     .select("*")
     .eq("is_active", true)
-    .order("created_at", { ascending: false });
+    .order("published_at", { ascending: false });
 
   if (homepageOnly) query = query.eq("show_on_homepage", true);
+  if (category) query = query.eq("category", category);
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
-  return NextResponse.json({ promotions: data ?? [] });
+  return NextResponse.json({ news: data ?? [] });
 }
 
 export async function POST(req: NextRequest) {
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { data, error } = await supabase.from("promotions").insert(body).select().single();
+  const { data, error } = await supabase.from("news").insert(body).select().single();
   if (error) return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
-  return NextResponse.json({ promotion: data }, { status: 201 });
+  return NextResponse.json({ news: data }, { status: 201 });
 }

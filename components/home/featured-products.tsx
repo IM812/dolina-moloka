@@ -3,14 +3,21 @@ import { ProductCard } from "@/components/products/product-card";
 import type { Product } from "@/types";
 
 export async function FeaturedProducts() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("in_stock", true)
-    .order("category");
+  let data: any[] | null = null;
 
-  if (error) console.error("[featured-products] supabase error:", error);
+  try {
+    const supabase = await createClient();
+    const res = await supabase
+      .from("products")
+      .select("*")
+      .eq("in_stock", true)
+      .order("category");
+    if (res.error) console.error("[featured-products] supabase error:", res.error);
+    data = res.data;
+  } catch (err) {
+    // Временный сбой сети/соединения с Supabase — не должен ронять всю главную страницу.
+    console.error("[featured-products] unexpected error:", err);
+  }
 
   const products: Product[] = (data ?? []).map((p) => ({
     id: p.id,

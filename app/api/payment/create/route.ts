@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAnonClient } from "@supabase/supabase-js";
 import { createPayKeeperInvoice } from "@/lib/paykeeper";
 import { resolvePickupAddress } from "@/lib/pickup-points";
+import { getSupabaseAnonKey, getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ITEMS = 50;
@@ -90,10 +91,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Превышено количество товаров в заказе" }, { status: 400 });
     }
 
-    const supabase = createAnonClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createAnonClient(getSupabaseUrl(), getSupabaseAnonKey());
 
     // Цены и названия берём ТОЛЬКО из БД — данные из браузера игнорируем
     const productIds = [...quantityByProduct.keys()];
@@ -160,10 +158,7 @@ export async function POST(req: NextRequest) {
 
     // Получаем следующий DM-номер через service role (нужны права на чтение orders)
     const { createClient: createServiceClient } = await import("@supabase/supabase-js");
-    const serviceSupabase = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const serviceSupabase = createServiceClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
     const { data: lastRow } = await serviceSupabase
       .from("orders")
       .select("order_number")

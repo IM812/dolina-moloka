@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -13,10 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Нужен service role — anon key не имеет прав на DELETE из-за RLS
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = createClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
 
     // Удаляем заказ полностью — только если он ещё pending (не оплачен)
     // Сначала проверяем статус
