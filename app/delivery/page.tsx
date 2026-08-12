@@ -6,7 +6,8 @@ import { PICKUP_POINTS, pickupMapUrl } from "@/lib/pickup-points";
 
 export const metadata: Metadata = {
   title: "Доставка — Долина Молока",
-  description: "Доставка молочных продуктов по Москве и области. Дни доставки: среда и суббота. Минимальный заказ 600 ₽.",
+  description:
+    "Доставка молочных продуктов по Москве (среда и суббота), Дмитрову и Сергиеву Посаду (вторник и пятница). Минимальный заказ 600 ₽.",
 };
 
 const steps = [
@@ -20,13 +21,13 @@ const steps = [
     num: "02",
     icon: <Clock className="size-5" />,
     title: "Оформите заказ",
-    desc: "Укажите адрес точки выдачи, имя и телефон. На среду — приём в понедельник до 12:00, на субботу — в четверг до 12:00.",
+    desc: "Укажите адрес точки выдачи, имя и телефон. Сроки приёма заявок — по графику доставки ниже.",
   },
   {
     num: "03",
     icon: <Truck className="size-5" />,
     title: "Получите у курьера",
-    desc: "Доставляем каждую среду и субботу. Все продукты едут в автомобиле-рефрижераторе.",
+    desc: "Дмитров и Сергиев Посад — по вторникам и пятницам, Москва — по средам и субботам.",
   },
 ];
 
@@ -71,50 +72,107 @@ export default function DeliveryPage() {
           ))}
         </div>
 
-        {/* Info blocks */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12">
-          {/* Wed */}
-          <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
-            <div className="size-2.5 rounded-full bg-primary shrink-0" />
-            <p className="text-sm text-background/80">Приём заказов в понедельник до 12:00</p>
-          </div>
-          {/* Sat */}
-          <div className="flex items-center gap-4 bg-foreground text-background rounded-2xl px-5 py-5">
-            <div className="size-2.5 rounded-full bg-primary shrink-0" />
-            <p className="text-sm text-background/80">Приём заказов в четверг до 12:00</p>
-          </div>
-          {/* Hours */}
-          <div className="bg-secondary border border-border rounded-2xl px-5 py-5">
-            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-3">Время работы</p>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Пн–Пт</span>
-                <span className="font-semibold text-foreground">9:00 – 17:00</span>
+        {/* График доставки */}
+        <section aria-labelledby="schedule-heading" className="mb-12">
+          <span className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 block">
+            Когда приедем
+          </span>
+          <h2
+            id="schedule-heading"
+            className="font-heading text-2xl sm:text-3xl font-bold text-foreground leading-tight text-balance mb-6"
+          >
+            График доставки
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            {/* Партия №1 */}
+            <div className="flex flex-col gap-4 bg-foreground text-background rounded-2xl px-5 py-6">
+              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №1</span>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-background/70">Дмитров, Сергиев Посад</span>
+                  <span className="font-semibold text-background">Вторник</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-background/70">Москва</span>
+                  <span className="font-semibold text-background">Среда</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Сб–Вс</span>
-                <span className="font-semibold text-foreground">9:00 – 15:00</span>
+              <div className="h-px bg-background/15" />
+              <div className="flex flex-col gap-1.5">
+                <p className="text-sm text-background/80">
+                  Приём заявок — до четверга, <span className="font-semibold text-background">21:00</span>
+                </p>
+                <p className="text-xs text-background/60">
+                  Молоко для домашнего производства (5 л) — до понедельника, 17:00
+                </p>
               </div>
-              <div className="h-px bg-border my-1" />
-              <p className="text-xs text-muted-foreground">Заказы принимаем круглосуточно через сайт</p>
+            </div>
+
+            {/* Партия №2 */}
+            <div className="flex flex-col gap-4 bg-foreground text-background rounded-2xl px-5 py-6">
+              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №2</span>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-background/70">Дмитров, Сергиев Посад</span>
+                  <span className="font-semibold text-background">Пятница</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-background/70">Москва</span>
+                  <span className="font-semibold text-background">Суббота</span>
+                </div>
+              </div>
+              <div className="h-px bg-background/15" />
+              <div className="flex flex-col gap-1.5">
+                <p className="text-sm text-background/80">
+                  Приём заявок — до понедельника, <span className="font-semibold text-background">21:00</span>
+                </p>
+                <p className="text-xs text-background/60">
+                  Молоко для домашнего производства (5 л) — до четверга, 17:00
+                </p>
+              </div>
             </div>
           </div>
-          {/* Delivery zone */}
-          <div className="flex flex-col gap-3 bg-primary/8 border border-primary/15 rounded-2xl px-5 py-5">
-            <p className="text-xs font-semibold text-primary uppercase tracking-widest">Доставка</p>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <MapPin className="size-4 text-primary shrink-0" />
-                По Москве и Московской области
+
+          <p className="text-xs text-muted-foreground mb-3">
+            Расписание связано с графиком планирования на заводе.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Самовывоз */}
+            <div className="flex flex-col gap-3 bg-secondary border border-border rounded-2xl px-5 py-5">
+              <p className="text-xs font-semibold text-primary uppercase tracking-widest">Самовывоз</p>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <MapPin className="size-4 text-primary shrink-0" />
+                  д. Саввино (Дмитровский район)
+                </div>
+                <p className="text-sm text-muted-foreground">Вторник и пятница</p>
               </div>
-              <p className="text-sm text-muted-foreground">Дни доставки: среда и суббота</p>
-              <div className="h-px bg-primary/15 my-1" />
-              <p className="text-sm text-foreground">
-                Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
-              </p>
+              <div className="h-px bg-border" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-xs font-semibold text-foreground self-start">
+                <Clock className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+                15:00&nbsp;—&nbsp;18:00
+              </span>
+            </div>
+            {/* Delivery zone */}
+            <div className="flex flex-col gap-3 bg-primary/8 border border-primary/15 rounded-2xl px-5 py-5">
+              <p className="text-xs font-semibold text-primary uppercase tracking-widest">Доставка</p>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <MapPin className="size-4 text-primary shrink-0" />
+                  Москва, Дмитров, Сергиев Посад
+                </div>
+                <p className="text-sm text-muted-foreground">Москва — среда и суббота</p>
+                <p className="text-sm text-muted-foreground">Дмитров, Сергиев Посад — вторник и пятница</p>
+                <div className="h-px bg-primary/15 my-1" />
+                <p className="text-sm text-foreground">
+                  Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Точки выдачи */}
         <section aria-labelledby="pickup-heading" className="mb-12">
