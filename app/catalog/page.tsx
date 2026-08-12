@@ -5,11 +5,18 @@ import type { Product } from "@/types";
 export const revalidate = 60;
 
 export default async function CatalogPage() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("category");
+  let data: any[] | null = null;
+
+  try {
+    const supabase = await createClient();
+    const res = await supabase.from("products").select("*").order("category");
+    if (res.error) console.error("[catalog] supabase error:", res.error);
+    data = res.data;
+  } catch (err) {
+    // Временный сбой сети/соединения с Supabase — показываем пустой каталог,
+    // а не роняем всю страницу.
+    console.error("[catalog] unexpected error:", err);
+  }
 
   const products: Product[] = (data ?? []).map((p) => ({
     id: p.id,
@@ -25,8 +32,6 @@ export default async function CatalogPage() {
     category: p.category,
     inStock: p.in_stock,
   }));
-
-  if (error) console.error("[catalog] supabase error:", error);
 
   return <CatalogClient products={products} />;
 }
