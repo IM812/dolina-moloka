@@ -25,7 +25,7 @@ const steps = [
   {
     num: "03",
     icon: <Truck className="size-5" />,
-    title: "Получите у двери",
+    title: "Получите у курьера",
     desc: "Доставляем каждую среду и субботу. Все продукты едут в автомобиле-рефрижераторе.",
   },
 ];
@@ -44,7 +44,7 @@ export default function DeliveryPage() {
           </span>
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
             <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight text-balance">
-              От фермы — к вашей двери
+              От фермы — к вашей точке выдачи
             </h1>
             <Button
               render={<Link href="/catalog" />}
