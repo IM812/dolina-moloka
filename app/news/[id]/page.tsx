@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 type NewsDetail = {
   id: string;
   title: string;
