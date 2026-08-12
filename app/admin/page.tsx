@@ -21,7 +21,7 @@ import {
   Search, TrendingUp, Package, User, ChevronDown, ChevronUp,
   Plus, Pencil, Trash2, Eye, EyeOff, Calendar,
   FileText, Upload, Download, Award, Shield, FileCheck, X, ImageIcon, ToggleLeft, ToggleRight,
-  CheckCircle2, AlertCircle,
+  CheckCircle2, AlertCircle, Newspaper,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -864,12 +864,252 @@ function EmailTab() {
                 {testing ? "Проверяем..." : "Отправить тест и сохранить"}
               </Button>
               {saved && (
-                <p className="text-xs text-muted-foreground">Настройки сохранены в базе данных. Все новые заказы будут уведомлять на {smtp.to || smtp.user}.</p>
+                <p className="text-xs text-muted-foreground">Настройки сохранены в ��азе данных. Все новые заказы будут уведомлять на {smtp.to || smtp.user}.</p>
               )}
               {result && (
                 <p className={`text-sm px-3 py-2 rounded-lg border ${result.startsWith("Ошибка") ? "bg-red-50 text-red-700 border-red-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>{result}</p>
               )}
             </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+type AdminNews = {
+  id: string;
+  title: string;
+  excerpt: string;
+  image_url: string | null;
+  category: string | null;
+  is_active: boolean;
+  show_on_homepage: boolean;
+  published_at: string;
+  created_at: string;
+};
+
+const EMPTY_NEWS: Omit<AdminNews, "id" | "created_at"> = {
+  title: "", excerpt: "", image_url: "", category: "",
+  is_active: true, show_on_homepage: false,
+  published_at: new Date().toISOString().slice(0, 10),
+};
+
+const NEWS_CATEGORY_OPTIONS = ["Ферма", "Продукция", "Акции", "События", "Другое"];
+
+function NewsTab() {
+  const [news, setNews] = useState<AdminNews[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Partial<AdminNews> | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/news");
+    const data = await res.json();
+    setNews(data.news ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.url) setEditing({ ...editing, image_url: data.url });
+    setUploading(false);
+  };
+
+  const handleSave = async () => {
+    if (!editing || !editing.title || !editing.excerpt) return;
+    setSaving(true);
+    try {
+      const isNew = !editing.id;
+      const payload = { ...editing };
+      if (!payload.category) payload.category = null;
+      if (!payload.image_url) payload.image_url = null;
+      if (!payload.published_at) payload.published_at = new Date().toISOString();
+
+      if (isNew) {
+        await fetch("/api/news", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      } else {
+        await fetch(`/api/news/${editing.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      }
+      setEditing(null);
+      load();
+    } finally { setSaving(false); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Удалить новость?")) return;
+    await fetch(`/api/news/${id}`, { method: "DELETE" });
+    load();
+  };
+
+  const handleToggle = async (item: AdminNews) => {
+    await fetch(`/api/news/${item.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_active: !item.is_active }) });
+    load();
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">{news.length} новостей в базе</p>
+        <Button size="sm" onClick={() => setEditing({ ...EMPTY_NEWS })} className="gap-2">
+          <Plus className="size-4" />Добавить новость
+        </Button>
+      </div>
+
+      {/* Form */}
+      {editing && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">{editing.id ? "Редактировать новость" : "Новая новость"}</CardTitle>
+              <Button variant="ghost" size="icon" onClick={() => setEditing(null)}><X className="size-4" /></Button>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2 flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Заголовок *</label>
+                <Input value={editing.title ?? ""} onChange={(e) => setEditing({ ...editing, title: e.target.value })} placeholder="На ферме появились новые телята" className="border-border" />
+              </div>
+              <div className="sm:col-span-2 flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Короткое описание *</label>
+                <Textarea value={editing.excerpt ?? ""} onChange={(e) => setEditing({ ...editing, excerpt: e.target.value })} placeholder="Короткий анонс новости..." className="border-border min-h-24" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Категория</label>
+                <Select value={editing.category ?? undefined} onValueChange={(v) => setEditing({ ...editing, category: v })}>
+                  <SelectTrigger className="border-border"><SelectValue placeholder="Выберите..." /></SelectTrigger>
+                  <SelectContent>{NEWS_CATEGORY_OPTIONS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="size-3" />Дата публикации</label>
+                <Input type="date" value={editing.published_at?.slice(0, 10) ?? ""} onChange={(e) => setEditing({ ...editing, published_at: e.target.value })} className="border-border" />
+              </div>
+              <div className="sm:col-span-2 flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Изображение</label>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1 flex flex-col gap-1.5">
+                    <Input value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} placeholder="URL или загрузите файл →" className="border-border" />
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    <Button type="button" variant="outline" size="sm" className="border-border gap-2 self-start" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                      {uploading ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                      {uploading ? "Загружаем..." : "Загрузить фото"}
+                    </Button>
+                  </div>
+                  {editing.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={editing.image_url} alt="" className="size-16 rounded-xl object-cover border border-border shrink-0" />
+                  ) : (
+                    <div className="size-16 rounded-xl bg-secondary border border-border shrink-0 flex items-center justify-center">
+                      <ImageIcon className="size-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <input type="checkbox" checked={!!editing.is_active} onChange={(e) => setEditing({ ...editing, is_active: e.target.checked })} className="accent-primary" />
+                Опубликована
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <input type="checkbox" checked={!!editing.show_on_homepage} onChange={(e) => setEditing({ ...editing, show_on_homepage: e.target.checked })} className="accent-primary" />
+                Показывать на главной
+              </label>
+            </div>
+            <div className="flex gap-2 pt-2 border-t border-border">
+              <Button onClick={handleSave} disabled={saving || !editing.title || !editing.excerpt} size="sm" className="gap-2">
+                {saving ? <RefreshCw className="size-3 animate-spin" /> : null}
+                Сохранить
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setEditing(null)} className="border-border">Отмена</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* List */}
+      <Card className="border-border">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-4 flex flex-col gap-3">{[1, 2].map((i) => <Skeleton key={i} className="h-14 w-full" />)}</div>
+          ) : news.length === 0 ? (
+            <div className="py-16 text-center text-muted-foreground text-sm">Новостей пока нет. Добавьте первую.</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border bg-secondary/60">
+                  <TableHead className="font-semibold">Новость</TableHead>
+                  <TableHead className="font-semibold">Категория</TableHead>
+                  <TableHead className="font-semibold">Дата</TableHead>
+                  <TableHead className="font-semibold">На главной</TableHead>
+                  <TableHead className="font-semibold">Статус</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {news.map((item) => (
+                  <TableRow key={item.id} className="border-border hover:bg-secondary/40">
+                    <TableCell>
+                      <div className="flex items-center gap-2.5">
+                        {item.image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.image_url} alt={item.title} className="size-9 rounded-lg object-cover border border-border shrink-0" />
+                        ) : (
+                          <div className="size-9 rounded-lg bg-secondary border border-border shrink-0 flex items-center justify-center">
+                            <ImageIcon className="size-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium text-sm text-foreground">{item.title}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{item.excerpt}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {item.category ? (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{item.category}</span>
+                      ) : <span className="text-muted-foreground text-xs">—</span>}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(item.published_at).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                    </TableCell>
+                    <TableCell>
+                      {item.show_on_homepage
+                        ? <span className="text-xs text-emerald-600 flex items-center gap-1"><Eye className="size-3" />Да</span>
+                        : <span className="text-xs text-muted-foreground flex items-center gap-1"><EyeOff className="size-3" />Нет</span>}
+                    </TableCell>
+                    <TableCell>
+                      <button onClick={() => handleToggle(item)} className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${item.is_active ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-secondary text-muted-foreground border-border hover:bg-muted"}`}>
+                        {item.is_active ? "Опубликована" : "Скрыта"}
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => setEditing(item)} className="size-7 rounded-lg hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" title="Редактировать">
+                          <Pencil className="size-3.5" />
+                        </button>
+                        <button onClick={() => handleDelete(item.id)} className="size-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-red-600 transition-colors" title="Удалить">
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
@@ -1022,7 +1262,7 @@ function PromotionsTab() {
                   <TableHead className="font-semibold">Бейдж</TableHead>
                   <TableHead className="font-semibold">Период</TableHead>
                   <TableHead className="font-semibold">На главной</TableHead>
-                  <TableHead className="font-semibold">Статус</TableHead>
+                  <TableHead className="font-semibold">С��атус</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -1409,6 +1649,7 @@ export default function AdminPage() {
             <TabsTrigger value="customers" className="gap-2"><Users className="size-4" />Клиенты</TabsTrigger>
             <TabsTrigger value="products" className="gap-2"><Package className="size-4" />Товары</TabsTrigger>
             <TabsTrigger value="documents" className="gap-2"><FileText className="size-4" />Документы</TabsTrigger>
+            <TabsTrigger value="news" className="gap-2"><Newspaper className="size-4" />Новости</TabsTrigger>
             <TabsTrigger value="shop" className="gap-2"><ShoppingCart className="size-4" />Магазин</TabsTrigger>
                 <TabsTrigger value="email" className="gap-2"><Mail className="size-4" />Email</TabsTrigger>
           </TabsList>
@@ -1424,6 +1665,7 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="products"><ProductsTab /></TabsContent>
           <TabsContent value="documents"><DocumentsTab /></TabsContent>
+          <TabsContent value="news"><NewsTab /></TabsContent>
           <TabsContent value="shop"><ShopTab /></TabsContent>
               <TabsContent value="email"><EmailTab /></TabsContent>
         </Tabs>
