@@ -9,12 +9,13 @@ export type PickupPoint = {
 };
 
 export const PICKUP_POINTS: PickupPoint[] = [
-  { id: "baryshiha-18", city: "г. Москва", address: "ул. Барышиха, д. 18", timeFrom: "09:00", timeTo: "09:30" },
-  { id: "zhukova-14k1", city: "г. Москва", address: "пр-кт Маршала Жукова, д. 14, к. 1", timeFrom: "10:00", timeTo: "10:30" },
-  { id: "festivalnaya-8", city: "г. Москва", address: "ул. Фестивальная, д. 8", timeFrom: "11:00", timeTo: "11:30" },
-  { id: "fonvizina-5", city: "г. Москва", address: "ул. Фонвизина, д. 5", timeFrom: "12:30", timeTo: "13:00" },
-  { id: "sirenevy-75", city: "г. Москва", address: "Сиреневый Бульвар, д. 75", timeFrom: "14:00", timeTo: "14:30" },
-  { id: "novokosinskaya-23", city: "г. Москва", address: "ул. Новокосинская, д. 23", timeFrom: "15:15", timeTo: "15:45" },
+  { id: "sirenevy-75", city: "г. Москва", address: "ул. Сиреневый Бульвар, д. 75", timeFrom: "08:00", timeTo: "08:20" },
+  { id: "novokosinskaya-23", city: "г. Москва", address: "ул. Новокосинская, д. 23", timeFrom: "08:50", timeTo: "09:10" },
+  { id: "fonvizina-5", city: "г. Москва", address: "ул. Фонвизина, д. 5", timeFrom: "10:20", timeTo: "10:40" },
+  { id: "koptevskaya-24", city: "г. Москва", address: "ул. Коптевская, вл. 24", timeFrom: "11:00", timeTo: "11:20" },
+  { id: "festivalnaya-8", city: "г. Москва", address: "ул. Фестивальная, д. 8", timeFrom: "11:40", timeTo: "12:00" },
+  { id: "zhukova-14k1", city: "г. Москва", address: "пр-кт Маршала Жукова, д. 14, к. 1", timeFrom: "13:00", timeTo: "13:20" },
+  { id: "baryshiha-18", city: "г. Москва", address: "ул. Барышиха, д. 18", timeFrom: "14:30", timeTo: "14:50" },
 ];
 
 /** Строка для сохранения в заказе и отправки в письме/чеке. */
