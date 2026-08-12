@@ -7,6 +7,11 @@ import { AboutSection } from "@/components/home/about-section";
 import { QualityBanner } from "@/components/home/quality-banner";
 import { CtaSection } from "@/components/home/cta-section";
 
+// Главная содержит RSC-секции с живыми данными из Supabase (товары, новости) —
+// рендерим по запросу, чтобы сборка (`next build`) не зависела от сетевого
+// доступа к БД в момент сборки.
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return (
     <>

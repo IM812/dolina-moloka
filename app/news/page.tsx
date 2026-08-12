@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { NewsCard, type NewsCardItem } from "@/components/news/news-card";
 import { Newspaper } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Новости фермы | Долина Молока",
   description: "Свежие новости, события и истории с фермы Долина Молока.",

@@ -2,7 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { CatalogClient } from "@/components/products/catalog-client";
 import type { Product } from "@/types";
 
-export const revalidate = 60;
+// Каталог зависит от живых цен/остатков в Supabase — рендерим по запросу,
+// а не статически во время `next build` (иначе сборка зависит от сетевого
+// доступа к БД в момент сборки, что особенно опасно на своём VPS).
+export const dynamic = "force-dynamic";
 
 export default async function CatalogPage() {
   let data: any[] | null = null;
