@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAnonClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const homepageOnly = searchParams.get("homepage") === "1";
 
-  const supabase = createAnonClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createAnonClient(getSupabaseUrl(), getSupabaseAnonKey());
 
   let query = supabase
     .from("promotions")

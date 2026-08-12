@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 /**
  * Поиск своих заказов по номеру телефона.
@@ -25,8 +26,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Укажите полный номер телефона" }, { status: 400 });
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseUrl = getSupabaseUrl();
+    const supabaseKey = getSupabaseAnonKey();
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Сервис недоступен" }, { status: 500 });
     }
