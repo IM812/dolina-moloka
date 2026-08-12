@@ -8,14 +8,22 @@ export async function GET(req: NextRequest) {
   const homepageOnly = searchParams.get("homepage") === "1";
   const category = searchParams.get("category");
 
-  const supabase = createAnonClient(getSupabaseUrl(), getSupabaseAnonKey());
+  // Админка (авторизованный пользователь) должна видеть ВСЕ новости, включая
+  // снятые с публикации (is_active: false) — иначе такие записи "пропадают"
+  // без возможности снова включить их через интерфейс. Публичный сайт видит
+  // только активные записи.
+  const authClient = await createClient();
+  const { data: { user } } = await authClient.auth.getUser();
+  const isAdmin = Boolean(user);
+
+  const supabase = isAdmin ? authClient : createAnonClient(getSupabaseUrl(), getSupabaseAnonKey());
 
   let query = supabase
     .from("news")
     .select("*")
-    .eq("is_active", true)
     .order("published_at", { ascending: false });
 
+  if (!isAdmin) query = query.eq("is_active", true);
   if (homepageOnly) query = query.eq("show_on_homepage", true);
   if (category) query = query.eq("category", category);
 
