@@ -1,8 +1,75 @@
 "use client";
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 import { CartItem, Product } from "@/types";
+
+// В Safari на iOS localStorage может бросать исключение (режим "Заблокировать
+// все cookie", приватные вкладки, некоторые встроенные браузеры в мессенджерах).
+// Без этой обёртки такое исключение падает прямо во время рендера Header
+// (который есть на каждой странице) и роняет всё приложение белым экраном.
+// Здесь мы отлавливаем ошибку и тихо откатываемся к памяти на время сессии —
+// корзина просто не сохранится между визитами, но сайт не сломается.
+let safeStorageInstance: StateStorage | null = null;
+
+function getSafeStorage(): StateStorage {
+  if (safeStorageInstance) return safeStorageInstance;
+
+  const memoryFallback: Record<string, string> = {};
+  let useMemory = false;
+
+  const testLocalStorage = () => {
+    try {
+      const testKey = "__dm_storage_test__";
+      window.localStorage.setItem(testKey, "1");
+      window.localStorage.removeItem(testKey);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  if (typeof window === "undefined" || !testLocalStorage()) {
+    useMemory = true;
+  }
+
+  safeStorageInstance = {
+    getItem: (name) => {
+      try {
+        if (useMemory) return memoryFallback[name] ?? null;
+        return window.localStorage.getItem(name);
+      } catch {
+        useMemory = true;
+        return memoryFallback[name] ?? null;
+      }
+    },
+    setItem: (name, value) => {
+      try {
+        if (useMemory) {
+          memoryFallback[name] = value;
+          return;
+        }
+        window.localStorage.setItem(name, value);
+      } catch {
+        useMemory = true;
+        memoryFallback[name] = value;
+      }
+    },
+    removeItem: (name) => {
+      try {
+        if (useMemory) {
+          delete memoryFallback[name];
+          return;
+        }
+        window.localStorage.removeItem(name);
+      } catch {
+        delete memoryFallback[name];
+      }
+    },
+  };
+
+  return safeStorageInstance;
+}
 
 interface CartState {
   items: CartItem[];
@@ -70,7 +137,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "dolina-moloka-cart",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => getSafeStorage()),
     }
   )
 );
