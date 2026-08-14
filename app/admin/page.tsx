@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { Fragment, useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -276,6 +276,15 @@ function CustomersTab({ orders, onRefresh }: { orders: DbOrder[]; onRefresh: () 
 function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[]; onStatusChange: (num: string, field: "paymentStatus" | "deliveryStatus", value: string) => void; onDeleteOrder: (id: string, orderNumber: string) => void }) {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpanded = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
   const filtered = orders
     .filter((o) => filter === "all" || o.payment_status === filter)
     .filter((o) => {
@@ -319,19 +328,28 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((order) => (
-                    <TableRow key={order.id} className="border-border hover:bg-secondary/40 transition-colors">
+                  {filtered.map((order) => {
+                    const isOpen = expanded.has(order.id);
+                    return (
+                    <Fragment key={order.id}>
+                    <TableRow
+                      onClick={() => toggleExpanded(order.id)}
+                      className="border-border hover:bg-secondary/40 transition-colors cursor-pointer"
+                    >
                       <TableCell>
-                        {order.order_number ? (
-                          <span className="font-mono text-xs font-semibold text-foreground bg-secondary px-2 py-1 rounded-lg">{order.order_number}</span>
-                        ) : order.payment_status === "pending" && order.payment_expires_at ? (
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] text-amber-600 font-medium">Ожидает оплаты</span>
-                            <PaymentCountdown expiresAt={order.payment_expires_at} />
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic">Без номера</span>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                          <ChevronDown className={`size-3.5 text-muted-foreground shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                          {order.order_number ? (
+                            <span className="font-mono text-xs font-semibold text-foreground bg-secondary px-2 py-1 rounded-lg">{order.order_number}</span>
+                          ) : order.payment_status === "pending" && order.payment_expires_at ? (
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-[10px] text-amber-600 font-medium">Ожидает оплаты</span>
+                              <PaymentCountdown expiresAt={order.payment_expires_at} />
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic">Без номера</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium text-sm text-foreground">{order.customers?.full_name}</div>
@@ -353,20 +371,20 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
                           В т.ч. НДС 10%: {(order.total_amount * 10 / 110).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Select value={order.payment_status} onValueChange={(v) => onStatusChange(order.order_number, "paymentStatus", v)}>
                           <SelectTrigger className={`w-36 h-7 text-xs border rounded-full px-2 ${PAYMENT_COLORS[order.payment_status] ?? "bg-secondary text-muted-foreground border-border"}`}><SelectValue /></SelectTrigger>
                           <SelectContent>{Object.entries(PAYMENT_LABELS).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Select value={order.delivery_status} onValueChange={(v) => onStatusChange(order.order_number, "deliveryStatus", v)}>
                           <SelectTrigger className={`w-32 h-7 text-xs border rounded-full px-2 ${DELIVERY_COLORS[order.delivery_status]}`}><SelectValue /></SelectTrigger>
                           <SelectContent>{Object.entries(DELIVERY_LABELS).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
                         </Select>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(order.created_at).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}</TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => onDeleteOrder(order.id, order.order_number)}
                           className="size-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-muted-foreground hover:text-red-600 transition-colors"
@@ -376,7 +394,42 @@ function OrdersTab({ orders, onStatusChange, onDeleteOrder }: { orders: DbOrder[
                         </button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    {isOpen && (
+                      <TableRow className="border-border bg-secondary/30 hover:bg-secondary/30">
+                        <TableCell colSpan={9} className="py-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-2">
+                            <div className="flex flex-col gap-1.5">
+                              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Адрес / точка выдачи</span>
+                              <div className="flex items-start gap-1.5 text-sm text-foreground">
+                                <MapPin className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
+                                <span>{order.customers?.pickup_address || "Не указан"}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Комментарий к заказу</span>
+                              <div className="flex items-start gap-1.5 text-sm text-foreground">
+                                <MessageSquare className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
+                                <span className={order.comment ? "italic" : "text-muted-foreground"}>{order.comment || "Без комментария"}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5 md:col-span-2">
+                              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Состав заказа</span>
+                              <div className="flex flex-col gap-1 bg-background rounded-xl border border-border p-3">
+                                {order.order_items.map((item) => (
+                                  <div key={item.id} className="flex items-center justify-between text-sm">
+                                    <span className="text-foreground">{item.product_name} <span className="text-muted-foreground">× {item.quantity}</span></span>
+                                    <span className="font-medium text-foreground whitespace-nowrap">{(item.price * item.quantity).toLocaleString("ru-RU")} ₽</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    </Fragment>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
