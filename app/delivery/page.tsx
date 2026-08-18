@@ -87,7 +87,10 @@ export default function DeliveryPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             {/* Партия №1 */}
             <div className="flex flex-col gap-4 bg-foreground text-background rounded-2xl px-5 py-6">
-              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №1</span>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №1</span>
+                <span className="text-[11px] font-medium text-background/60">Планируется с 16 сентября</span>
+              </div>
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-background/70">Дмитров, Сергиев Посад</span>
