@@ -89,7 +89,7 @@ export default function DeliveryPage() {
             <div className="flex flex-col gap-4 bg-foreground text-background rounded-2xl px-5 py-6">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №1</span>
-                <span className="text-[11px] font-medium text-background/60">Планируется с 16 сентября</span>
+                <span className="text-sm font-semibold text-background">Планируется с 16 сентября</span>
               </div>
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between gap-3 text-sm">
@@ -150,7 +150,7 @@ export default function DeliveryPage() {
                   <MapPin className="size-4 text-primary shrink-0" />
                   д. Саввино (Дмитровский район)
                 </div>
-                <p className="text-sm text-muted-foreground">Вторник и пятница</p>
+                <p className="text-base font-semibold text-foreground">Пятница</p>
               </div>
               <div className="h-px bg-border" />
               <span className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-xs font-semibold text-foreground self-start">
@@ -166,8 +166,12 @@ export default function DeliveryPage() {
                   <MapPin className="size-4 text-primary shrink-0" />
                   Москва, Дмитров, Сергиев Посад
                 </div>
-                <p className="text-sm text-muted-foreground">Москва — среда и суббота</p>
-                <p className="text-sm text-muted-foreground">Дмитров, Сергиев Посад — вторник и пятница</p>
+                <p className="text-sm text-foreground">
+                  Москва — <span className="text-base font-semibold">Суббота</span>
+                </p>
+                <p className="text-sm text-foreground">
+                  Дмитров, Сергиев Посад — <span className="text-base font-semibold">Пятница</span>
+                </p>
                 <div className="h-px bg-primary/15 my-1" />
                 <p className="text-sm text-foreground">
                   Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>
