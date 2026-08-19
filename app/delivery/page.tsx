@@ -89,16 +89,16 @@ export default function DeliveryPage() {
             <div className="flex flex-col gap-4 bg-foreground text-background rounded-2xl px-5 py-6">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №1</span>
-                <span className="text-sm font-semibold text-background">Планируется с 16 сентября</span>
+                <span className="text-sm font-semibold text-background uppercase">ПЛАНИРУЕТСЯ С 16 СЕНТЯБРЯ</span>
               </div>
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-background/70">Дмитров, Сергиев Посад</span>
-                  <span className="font-semibold text-background">Вторник</span>
+                  <span className="font-semibold text-background uppercase">ВТОРНИК</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-background/70">Москва</span>
-                  <span className="font-semibold text-background">Среда</span>
+                  <span className="font-semibold text-background uppercase">СРЕДА</span>
                 </div>
               </div>
               <div className="h-px bg-background/15" />
@@ -118,11 +118,11 @@ export default function DeliveryPage() {
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-background/70">Дмитров, Сергиев Посад</span>
-                  <span className="font-semibold text-background">Пятница</span>
+                  <span className="font-semibold text-background uppercase">ПЯТНИЦА</span>
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-background/70">Москва</span>
-                  <span className="font-semibold text-background">Суббота</span>
+                  <span className="font-semibold text-background uppercase">СУББОТА</span>
                 </div>
               </div>
               <div className="h-px bg-background/15" />
@@ -150,7 +150,7 @@ export default function DeliveryPage() {
                   <MapPin className="size-4 text-primary shrink-0" />
                   д. Саввино (Дмитровский район)
                 </div>
-                <p className="text-base font-semibold text-foreground">Пятница</p>
+                <p className="text-base font-semibold text-foreground uppercase">ПЯТНИЦА</p>
               </div>
               <div className="h-px bg-border" />
               <span className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-xs font-semibold text-foreground self-start">
@@ -167,10 +167,10 @@ export default function DeliveryPage() {
                   Москва, Дмитров, Сергиев Посад
                 </div>
                 <p className="text-sm text-foreground">
-                  Москва — <span className="text-base font-semibold">Суббота</span>
+                  Москва — <span className="text-base font-semibold uppercase">СУББОТА</span>
                 </p>
                 <p className="text-sm text-foreground">
-                  Дмитров, Сергиев Посад — <span className="text-base font-semibold">Пятница</span>
+                  Дмитров, Сергиев Посад — <span className="text-base font-semibold uppercase">ПЯТНИЦА</span>
                 </p>
                 <div className="h-px bg-primary/15 my-1" />
                 <p className="text-sm text-foreground">
