@@ -192,7 +192,7 @@ export default function DeliveryPage() {
                 id="pickup-heading"
                 className="font-heading text-2xl sm:text-3xl font-bold text-foreground leading-tight text-balance"
               >
-                Точки выдачи в Москве
+                Точки выдачи и самовывоз
               </h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-sm text-pretty">
