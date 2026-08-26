@@ -16,6 +16,8 @@ export const PICKUP_POINTS: PickupPoint[] = [
   { id: "festivalnaya-8", city: "г. Москва", address: "ул. Фестивальная, д. 8", timeFrom: "11:40", timeTo: "12:00" },
   { id: "zhukova-14k1", city: "г. Москва", address: "пр-кт Маршала Жукова, д. 14, к. 1", timeFrom: "13:00", timeTo: "13:20" },
   { id: "baryshiha-18", city: "г. Москва", address: "ул. Барышиха, д. 18", timeFrom: "14:30", timeTo: "14:50" },
+  { id: "dmitrov-professionalnaya-26k1", city: "г. Дмитров", address: "ул. Профессиональная, д. 26, корп. 1, ТЦ «Ларан» (парковка)", timeFrom: "18:30", timeTo: "18:50" },
+  { id: "savvino-pickup", city: "д. Саввино, Дмитровский район", address: "Самовывоз", timeFrom: "15:00", timeTo: "18:00" },
 ];
 
 /** Строка для сохранения в заказе и отправки в письме/чеке. */
