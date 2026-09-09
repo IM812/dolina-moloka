@@ -95,8 +95,8 @@ export function Footer() {
                   <span>Сб–Вс</span><span className="font-medium text-foreground">9:00–15:00</span>
                 </div>
               </div>
-              <p className="text-xs text-primary font-medium mt-2">Доставка: среда и суббота</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Мин. заказ 600 ₽ · Москва и область</p>
+              <p className="text-xs text-primary font-medium mt-2">Дмитров, Сергиев Посад — пятница</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Москва — суббота · Мин. заказ 600 ₽</p>
             </div>
 
 
