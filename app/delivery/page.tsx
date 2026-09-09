@@ -7,7 +7,7 @@ import { PICKUP_POINTS, pickupMapUrl } from "@/lib/pickup-points";
 export const metadata: Metadata = {
   title: "Доставка — Долина Молока",
   description:
-    "Доставка молочных продуктов по Москве (среда и суббота), Дмитрову и Сергиеву Посаду (вторник и пятница). Минимальный заказ 600 ₽.",
+    "Доставка молочных продуктов в Дмитров и Сергиев Посад по пятницам, в Москву — по субботам. Минимальный заказ 600 ₽.",
 };
 
 const steps = [
@@ -27,7 +27,7 @@ const steps = [
     num: "03",
     icon: <Truck className="size-5" />,
     title: "Получите у курьера",
-    desc: "Дмитров и Сергиев Посад — по вторникам и пятницам, Москва — по средам и субботам.",
+    desc: "Дмитров и Сергиев Посад — по пятницам, Москва — по субботам.",
   },
 ];
 
@@ -84,37 +84,9 @@ export default function DeliveryPage() {
             График доставки
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-            {/* Партия №1 */}
+          <div className="grid grid-cols-1 gap-3 mb-3">
             <div className="flex flex-col gap-4 bg-foreground text-background rounded-2xl px-5 py-6">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №1</span>
-                <span className="text-sm font-semibold text-background uppercase">ПЛАНИРУЕТСЯ С 16 СЕНТЯБРЯ</span>
-              </div>
-              <div className="flex flex-col gap-2.5">
-                <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="text-background/70">Дмитров, Сергиев Посад</span>
-                  <span className="font-semibold text-background">Вторник</span>
-                </div>
-                <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="text-background/70">Москва</span>
-                  <span className="font-semibold text-background">Среда</span>
-                </div>
-              </div>
-              <div className="h-px bg-background/15" />
-              <div className="flex flex-col gap-1.5">
-                <p className="text-sm text-background/80">
-                  Приём заявок — до четверга, <span className="font-semibold text-background">21:00</span>
-                </p>
-                <p className="text-xs text-background/60">
-                  Молоко для домашнего производства (5 л) — до понедельника, 17:00
-                </p>
-              </div>
-            </div>
-
-            {/* Партия №2 */}
-            <div className="flex flex-col gap-4 bg-foreground text-background rounded-2xl px-5 py-6">
-              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Партия №2</span>
+              <span className="text-xs font-semibold text-primary uppercase tracking-widest">Еженедельная доставка</span>
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-background/70">Дмитров, Сергиев Посад</span>

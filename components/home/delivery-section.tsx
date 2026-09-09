@@ -13,12 +13,12 @@ const steps = [
   {
     num: "02",
     title: "Оформите заказ",
-    desc: "Укажите адрес доставки, имя и телефон. Принимаем заказы до 20:00 накануне дня доставки.",
+    desc: "Укажите адрес доставки, имя и телефон. Срок приёма заявок указан в актуальном графике доставки.",
   },
   {
     num: "03",
     title: "Получите у двери",
-    desc: "Доставляем каждую среду и субботу. Все продукты едут в холодильных контейнерах.",
+    desc: "Дмитров и Сергиев Посад — в пятницу, Москва — в субботу. Все продукты едут в холодильных контейнерах.",
   },
 ];
 
@@ -73,8 +73,8 @@ export function DeliverySection() {
             <div className="flex items-center gap-3">
               <div className="size-2.5 rounded-full bg-primary shrink-0" />
               <div>
-                <p className="font-bold text-sm leading-tight">Среда</p>
-                <p className="text-xs text-background/60 mt-0.5">Приём заказов до вторника, 20:00</p>
+                <p className="font-bold text-sm leading-tight">Пятница</p>
+                <p className="text-xs text-background/60 mt-0.5">Дмитров и Сергиев Посад</p>
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@ export function DeliverySection() {
               <div className="size-2.5 rounded-full bg-primary shrink-0" />
               <div>
                 <p className="font-bold text-sm leading-tight">Суббота</p>
-                <p className="text-xs text-background/60 mt-0.5">Приём заказов до пятницы, 20:00</p>
+                <p className="text-xs text-background/60 mt-0.5">Москва</p>
               </div>
             </div>
           </div>
@@ -110,7 +110,8 @@ export function DeliverySection() {
             <p className="text-xs font-semibold text-primary uppercase tracking-widest">Доставка</p>
             <div className="flex flex-col gap-2">
               <p className="text-sm font-semibold text-foreground">По Москве и области</p>
-              <p className="text-sm text-muted-foreground">Дни доставки: среда и суббота</p>
+              <p className="text-sm text-muted-foreground">Дмитров и Сергиев Посад — пятница</p>
+              <p className="text-sm text-muted-foreground">Москва — суббота</p>
               <div className="h-px bg-primary/15 my-1" />
               <p className="text-sm text-foreground">
                 Минимальный заказ — <span className="font-semibold text-primary">600 ₽</span>

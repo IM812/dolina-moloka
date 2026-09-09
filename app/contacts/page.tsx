@@ -110,7 +110,7 @@ export default function ContactsPage() {
                   Доставка по Москве и области
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Дни доставки: среда и суббота. Минимальный заказ 600 ₽.
+                  Дмитров и Сергиев Посад — пятница, Москва — суббота. Минимальный заказ 600 ₽.
                 </p>
               </CardContent>
             </Card>
